@@ -10,6 +10,10 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+/**
+ * A collection of Volumes and their relations to each other, to allow for dynamic generation of the world in small pieces
+ * at a time. Contains other information.
+ */
 public class World {
 
     public static final String fileType = "vol";

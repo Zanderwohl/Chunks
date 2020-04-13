@@ -1,5 +1,11 @@
 package com.zanderwohl.World;
 
+
+/**
+ * Functions for converting world coordinates to Volume coordinates and vice-versa. World coordinates are the tuples
+ * representing a point in the world relative to that World's origin, and Volume coordinates are tuples that describe a
+ * location relative to a smaller Volume within the World.
+ */
 public class Space {
     /**
      * The x-width of a single Volume.

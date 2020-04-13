@@ -1,7 +1,10 @@
 package com.zanderwohl.Generator;
 
-import com.zanderwohl.OpenSimplex.OpenSimplexNoise;
+import com.kdotJPG.OpenSimplex.OpenSimplexNoise;
 
+/**
+ * A basic terrain where the height is taken from a 2D Simplex.
+ */
 public class Simplex extends Generator{
 
     OpenSimplexNoise noise;

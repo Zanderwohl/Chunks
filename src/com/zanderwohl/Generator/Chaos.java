@@ -2,6 +2,9 @@ package com.zanderwohl.Generator;
 
 import java.util.Random;
 
+/**
+ * This is just a way to get all the existing blocks into the world.
+ */
 public class Chaos extends Generator{
 
     Random rand;

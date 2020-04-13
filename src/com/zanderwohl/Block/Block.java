@@ -14,6 +14,11 @@ import java.net.MalformedURLException;
 
 /**
  * An object containing all the information about a block required by the game.
+ * A class that contains information about a single type of block, including textures.
+ *
+ * Blocks are not hard-coded. Rather, they are loaded in from jason files found in that block's domain folder
+ * (e.g. "default" or "colors") in the folder "/[domain]/blocks/". A block existing in that folder will not add it into the
+ * game. It must also be listed in the domain.json file found at the root of that domain's folder.
  */
 public class Block {
 

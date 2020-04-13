@@ -1,5 +1,18 @@
 package com.zanderwohl.Generator;
 
+/**
+ * Contains generators that create new terrain. Generators must inherit from the Generator abstract superclass, which
+ * primarily contains the eval(int x, int y, int z) method that takes in a Volume location and creates a new volume, which
+ * must be generated totally independent of the others.
+ *
+ * They do not need to be complete, and context-dependant generation
+ * can be completed later, when the populate() method is called, which is only called when all the surrounding Volumes have
+ * also been generated, and will always be called before the user enters them.
+ *
+ * Each generator should must also provide a ground(int x, int z) method. This returns only where the ground level would be
+ * as an integer, without details. This way, the output from this method can be combined with other terrain generators to
+ * make more complex terrain.
+ */
 public abstract class Generator {
 
     public abstract int eval(int x, int y, int z);

@@ -1,4 +1,4 @@
-package com.zanderwohl.OpenSimplex;/*
+package com.kdotJPG.OpenSimplex;/*
  * OpenSimplex Noise in Java.
  * by Kurt Spencer
  * 

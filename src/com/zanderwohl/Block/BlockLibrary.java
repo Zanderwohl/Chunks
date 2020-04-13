@@ -8,7 +8,12 @@ import java.awt.*;
 import java.util.ArrayList;
 
 /**
- * A manager object for all the blocks, which assigns ids and indexes them by id, domain, and name.
+ * An object that manages all the blocks in particular world. It is responsible for assigning block ids to each block.
+ *
+ * Receives blocks through the addition of a domain. Takes all blocks from the domain.json file and loads their properties
+ * by loading the json files of each block.
+ *
+ * It also manages multiple domains and can find block ids by name and vice-versa.
  */
 public class BlockLibrary {
 

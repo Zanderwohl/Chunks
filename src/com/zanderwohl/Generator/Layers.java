@@ -3,6 +3,9 @@ package com.zanderwohl.Generator;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * A more complicated generator that takes multiple layers and stack them on top of each other.
+ */
 public class Layers extends Generator{
 
     Random rand;

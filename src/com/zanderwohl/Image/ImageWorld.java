@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ * Creates a top-down image of the world.
+ */
 public class ImageWorld {
 
     public static void main(String[] args){

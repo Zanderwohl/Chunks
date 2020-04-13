@@ -2,7 +2,7 @@
  * OpenSimplex Noise sample class.
  */
 
-package com.zanderwohl.OpenSimplex;
+package com.kdotJPG.OpenSimplex;
 
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;

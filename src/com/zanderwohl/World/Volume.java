@@ -8,6 +8,10 @@ import java.io.PrintWriter;
 
 import static com.zanderwohl.World.Space.*;
 
+/**
+ * A unit of blocks in three dimensions that has a height, width and depth. Is stored as a single file, and is given a
+ * generator in order to generate and populate its own contents when called to do so.
+ */
 public class Volume {
 
     int x, y, z;
