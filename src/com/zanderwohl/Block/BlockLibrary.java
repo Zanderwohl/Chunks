@@ -18,7 +18,7 @@ public class BlockLibrary {
      * Creates a block library, by default blank except for containing air at id 0.
      */
     public BlockLibrary(){
-        list.add(new Block(0, "air", Color.PINK)); //ALWAYS add air. ALWAYS.
+        list.add(new Block(0, "air", new Color(222, 53, 191))); //ALWAYS add air. ALWAYS.
     }
 
     /**
