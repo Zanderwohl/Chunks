@@ -12,6 +12,16 @@ public class Chaos extends Generator{
 
     @Override
     public int eval(int x, int y, int z) {
-        return (x + z) % (y | 1);
+        int ground = ground(x, z);
+        if(z <= ground){
+            return z % 10 + 1;
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public int ground(int x, int z) {
+        return (x + z) % 10 + 30;
     }
 }

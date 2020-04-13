@@ -7,6 +7,10 @@ They do not need to be complete, and context-dependant generation
 can be completed later, when the populate() method is called, which is only called when all the surrounding Volumes have
 also been generated, and will always be called before the user enters them.
 
+Each generator should must also provide a ground(int x, int z) method. This returns only where the ground level would be
+as an integer, without details. This way, the output from this method can be combined with other terrain generators to
+make more complex terrain.
+
 ## Simplex
 
 A basic terrain where the height is taken from a 2D Simplex.
@@ -22,4 +26,4 @@ This is just a way to get all the existing blocks into the world.
 
 ## Layers
 
-A more complicated Simplex generator based on several layers. Highly configurable.
+A more complicated generator that takes multiple layers and stack them on top of each other.

@@ -6,15 +6,21 @@ import java.util.Random;
 public class Layers extends Generator{
 
     Random rand;
-    ArrayList<Simplex> layers = new ArrayList<>();
+    ArrayList<Generator> layers = new ArrayList<>();
 
     public Layers(int seed){
         rand = new Random(seed);
         layers.add(new Simplex(seed));
+        layers.add(new Sine(seed));
     }
 
     @Override
     public int eval(int x, int y, int z) {
-        return layers.get(0).eval(x, y, z);
+        return layers.get(0).eval(x, y, z) + layers.get(1).eval(x, y, z);
+    }
+
+    @Override
+    public int ground(int x, int z) {
+        return 0;
     }
 }

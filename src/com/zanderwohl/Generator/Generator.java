@@ -4,6 +4,8 @@ public abstract class Generator {
 
     public abstract int eval(int x, int y, int z);
 
+    public abstract int ground(int x, int z);
+
     public double distanceFromOrigin(int x, int z){
         return Math.sqrt(x * x + z * z);
     }

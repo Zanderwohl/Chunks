@@ -23,14 +23,20 @@ public class Simplex extends Generator{
 
     @Override
     public int eval(int x, int y, int z) {
-        double ground = (noise.eval(x / SCALE,/* y / SCALE,*/ z / SCALE) / Math.sqrt(3.0 / 4.0));
-        ground *= MAGNITUDE;
-        ground += HEIGHT;
+        int ground = ground(x, z);
         if(y < ground) {
             //return (y / 2) % 10;
             return 1;
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public int ground(int x, int z) {
+        double ground = (noise.eval(x / SCALE,/* y / SCALE,*/ z / SCALE) / Math.sqrt(3.0 / 4.0));
+        ground *= MAGNITUDE;
+        ground += HEIGHT;
+        return (int) Math.round(ground);
     }
 }
