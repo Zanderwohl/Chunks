@@ -1,0 +1,18 @@
+{
+"name":"color",
+"authors":[
+	"Alexander Lowry",
+	"Edelweiss"
+	],
+"blocks":[
+	"red",
+	"orange",
+	"yellow",
+	"green",
+	"blue",
+	"purple",
+	"pink",
+	"black",
+	"white"
+	]
+}

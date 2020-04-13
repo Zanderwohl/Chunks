@@ -1,0 +1,16 @@
+{
+"name":"dirt",
+"color":{
+		"r":"127",
+		"g":"101",
+		"b":"34"
+		},
+"texture":{
+		"top":"grass_top.png",
+		"front":"grass_side.png",
+		"left":"grass_side.png",
+		"right":"grass_side.png",
+		"back":"grass_side.png",
+		"bottom":"dirt.png"
+		}
+}

@@ -1,0 +1,9 @@
+{
+"name":"black",
+"color":{
+		"r":"30",
+		"g":"30",
+		"b":"30"
+		},
+"texture":"black.png"
+}

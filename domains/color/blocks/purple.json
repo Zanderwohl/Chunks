@@ -1,0 +1,9 @@
+{
+"name":"purple",
+"color":{
+		"r":"186",
+		"g":"2",
+		"b":"247"
+		},
+"texture":"purple.png"
+}

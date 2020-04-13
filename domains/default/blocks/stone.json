@@ -1,0 +1,9 @@
+{
+"name":"stone",
+"color":{
+		"r":"170",
+		"g":"170",
+		"b":"170"
+		},
+"texture":"stone.png"
+}

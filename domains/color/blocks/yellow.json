@@ -1,0 +1,9 @@
+{
+"name":"yellow",
+"color":{
+		"r":"239",
+		"g":"247",
+		"b":"2"
+		},
+"texture":"yellow.png"
+}

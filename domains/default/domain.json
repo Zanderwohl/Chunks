@@ -1,0 +1,11 @@
+{
+"name":"default",
+"authors":[
+	"Alexander Lowry"
+	],
+"blocks":[
+	"stone",
+	"dirt",
+	"grass"
+	]
+}

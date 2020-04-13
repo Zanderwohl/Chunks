@@ -1,0 +1,9 @@
+{
+"name":"pink",
+"color":{
+		"r":"247",
+		"g":"2",
+		"b":"198"
+		},
+"texture":"pink.png"
+}
