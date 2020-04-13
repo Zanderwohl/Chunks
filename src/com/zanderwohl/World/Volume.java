@@ -40,6 +40,7 @@ public class Volume {
         setX(x);
         setY(y);
         setZ(z);
+
         blocks = new int[VOL_X][VOL_Y][VOL_Z];
 
         for(int y1 = 0; y1 < VOL_Y; y1++){
@@ -60,12 +61,12 @@ public class Volume {
         String volumeString = volumeFile.fileToString();
         String[] volumeArray = volumeString.split("\\s");
         int[] blockList = new int[volumeArray.length];
-        for(int i = 0; i < volumeArray.length; i++){
+        for(int i = 3; i < volumeArray.length; i++){
             blockList[i] = Integer.parseInt(volumeArray[i]);
         }
-        x = blockList[0];
-        y = blockList[1];
-        z = blockList[2];
+        x = Integer.parseInt(volumeArray[0].split(":")[1]);
+        y = Integer.parseInt(volumeArray[1].split(":")[1]);
+        z = Integer.parseInt(volumeArray[2].split(":")[1]);
 
         swb_x = Space.volXToX(x);
         swb_y = Space.volYToY(y);
@@ -75,6 +76,7 @@ public class Volume {
             for(int x = 0; x < VOL_X; x++){
                 for(int z = 0; z < VOL_Z; z++){
                     blocks[x][y][z] = blockList[y * VOL_Y * VOL_X + x * VOL_X + z];
+                    //blocks[x][y][z] = Character.toString((char)blockList[y * VOL_Y * VOL_X + x * VOL_X + z]);
                 }
             }
         }
@@ -82,13 +84,14 @@ public class Volume {
 
     public void save(String saveName) throws FileNotFoundException {
         PrintWriter out = new PrintWriter(saveName + "/" + toString() + "." + World.fileType);
-        out.write(x + "\n");
-        out.write(y + "\n");
-        out.write(z + "\n");
+        out.write("x:" + x + "\n");
+        out.write("y:" + y + "\n");
+        out.write("z:" + z + "\n");
         for(int y = 0; y < VOL_Y; y++){
             for(int x = 0; x < VOL_X; x++){
                 for(int z = 0; z < VOL_Z; z++){
                     out.write(blocks[x][y][z] + "");
+                    //out.write(Character.toString((char)blocks[x][y][z]));
                     if(z < VOL_Z - 1){
                         out.write("\t");
                     }
@@ -101,14 +104,14 @@ public class Volume {
     }
 
     public String toString(){
-        int save_x = Space.xToVolX(x);
-        int save_y = Space.yToVolY(y);
-        int save_z = Space.zToVolZ(z);
+        int save_x = x;
+        int save_y = y;
+        int save_z = z;
         return save_x + "_" + save_y + "_" + save_z;
     }
 
     public int getBlock(int x, int y, int z){
-        System.out.println(x + " " + y + " " + z);
+        //System.out.println(x + " " + y + " " + z);
         return blocks[x][y][z];
     }
 

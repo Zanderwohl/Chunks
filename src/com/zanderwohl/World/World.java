@@ -1,10 +1,7 @@
 package com.zanderwohl.World;
 
 import Utils.FileLoader;
-import com.zanderwohl.Generator.Chaos;
-import com.zanderwohl.Generator.Generator;
-import com.zanderwohl.Generator.Simplex;
-import com.zanderwohl.Generator.Sine;
+import com.zanderwohl.Generator.*;
 import org.json.JSONObject;
 import com.zanderwohl.Block.BlockLibrary;
 
@@ -26,7 +23,7 @@ public class World {
 
     Generator g;
 
-    int x_length = 3, y_length = 2, z_length = 3;
+    int x_length = 10, y_length = 2, z_length = 10;
     //Volume[][][] terrain = new Volume[x_length][y_length][z_length];
     private int seed = 0;
 
@@ -77,11 +74,12 @@ public class World {
     public void save(String saveName){
         new File("saves/" + saveName).mkdirs();
 
-        saveWorldData("saves/" + saveName);
-        saveBlockLibrary("saves/" + saveName);
+        saveWorldData("saves/", saveName);
+        saveBlockLibrary("saves/", saveName);
 
         for(Volume volume : volumes){
-            try{
+            //System.out.println(volume);
+            try {
                 volume.save("saves/" + saveName);
             } catch(FileNotFoundException exception){
                 exception.printStackTrace();
@@ -99,21 +97,22 @@ public class World {
         this.name = newName;
     }
 
-    private void saveWorldData(String saveName){
+    private void saveWorldData(String folder, String saveName){
         try{
-            PrintWriter out = new PrintWriter(saveName + "/" + "world" + "." + metaFileType);
-            out.write("name:" + saveName);
-            out.write("seed:" + seed);
+            PrintWriter out = new PrintWriter(folder + "/" + saveName + "/" + "world" + "." + metaFileType);
+            out.write("name:" + saveName + "\n");
+            out.write("seed:" + seed + "\n");
             out.close();
         } catch (FileNotFoundException e){
             e.printStackTrace();
         }
     }
 
-    private void saveBlockLibrary(String saveName){
+    private void saveBlockLibrary(String folder, String saveName){
         try{
-            PrintWriter out = new PrintWriter(saveName + "/" + "blocks" + "." + libraryFileType);
-            out.write("Content Pack.Block Name:idNo");
+            PrintWriter out = new PrintWriter(folder + "/" + saveName + "/" + "blocks" + "." + libraryFileType);
+
+            out.write("Domain.Block:idNo");
             out.close();
         } catch (FileNotFoundException e){
             e.printStackTrace();
@@ -133,10 +132,6 @@ public class World {
                 }
             }
         }
-        //terrain[0][0][0] = null; //take some slices out to see how it reacts to null Volumes
-        //terrain[0][1][0] = null;
-        //terrain[1][0][0] = null;
-        //terrain[0][1][1] = null;
     }
 
     /**
@@ -184,7 +179,7 @@ public class World {
                 return v;
             }
         }
-        System.out.println("Volume at " + x + " " + y + " " + z + " is null!");
+        //System.out.println("Volume at " + x + " " + y + " " + z + " is null!");
         return null;
     }
 
@@ -244,7 +239,7 @@ public class World {
         } catch (NullPointerException e){
             block =  0;
         }
-        System.out.println(block);
+        //System.out.println(block);
         return block;
     }
 
