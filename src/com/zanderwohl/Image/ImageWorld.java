@@ -77,7 +77,7 @@ public class ImageWorld {
             }
         }
 
-        System.out.println("Highest: " + highest + "\nLowest: " + lowest + "\nCeiling: " + w.getY());
+        //System.out.println("Highest: " + highest + "\nLowest: " + lowest + "\nCeiling: " + w.getY());
         return image;
     }
 

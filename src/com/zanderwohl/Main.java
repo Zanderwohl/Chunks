@@ -14,8 +14,10 @@ public class Main {
 
         World w = new World("default");
         boolean quit = false;
+
         Scanner scan = new Scanner(System.in);
         do {
+            System.out.print('>');
             String[] command = scan.nextLine().split(" ");
 
             switch(command.length){
@@ -59,10 +61,11 @@ public class Main {
                         w.addDomain("color");
                         w.initialize();
                         w.save(w.getName());
-                        //System.out.println("Printing Image!");
+                        System.out.println("Printing Image!");
                         //BufferedImage image = ImageWorld.makeImage2(w, 0, 0, 16, 1920, 1080);
-                        //ImageWorld.saveImage(image, w.getName());
-                        //System.out.println("Done!");
+                        BufferedImage image = ImageWorld.makeImage(w);
+                        ImageWorld.saveImage(image, w.getName());
+                        System.out.println("Done!");
                     }
                     if(command[0].equals("domain")){
                         w.addDomain(command[1]);
