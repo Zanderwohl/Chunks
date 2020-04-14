@@ -1,4 +1,4 @@
-package com.zanderwohl.Generator;
+package com.zanderwohl.chunks.Generator;
 
 import java.util.ArrayList;
 import java.util.Random;

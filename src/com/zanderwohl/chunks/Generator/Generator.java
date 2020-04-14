@@ -1,4 +1,4 @@
-package com.zanderwohl.Generator;
+package com.zanderwohl.chunks.Generator;
 
 /**
  * Contains generators that create new terrain. Generators must inherit from the Generator abstract superclass, which

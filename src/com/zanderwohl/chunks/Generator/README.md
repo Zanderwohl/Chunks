@@ -1,4 +1,4 @@
-# com.zanderwohl.Generator
+# com.zanderwohl.chunks.Generator
 Contains generators that create new terrain. Generators must inherit from the Generator abstract superclass, which
 primarily contains the eval(int x, int y, int z) method that takes in a Volume location and creates a new volume, which
 must be generated totally independent of the others.

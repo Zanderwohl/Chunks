@@ -1,4 +1,4 @@
-package com.zanderwohl.World;
+package com.zanderwohl.chunks.World;
 
 
 /**

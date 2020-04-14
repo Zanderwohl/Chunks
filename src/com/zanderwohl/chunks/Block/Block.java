@@ -1,8 +1,8 @@
-package com.zanderwohl.Block;
+package com.zanderwohl.chunks.Block;
 
-import Utils.FileLoader;
+import util.FileLoader;
 import org.json.JSONObject;
-import com.zanderwohl.FileConstants;
+import com.zanderwohl.chunks.FileConstants;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;

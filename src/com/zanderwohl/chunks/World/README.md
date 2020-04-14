@@ -1,4 +1,4 @@
-# com.zanderwohl.World
+# com.zanderwohl.chunks.World
 Classes for representing, simulating, and dealing with a world and its component pieces.
 
 ## Space

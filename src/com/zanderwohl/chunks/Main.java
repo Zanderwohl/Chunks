@@ -1,12 +1,15 @@
-package com.zanderwohl;
+package com.zanderwohl.chunks;
 
-import com.zanderwohl.Image.ImageWorld;
-import com.zanderwohl.World.World;
+import com.zanderwohl.chunks.Image.ImageWorld;
+import com.zanderwohl.chunks.World.World;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Scanner;
 
+/**
+ * Yikes, what a mess of a file. To be replaced once SuperConsole is up and running.
+ */
 public class Main {
 
     public static void main(String[] args) {

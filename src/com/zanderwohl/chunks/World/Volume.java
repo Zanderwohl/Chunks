@@ -1,12 +1,12 @@
-package com.zanderwohl.World;
+package com.zanderwohl.chunks.World;
 
-import Utils.FileLoader;
-import com.zanderwohl.Generator.Generator;
+import util.FileLoader;
+import com.zanderwohl.chunks.Generator.Generator;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import static com.zanderwohl.World.Space.*;
+import static com.zanderwohl.chunks.World.Space.*;
 
 /**
  * A unit of blocks in three dimensions that has a height, width and depth. Is stored as a single file, and is given a

@@ -1,8 +1,8 @@
-package com.zanderwohl.Block;
+package com.zanderwohl.chunks.Block;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import com.zanderwohl.FileConstants;
+import com.zanderwohl.chunks.FileConstants;
 
 import java.awt.*;
 import java.util.ArrayList;

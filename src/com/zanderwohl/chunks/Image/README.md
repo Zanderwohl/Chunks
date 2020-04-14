@@ -1,4 +1,4 @@
-# com.zanderwohl.Image
+# com.zanderwohl.chunks.Image
 Classes meant for generating maps and images of the world.
 
 ## ImageWorld

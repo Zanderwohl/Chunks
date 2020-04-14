@@ -1,4 +1,4 @@
-# com.zanderwohl.Block
+# com.zanderwohl.chunks.Block
 Classes that have to do with blocks and how they exist in the world and interact with the user.
 
 ## Block

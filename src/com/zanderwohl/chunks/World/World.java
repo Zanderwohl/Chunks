@@ -1,9 +1,9 @@
-package com.zanderwohl.World;
+package com.zanderwohl.chunks.World;
 
-import Utils.FileLoader;
-import com.zanderwohl.Generator.*;
+import util.FileLoader;
+import com.zanderwohl.chunks.Generator.*;
 import org.json.JSONObject;
-import com.zanderwohl.Block.BlockLibrary;
+import com.zanderwohl.chunks.Block.BlockLibrary;
 
 import java.io.File;
 import java.io.FileNotFoundException;

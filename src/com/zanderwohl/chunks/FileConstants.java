@@ -1,4 +1,4 @@
-package com.zanderwohl;
+package com.zanderwohl.chunks;
 
 public class FileConstants {
 

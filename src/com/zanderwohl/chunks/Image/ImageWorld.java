@@ -1,9 +1,9 @@
-package com.zanderwohl.Image;
+package com.zanderwohl.chunks.Image;
 
-import com.zanderwohl.World.World;
-import com.zanderwohl.Block.Block;
-import com.zanderwohl.Block.BlockLibrary;
-import com.zanderwohl.FileConstants;
+import com.zanderwohl.chunks.World.World;
+import com.zanderwohl.chunks.Block.Block;
+import com.zanderwohl.chunks.Block.BlockLibrary;
+import com.zanderwohl.chunks.FileConstants;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
