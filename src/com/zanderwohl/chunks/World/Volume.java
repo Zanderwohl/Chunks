@@ -19,6 +19,9 @@ public class Volume {
     int[][][] blocks;
     int[][] maximums;
     int[][] maxBlocks;
+    //type[][]
+    //6 arrays: array of meshes for up-facing quads, array of meshes for north-facing quads, etc.
+    //array of ALL quads.
 
     World w;
 
@@ -141,6 +144,13 @@ public class Volume {
 
     public int getMaxBlock(int x, int z){
         return maxBlocks[x][z];
+    }
+
+    /**
+     * should be called on generation AND load.
+     */
+    private void calcQuads(){
+
     }
 
     public World getWorld(){

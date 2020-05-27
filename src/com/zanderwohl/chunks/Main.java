@@ -2,17 +2,34 @@ package com.zanderwohl.chunks;
 
 import com.zanderwohl.chunks.Image.ImageWorld;
 import com.zanderwohl.chunks.World.World;
+import com.zanderwohl.chunks.console.ConsoleConnector;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Scanner;
+
+import com.zanderwohl.console.SuperConsole;
 
 /**
  * Yikes, what a mess of a file. To be replaced once SuperConsole is up and running.
  */
 public class Main {
 
-    public static void main(String[] args) {
+    public static final int PORT = 288;
+
+    public static void main(String[] args){
+        prepareEnvironment();
+
+        ConsoleConnector consoleConnector = new ConsoleConnector(PORT);
+        Thread consoleConnectorThread = new Thread(consoleConnector);
+        consoleConnectorThread.start();
+
+        SuperConsole console = new SuperConsole();
+        Thread consoleThread = new Thread(console);
+        consoleThread.start();
+    }
+
+    public static void main_old(String[] args) {
         prepareEnvironment();
 
         World w = new World("default");
