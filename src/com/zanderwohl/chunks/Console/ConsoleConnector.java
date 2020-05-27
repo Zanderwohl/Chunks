@@ -18,20 +18,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class ConsoleConnector implements Runnable{
 
-    private final int PORT;
+    private final int PORT = 288;
     private ConcurrentLinkedQueue<Message> toConsole;
     private ConcurrentLinkedQueue<Message> fromConsole;
 
     /**
      *
-     * @param port The port the Console can be found on.
      * @param toConsole The queue of Messages that the program wishes to send to the SuperConsole.
      * @param fromConsole The queue of messages that have been received from the console,
      *                    for consumption by the program.
      */
-    public ConsoleConnector(int port,
-                            ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole){
-        this.PORT = port;
+    public ConsoleConnector(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole){
         this.toConsole = toConsole;
         this.fromConsole = fromConsole;
     }

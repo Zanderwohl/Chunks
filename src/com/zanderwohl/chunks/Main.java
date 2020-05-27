@@ -17,8 +17,6 @@ import com.zanderwohl.console.Message;
  */
 public class Main {
 
-    public static final int PORT = 288;
-
     public static void main(String[] args){
         prepareEnvironment();
 
@@ -27,7 +25,7 @@ public class Main {
 
         toConsole.add(new Message("message=Uh"));
 
-        ConsoleConnector consoleConnector = new ConsoleConnector(PORT, toConsole, fromConsole);
+        ConsoleConnector consoleConnector = new ConsoleConnector(toConsole, fromConsole);
         Thread consoleConnectorThread = new Thread(consoleConnector);
         consoleConnectorThread.start();
 
