@@ -17,6 +17,11 @@ import com.zanderwohl.console.Message;
  */
 public class Main {
 
+    /**
+     * Main method.
+     * Initializes the Message queues to pass messages to and from the console.
+     * @param args No command-line arguments.
+     */
     public static void main(String[] args){
         prepareEnvironment();
 
@@ -34,6 +39,10 @@ public class Main {
         consoleThread.start();
     }
 
+    /**
+     * Command-line loop for generating worlds that is deprecated.
+     * @param args none.
+     */
     public static void main_old(String[] args) {
         prepareEnvironment();
 
@@ -112,12 +121,19 @@ public class Main {
         System.out.println("Thank you for simulating today!");
     }
 
+    /**
+     * Prepares the environment for the program to run, saving/loading files without crashing.
+     */
     public static void prepareEnvironment(){
         makeDirectories();
     }
 
+    /**
+     * Create the directories needed for saving files.
+     */
     public static void makeDirectories(){
-        new File("saves/").mkdirs();
+        new File(FileConstants.saveFolder + "/").mkdirs();
+        new File(FileConstants.screenshotFolder + "/").mkdirs();
     }
 
 

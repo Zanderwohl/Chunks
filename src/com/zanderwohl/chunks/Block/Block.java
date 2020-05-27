@@ -162,7 +162,7 @@ public class Block {
 
     /**
      * Sets the block's id.
-     * @param newId
+     * @param newId The id to set the block to.
      */
     protected void setID(int newId){
         this.id = newId;

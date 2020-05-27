@@ -22,7 +22,7 @@ function.
 
 ## Chaos
 
-This is just a way to get all the existing blocks into the world.
+This is just a way to get all the existing blocks into the world. Makes a solid layer of diagonal stripes of each block.
 
 ## Layers
 

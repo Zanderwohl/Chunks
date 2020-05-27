@@ -6,10 +6,21 @@ package com.zanderwohl.chunks.Generator;
  */
 public class Sine extends Generator {
 
+    /**
+     * A sine generator.
+     * @param seed The seed for the RNG.
+     */
     public Sine(int seed){
 
     }
 
+    /**
+     * See superclass "Generator" documentation.
+     * @param x The x World coordinate of the block to be evaluated.
+     * @param y The y World coordinate of the block to be evaluated.
+     * @param z The z World coordinate of the block to be evaluated.
+     * @return See superclass "Generator" documentation.
+     */
     @Override
     public int eval(int x, int y, int z) {
         double big = distanceFromOrigin(x, z);
@@ -24,6 +35,12 @@ public class Sine extends Generator {
         }
     }
 
+    /**
+     * See superclass "Generator" documentation.
+     * @param x The x World coordinate of the height to be evaluated.
+     * @param z The z World coordinate of the height to be evaluated.
+     * @return See superclass "Generator" documentation.
+     */
     @Override
     public int ground(int x, int z) {
         double ground = 10 * Math.sin(x / (2 * Math.PI)) * Math.tan(z / (2 * Math.PI)) + 20.0;

@@ -1325,7 +1325,7 @@ public class JSONArray implements Iterable<Object> {
      *         object, beginning with <code>[</code>&nbsp;<small>(left
      *         bracket)</small> and ending with <code>]</code>
      *         &nbsp;<small>(right bracket)</small>.
-     * @throws JSONException
+     * @throws JSONException If the JSON is malformed.
      */
     public String toString(int indentFactor) throws JSONException {
         StringWriter sw = new StringWriter();
@@ -1342,7 +1342,7 @@ public class JSONArray implements Iterable<Object> {
      *</b>
      *
      * @return The writer.
-     * @throws JSONException
+     * @throws JSONException If the JSON is malformed.
      */
     public Writer write(Writer writer) throws JSONException {
         return this.write(writer, 0, 0);
@@ -1374,7 +1374,7 @@ public class JSONArray implements Iterable<Object> {
      * @param indent
      *            The indentation of the top level.
      * @return The writer.
-     * @throws JSONException
+     * @throws JSONException If the JSON is malformed.
      */
     public Writer write(Writer writer, int indentFactor, int indent)
             throws JSONException {

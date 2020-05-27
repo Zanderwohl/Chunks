@@ -64,4 +64,39 @@ An object that manages all the blocks in particular world. It is responsible for
 Receives blocks through the addition of a domain. Takes all blocks from the domain.json file and loads their properties
 by loading the json files of each block.
 
-It also manages multiple domains and can find block ids by name and vice-versa. 
+It also manages multiple domains.
+
+It can find block ids by name and find block names by ids.
+
+### Domain file
+
+A domain file lists all the blocks included in the domain, as well as other information about the domain.
+
+A block file may be added to the domain by:
+1. Placing the [blockName].json file into "domains/[domainName]/blocks"
+2. Placing all textures described in the [blockName].json file into "domains/[domainName]/textures"
+3. Adding the block's name into the "blocks"-keyed array in the domain.json file.
+    * Note: Simply put the name of the file without a file extension. So "dirt.json" would be added by the value "dirt".
+
+Here is an example of a simple domain file:
+
+```json
+{
+    "name":"default",
+    "authors":[
+        "Alexander Lowry"
+        ],
+    "blocks":[
+        "stone",
+        "dirt",
+        "grass"
+        ]
+}
+```
+
+The name should be unique. So don't use existing domains.
+
+This is a list of default domains:
+
+1. default
+2. color

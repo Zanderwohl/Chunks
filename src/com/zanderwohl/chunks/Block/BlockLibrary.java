@@ -57,8 +57,8 @@ public class BlockLibrary {
     /**
      * Constructs a BlockLibrary from an existing save file.
      * Needs to be written.
-     * @param saveFile
-     * @return
+     * @param saveFile The save file to load the block library from.
+     * @return A block library loaded from the file.
      */
     public static BlockLibrary load(String saveFile){
         BlockLibrary library = new BlockLibrary();

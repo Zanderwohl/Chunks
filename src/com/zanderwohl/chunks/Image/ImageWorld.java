@@ -18,6 +18,10 @@ import java.util.Calendar;
  */
 public class ImageWorld {
 
+    /**
+     * Don't use this, old test method.
+     * @param args none
+     */
     public static void main(String[] args){
         World w;
         w = new World("image_test");
@@ -30,12 +34,21 @@ public class ImageWorld {
         unrwapBlocks(b);
     }
 
+    /**
+     * Create unwrapped texture maps of each block, and save them.
+     * @param bl A block library to provide the blocks.
+     */
     public static void unrwapBlocks(BlockLibrary bl){
         for(int i = 1; i < bl.size(); i++){
             saveImage(imageBlock(bl.getBlockById(i)),i + "-map");
         }
     }
 
+    /**
+     * Save a BufferedImage to a file, as given by the file name. PNG.
+     * @param image The image to save.
+     * @param name The file name.
+     */
     public static void saveImage(BufferedImage image, String name){
         new File(FileConstants.screenshotFolder + "/").mkdirs();
 
@@ -47,6 +60,11 @@ public class ImageWorld {
         }
     }
 
+    /**
+     * Make a simple top-down image of a world.
+     * @param w The world to image.
+     * @return A buffered image of the world.
+     */
     public static BufferedImage makeImage(World w){
         BufferedImage image = new BufferedImage(w.getX(),w.getZ(),BufferedImage.TYPE_INT_RGB);
 
@@ -84,6 +102,16 @@ public class ImageWorld {
         return image;
     }
 
+    /**
+     * Generate a top-down image of a portion of the world.
+     * @param w The world to image.
+     * @param center_x The center of the image on the x-axis
+     * @param center_z The center of the image on the z-axis
+     * @param scale The scale of the image.
+     * @param width The pixel-height of the image.
+     * @param height The pixel-width of the image.
+     * @return The image.
+     */
     public static BufferedImage makeImage2(World w, int center_x, int center_z, int scale, int width, int height){
         double halfWidth = width / 2.0;
         double halfHeight = height / 2.0;
@@ -152,6 +180,12 @@ public class ImageWorld {
         return image;
     }
 
+
+    /**
+     * Create an unwrapped image of a block's sides.
+     * @param b The block to image.
+     * @return The unwrapped texture map.
+     */
     public static BufferedImage imageBlock(Block b){
         BufferedImage image = new BufferedImage(16*4, 16*3, BufferedImage.TYPE_INT_RGB);
         Graphics2D map = image.createGraphics();
@@ -166,6 +200,10 @@ public class ImageWorld {
         return image;
     }
 
+    /**
+     * Get the current time as an ISO-style string that can be included in a file name.
+     * @return The current time string.
+     */
     public static String getTime(){
         return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime());
     }

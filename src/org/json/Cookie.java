@@ -76,7 +76,7 @@ public class Cookie {
      * @param string The cookie specification string.
      * @return A JSONObject containing "name", "value", and possibly other
      *  members.
-     * @throws JSONException
+     * @throws JSONException If the JSON is malformed.
      */
     public static JSONObject toJSONObject(String string) throws JSONException {
         String         name;
@@ -113,7 +113,7 @@ public class Cookie {
      * All other members are ignored.
      * @param jo A JSONObject
      * @return A cookie specification string
-     * @throws JSONException
+     * @throws JSONException If the JSON is malformed.
      */
     public static String toString(JSONObject jo) throws JSONException {
         StringBuilder sb = new StringBuilder();

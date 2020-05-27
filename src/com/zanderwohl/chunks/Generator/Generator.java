@@ -15,14 +15,53 @@ package com.zanderwohl.chunks.Generator;
  */
 public abstract class Generator {
 
+    /**
+     * Evaluate which block should be returned, given world-coordinates.
+     * @param x The x World coordinate of the block to be evaluated.
+     * @param y The y World coordinate of the block to be evaluated.
+     * @param z The z World coordinate of the block to be evaluated.
+     * @return The id of the block at this location.
+     */
     public abstract int eval(int x, int y, int z);
 
+    /**
+     * Evaluate the ground height of the ground (World y) of a given x and z location.
+     * Note that this is only within this Volume, so if a higher peak is in the next chunk up, it will simply return the
+     * max of this chunk.
+     * @param x The x World coordinate of the height to be evaluated.
+     * @param z The z World coordinate of the height to be evaluated.
+     * @return The height of the ground at this location.
+     */
     public abstract int ground(int x, int z);
 
+    /**
+     * Calculates the horizontal distance from the origin to a given point.
+     * It's the "map distance" - basically, does not account for height.
+     * Like measuring the distance between cities, does not take into account elevation change.
+     * For example, the distance between (0,0,0) and (0,0,4) is 4.
+     * The distance between (0,0,0) and (0,2412,4) is also 4.
+     * Hence why only x and z need be specified.
+     * @param x The x World coordinate to be evaluated.
+     * @param z The z World coordinate to be evaluated.
+     * @return The distance as an unrounded value.
+     */
     public double distanceFromOrigin(int x, int z){
         return Math.sqrt(x * x + z * z);
     }
 
+    /**
+     * Calculates the horizontal distance from one given point to another.
+     * It's the "map distance" - basically, does not account for height.
+     * Like measuring the distance between cities, does not take into account elevation change.
+     * For example, the distance between (3,0,0) and (0,0,4) is 5.
+     * The distance between (3,415,0) and (0,45,4) is also 5.
+     * Hence why only x and z need be specified.
+     * @param x1 The first x World coordinate to be evaluated.
+     * @param z1 The first z World coordinate to be evaluated.
+     * @param x2 The first x World coordinate to be evaluated.
+     * @param z2 The first z World coordinate to be evaluated.
+     * @return The distance as an unrounded value.
+     */
     public double distanceBetween(int x1, int z1, int x2, int z2){
         int x = (x2 - x1);
         int z = (z2 - z1);

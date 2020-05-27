@@ -17,6 +17,13 @@ public class Simplex extends Generator{
         noise = new OpenSimplexNoise(seed);
     }
 
+    /**
+     * Creates a new Simplex layer with parameters.
+     * @param seed A seed for the RNG.
+     * @param height The average height of the terrain.
+     * @param scale The scale for the size (x and z) of the variation.
+     * @param magnitude The magnitude modifier for the height (y) of the terrain.
+     */
     public Simplex(int seed, int height, int scale, int magnitude){
         noise = new OpenSimplexNoise(seed);
         HEIGHT = height;
@@ -24,6 +31,13 @@ public class Simplex extends Generator{
         MAGNITUDE = magnitude;
     }
 
+    /**
+     * Evaluates based on 2D simplex noise as a heightmap, scaled and stretched.
+     * @param x The x World coordinate of the block to be evaluated.
+     * @param y The y World coordinate of the block to be evaluated.
+     * @param z The z World coordinate of the block to be evaluated.
+     * @return See superclass "Generator" documentation.
+     */
     @Override
     public int eval(int x, int y, int z) {
         int ground = ground(x, z);
@@ -35,6 +49,12 @@ public class Simplex extends Generator{
         }
     }
 
+    /**
+     * See superclass "Generator" documentation.
+     * @param x The x World coordinate of the height to be evaluated.
+     * @param z The z World coordinate of the height to be evaluated.
+     * @return See superclass "Generator" documentation.
+     */
     @Override
     public int ground(int x, int z) {
         double ground = (noise.eval(x / SCALE,/* y / SCALE,*/ z / SCALE) / Math.sqrt(3.0 / 4.0));
