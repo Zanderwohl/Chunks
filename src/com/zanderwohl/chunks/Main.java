@@ -1,8 +1,8 @@
 package com.zanderwohl.chunks;
 
+import com.zanderwohl.chunks.Console.Console;
 import com.zanderwohl.chunks.Image.ImageWorld;
 import com.zanderwohl.chunks.World.World;
-import com.zanderwohl.chunks.Console.ConsoleConnector;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -28,15 +28,17 @@ public class Main {
         ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<Message>();
         ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<Message>();
 
-        toConsole.add(new Message("message=Uh"));
+        //toConsole.add(new Message("message=Uh"));
 
-        ConsoleConnector consoleConnector = new ConsoleConnector(toConsole, fromConsole);
+        Console consoleConnector = new Console(toConsole, fromConsole);
         Thread consoleConnectorThread = new Thread(consoleConnector);
         consoleConnectorThread.start();
 
         SuperConsole console = new SuperConsole();
         Thread consoleThread = new Thread(console);
         consoleThread.start();
+
+        Console.log("","Main", "NORMAL", "");
     }
 
     /**

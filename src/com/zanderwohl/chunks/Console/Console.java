@@ -1,7 +1,6 @@
 package com.zanderwohl.chunks.Console;
 
 import com.zanderwohl.console.Message;
-import com.zanderwohl.console.tests.SendMessagesLoop;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,11 +15,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * It sends messages from the toConsole queue over the network.
  * It receives messages from the network into the fromConsole queue.
  */
-public class ConsoleConnector implements Runnable{
+public class Console implements Runnable{
 
     private final int PORT = 288;
-    private ConcurrentLinkedQueue<Message> toConsole;
-    private ConcurrentLinkedQueue<Message> fromConsole;
+    private static ConcurrentLinkedQueue<Message> toConsole;
+    private static ConcurrentLinkedQueue<Message> fromConsole;
+
+    public static void log(String message, String source, String severity, String category){
+        String time = Instant.now().getEpochSecond() + "";
+        toConsole.add(new Message("message=" + message + "\nseverity=" + severity + "\ncategory=" + category +
+                "\nsource=" + source));
+    }
 
     /**
      *
@@ -28,7 +33,7 @@ public class ConsoleConnector implements Runnable{
      * @param fromConsole The queue of messages that have been received from the console,
      *                    for consumption by the program.
      */
-    public ConsoleConnector(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole){
+    public Console(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole){
         this.toConsole = toConsole;
         this.fromConsole = fromConsole;
     }
@@ -36,13 +41,14 @@ public class ConsoleConnector implements Runnable{
     @Override
     public void run() {
         try (var listener = new ServerSocket(this.PORT)){
-            System.out.println("Console init.");
+            //System.out.println("Console init.");
+            Console.log("Console initializing...","Console Broker", "NORMAL", "");
             Socket socket = listener.accept();
-            Thread send = new Thread(new ConsoleConnector.Send(new PrintWriter(socket.getOutputStream(), true), toConsole));
-            Thread receive = new Thread(new ConsoleConnector.Receive(new Scanner(socket.getInputStream()), fromConsole));
+            Thread send = new Thread(new Console.Send(new PrintWriter(socket.getOutputStream(), true), toConsole));
+            Thread receive = new Thread(new Console.Receive(new Scanner(socket.getInputStream()), fromConsole));
             send.start();
             receive.start();
-            System.out.println("Console interface initialized.");
+            Console.log("Console initialized...","Console Broker", "NORMAL", "");
         } catch (IOException e) {
             System.err.println("Error at Console Connector's run method.");
             e.printStackTrace();
@@ -67,12 +73,12 @@ public class ConsoleConnector implements Runnable{
             long nextSend = Instant.now().getEpochSecond() + 1;
             try {
                 while(true){
-                    if(nextSend <= Instant.now().getEpochSecond()){
-                        nextSend = Instant.now().getEpochSecond() + 10;
-                        System.out.println("Sending packet.");
-                        Message m = new Message(SendMessagesLoop.blankMessage());
-                        output.println(m.toString());
-                    }
+                    //if(nextSend <= Instant.now().getEpochSecond()){
+                    //    nextSend = Instant.now().getEpochSecond() + 10;
+                    //    System.out.println("Sending packet.");
+                    //    Message m = new Message(SendMessagesLoop.blankMessage());
+                    //    output.println(m.toString());
+                    //}
                     while(!queue.isEmpty()){
                         output.println(queue.remove().toString());
                     }
@@ -103,7 +109,7 @@ public class ConsoleConnector implements Runnable{
                 String line = input.nextLine();
                 if(line.equals("EOM")) {
                     Message m = new Message(userMessage);
-                    System.out.println("Got user input:\n\t" + userMessage);
+                    //System.out.println("Got user input:\n\t" + userMessage);
                     //System.out.println(m.toString());
                     String returnMessage = "Dummy got the input: " + m.getAttribute("message");
                     queue.add((new Message("source=Connector\nmessage=" + returnMessage
