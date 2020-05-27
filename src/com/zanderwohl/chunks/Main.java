@@ -2,13 +2,15 @@ package com.zanderwohl.chunks;
 
 import com.zanderwohl.chunks.Image.ImageWorld;
 import com.zanderwohl.chunks.World.World;
-import com.zanderwohl.chunks.console.ConsoleConnector;
+import com.zanderwohl.chunks.Console.ConsoleConnector;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.zanderwohl.console.SuperConsole;
+import com.zanderwohl.console.Message;
 
 /**
  * Yikes, what a mess of a file. To be replaced once SuperConsole is up and running.
@@ -20,7 +22,12 @@ public class Main {
     public static void main(String[] args){
         prepareEnvironment();
 
-        ConsoleConnector consoleConnector = new ConsoleConnector(PORT);
+        ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<Message>();
+        ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<Message>();
+
+        toConsole.add(new Message("message=Uh"));
+
+        ConsoleConnector consoleConnector = new ConsoleConnector(PORT, toConsole, fromConsole);
         Thread consoleConnectorThread = new Thread(consoleConnector);
         consoleConnectorThread.start();
 
