@@ -20,6 +20,27 @@ public class Space {
      */
     public static final int VOL_Z = 16;
 
+    /**
+     * The orders of the directions.
+     */
+    public static final int NORTH = 0;
+    public static final int SOUTH = 1;
+    public static final int EAST = 2;
+    public static final int WEST = 3;
+    public static final int UP = 4;
+    public static final int DOWN = 5;
+
+    /**
+     * Whether a direction is positive or negative.
+     */
+    public static final int DIRECTION_NORTH = 1;
+    public static final int DIRECTION_SOUTH = -1;
+    public static final int DIRECTION_EAST = 1;
+    public static final int DIRECTION_WEST = -1;
+    public static final int DIRECTION_UP = 1;
+    public static final int DIRECTION_DOWN = -1;
+
+
     public static int xToVolX(int x){
         return x / VOL_X;
     }
