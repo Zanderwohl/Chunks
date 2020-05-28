@@ -109,11 +109,12 @@ public class Console implements Runnable{
                 String line = input.nextLine();
                 if(line.equals("EOM")) {
                     Message m = new Message(userMessage);
+                    queue.add(m);
                     //System.out.println("Got user input:\n\t" + userMessage);
                     //System.out.println(m.toString());
-                    String returnMessage = "Dummy got the input: " + m.getAttribute("message");
-                    queue.add((new Message("source=Connector\nmessage=" + returnMessage
-                            + "\ntime=" + Instant.now().getEpochSecond())));
+                    //String returnMessage = "Dummy got the input: " + m.getAttribute("message");
+                    //queue.add((new Message("source=Connector\nmessage=" + returnMessage
+                    //        + "\ntime=" + Instant.now().getEpochSecond())));
                     userMessage = "";
                 } else {
                     userMessage += line + "\n";

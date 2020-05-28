@@ -2,6 +2,7 @@ package com.zanderwohl.chunks;
 
 import com.zanderwohl.chunks.Console.Console;
 import com.zanderwohl.chunks.Image.ImageWorld;
+import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.chunks.World.World;
 
 import java.awt.image.BufferedImage;
@@ -39,6 +40,10 @@ public class Main {
         consoleThread.start();
 
         Console.log("","Main", "NORMAL", "");
+
+        SimLoop simLoop = new SimLoop(toConsole, fromConsole);
+        Thread simThread = new Thread(simLoop);
+        simThread.start();
     }
 
     /**
