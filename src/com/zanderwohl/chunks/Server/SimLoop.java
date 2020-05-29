@@ -10,8 +10,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class SimLoop implements Runnable{
 
+    private final double ONE_BILLION = 1000000000.0;
     public final double SIM_FPS = 20.0;
-    private final double SIM_NS = 1000000000.0 / SIM_FPS;
+    private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
 
     CommandManager commandManager;
@@ -37,7 +38,7 @@ public class SimLoop implements Runnable{
             delta += updateLength / SIM_NS;
 
             lastFPSTime += updateLength;
-            if(lastFPSTime >= 1000000000.0){
+            if(lastFPSTime >= ONE_BILLION){
                 lastFPSTime = 0;
             }
 

@@ -23,3 +23,11 @@ Private class that sends Messages over the network. Also sends a test message ev
 ### Receive
 
 Private class that receives Messages from the console and places them on the fromConsole queue.
+
+## CommandManager
+
+Consumes Messages from the fromConsole queue and notifies the appropriate objects of any relevant commands.
+
+### processCommands()
+
+The method to call when the CommandManager should consume all commands on the queue and take the relevant actions.

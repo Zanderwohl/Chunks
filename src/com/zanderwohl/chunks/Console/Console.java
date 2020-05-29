@@ -56,7 +56,7 @@ public class Console implements Runnable{
     }
 
     /**
-     * Sends Messages over the network. Also sends a test message every ten seconds.
+     * Sends Messages over the network.
      */
     private static class Send implements Runnable {
 
