@@ -17,12 +17,22 @@ public class SimLoop implements Runnable{
 
     CommandManager commandManager;
 
+    /**
+     * Only constructor?
+     * @param toConsole The queue of messages to send to the console.
+     * @param fromConsole The queue of messages from the console to be consumed.
+     */
     public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole){
         commandManager = new CommandManager(toConsole, fromConsole);
     }
 
+    /**
+     * Update the simulation.
+     * @param delta The difference in time from this to the last update.
+     */
     private void update(double delta){
         commandManager.processCommands();
+        //System.out.println(delta);
     }
 
     @Override
@@ -35,7 +45,7 @@ public class SimLoop implements Runnable{
             long now = System.nanoTime();
             long updateLength = now - lastNow;
             lastNow = now;
-            delta += updateLength / SIM_NS;
+            delta = updateLength / SIM_NS;
 
             lastFPSTime += updateLength;
             if(lastFPSTime >= ONE_BILLION){

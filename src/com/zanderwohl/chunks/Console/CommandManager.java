@@ -17,7 +17,13 @@ public class CommandManager {
     public void processCommands(){
         while(!fromConsole.isEmpty()){
             Message command = fromConsole.remove();
-            System.out.println(command.toString());
+            try {
+                Command c = new Command(command.getAttribute("message"));
+
+            } catch (Command.OpenStringException e) {
+                toConsole.add(new Message("message=" + e.getMessage() + "\nsource=" + "Command Manager" +
+                        "\nseverity=warning"));
+            }
         }
     }
 }
