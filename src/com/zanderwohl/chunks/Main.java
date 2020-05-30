@@ -1,13 +1,9 @@
 package com.zanderwohl.chunks;
 
 import com.zanderwohl.chunks.Console.Console;
-import com.zanderwohl.chunks.Image.ImageWorld;
 import com.zanderwohl.chunks.Server.SimLoop;
-import com.zanderwohl.chunks.World.World;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.zanderwohl.console.SuperConsole;
