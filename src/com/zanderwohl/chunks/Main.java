@@ -22,8 +22,8 @@ public class Main {
     public static void main(String[] args){
         prepareEnvironment();
 
-        ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<Message>();
-        ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<Message>();
+        ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<>();
+        ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<>();
 
         //toConsole.add(new Message("message=Uh"));
 

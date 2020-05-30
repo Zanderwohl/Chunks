@@ -1,14 +1,10 @@
 package com.zanderwohl.chunks.World;
 
-import util.FileLoader;
 import com.zanderwohl.chunks.Generator.*;
-import org.json.JSONObject;
-import com.zanderwohl.chunks.Block.BlockLibrary;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -21,21 +17,18 @@ public class World {
     public static final String metaFileType = "meta";
     public static final String libraryFileType = "man";
 
-    private ArrayList<Volume> volumes = new ArrayList<Volume>();
+    private ArrayList<Volume> volumes = new ArrayList<>();
     private Volume emptyVolume = new Volume(this);
 
     Generator g;
 
     int x_length = 10, y_length = 2, z_length = 10;
-    //Volume[][][] terrain = new Volume[x_length][y_length][z_length];
     private int seed = 0;
 
     private String name;
 
     public World(String name){
         this.name = name;
-        //basic();
-
     }
 
     public World(String name, int seed){
@@ -264,8 +257,10 @@ public class World {
     public Volume[] getVolumesInRadius(double radius, Coord center){
         ArrayList<Volume> volumes_list = new ArrayList<>();
 
-        for(Volume v: this.volumes){
-            //if()
+        for(Volume v: this.volumes){ //TODO: This is inefficient at high numbers of Volumes.
+            if(center.otherInRadius(v.getLocation(), radius)){
+                volumes_list.add(v);
+            }
         }
 
         Volume[] volumes_array = new Volume[volumes_list.size()];
