@@ -8,11 +8,12 @@ import com.zanderwohl.chunks.Block.BlockLibrary;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
- * A collection of Volumes and their relations to each other, to allow for dynamic generation of the world in small pieces
- * at a time. Contains other information.
+ * A collection of Volumes and their relations to each other, to allow for dynamic generation of the world in small
+ * pieces at a time. Contains other information.
  */
 public class World {
 
@@ -22,8 +23,6 @@ public class World {
 
     private ArrayList<Volume> volumes = new ArrayList<Volume>();
     private Volume emptyVolume = new Volume(this);
-
-    private BlockLibrary library;
 
     Generator g;
 
@@ -36,38 +35,19 @@ public class World {
     public World(String name){
         this.name = name;
         //basic();
-        library = new BlockLibrary();
+
     }
 
     public World(String name, int seed){
         this.name = name;
         this.seed = seed;
-        library = new BlockLibrary();
         g = new Simplex(seed);
-        prepare();
     }
 
     public World(String name, String saveFile){
         this.name = name;
         this.seed = 0; //TODO: get seed from file.
         g = new Simplex(seed);
-        prepare();
-    }
-
-    public void addDomain(String domain){
-        JSONObject json;
-        try {
-            FileLoader domainFile = new FileLoader("domains/" + domain + "/domain.json");
-            json = new JSONObject(domainFile.fileToString());
-            library.addDomain(json);
-        } catch (FileNotFoundException e){
-            e.printStackTrace();
-        }
-
-    }
-
-    public void prepare(){
-        addDomain("default");
     }
 
     public void initialize(){
@@ -131,7 +111,8 @@ public class World {
         for(int x = 0; x < x_length; x++){
             for(int y = 0; y < y_length; y++){
                 for(int z = 0; z < z_length; z++){
-                    Volume c = new Volume(x, y, z, g, this);
+                    Coord location = new Coord(x, y, z);
+                    Volume c = new Volume(location, g, this);
                     setVolume(x, y, z, c);
                 }
             }
@@ -157,12 +138,14 @@ public class World {
                 String location = "saves/" + name + "/" + x + "_" + y + "_" + x + ".vol";
                 //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
                 //terrain[x][y][z].load(location);
-                Volume v = new Volume(0, 0, 0, g, this);
+                Coord coord = new Coord(0, 0, 0);
+                Volume v = new Volume(coord, g, this);
                 v.load(location);
                 setVolume(x, y, z, v);
             } catch (FileNotFoundException e){
                 //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
-                setVolume(x, y, z, new Volume(0, 0, 0, g, this));
+                Coord coord = new Coord(0, 0, 0);
+                setVolume(x, y, z, new Volume(coord, g, this));
             }
         }
         //return terrain[x][y][z];
@@ -280,7 +263,17 @@ public class World {
         return peak + Space.volYToY(index);
     }
 
-    public BlockLibrary getLibrary(){
-        return library;
+    public Volume[] getVolumesInRadius(double radius, Coord center){
+        ArrayList<Volume> volumes_list = new ArrayList<>();
+
+        for(Volume v: this.volumes){
+            //if()
+        }
+
+        Volume[] volumes_array = new Volume[volumes_list.size()];
+        for(int i = 0; i < volumes_list.size(); i++){
+            volumes_array[i] = volumes_list.get(i);
+        }
+        return volumes_array;
     }
 }
