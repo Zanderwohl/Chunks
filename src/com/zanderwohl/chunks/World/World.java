@@ -113,7 +113,7 @@ public class World {
                 for(int z = 0; z < z_length; z++){
                     Coord location = new Coord(x, y, z);
                     Volume c = new Volume(location, g, this);
-                    setVolume(x, y, z, c);
+                    setVolume(location, c);
                 }
             }
         }
@@ -123,46 +123,45 @@ public class World {
      * Outward-facing. Does fancy cache stuff,
      * loads the Volume if it's not in memory,
      * generates if it doesn't exists, etc.
-     * @param x Volume-scale x
-     * @param y Volume-scale y
-     * @param z Volume-scale z
+     * @param volume_location The location to search
      * @return
      */
-    public Volume getVolume(int x, int y, int z){
+    public Volume getVolume(Coord volume_location){
         //if(terrain[x][y][z] != null){
-        if(findVolume(x, y, z) != null){
+        if(findVolume(volume_location) != null){
             //return terrain[x][y][z];
             //return emptyVolume;
         } else {
             try{
+                int x = volume_location.getX();
+                int y = volume_location.getY();
+                int z = volume_location.getZ();
                 String location = "saves/" + name + "/" + x + "_" + y + "_" + x + ".vol";
                 //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
                 //terrain[x][y][z].load(location);
                 Coord coord = new Coord(0, 0, 0);
                 Volume v = new Volume(coord, g, this);
                 v.load(location);
-                setVolume(x, y, z, v);
+                setVolume(volume_location, v);
             } catch (FileNotFoundException e){
                 //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
                 Coord coord = new Coord(0, 0, 0);
-                setVolume(x, y, z, new Volume(coord, g, this));
+                setVolume(volume_location, new Volume(coord, g, this));
             }
         }
         //return terrain[x][y][z];
-        return findVolume(x, y, z);
+        return findVolume(volume_location);
     }
 
     /**
      * "Dumb" Volume finder, which just locates
      * a Volume in the array based on coords alone.
-     * @param x Volume-scale x
-     * @param y Volume-scale y
-     * @param z Volume-scale z
+     * @param location The Coord of the volume to find.
      * @return
      */
-    private Volume findVolume(int x, int y, int z){
+    private Volume findVolume(Coord location){
         for(Volume v: volumes){
-            if(x == v.getX() && y == v.getY() && z == v.getZ()){
+            if(v.atLocation(location)){
                 return v;
             }
         }
@@ -173,12 +172,10 @@ public class World {
     /**
      * Uses dumb find to remove a chunk if it exists
      * in memory.
-     * @param x Volume-scale x
-     * @param y Volume-scale y
-     * @param z Volume-scale z
+     * @param location Location the volume to be removed is at.
      */
-    private void removeVolume(int x, int y, int z){
-        Volume v = findVolume(x, y, z);
+    private void removeVolume(Coord location){
+        Volume v = findVolume(location);
         if(v != null){
             volumes.remove(v);
         }
@@ -187,16 +184,12 @@ public class World {
     /**
      * Sets a Volume into the world, and tells
      * the Volume where it lives.
-     * @param x Volume-scale x
-     * @param y Volume-scale y
-     * @param z Volume-scale z
+     * @param location The Coord to place the Volume at.
      * @param v The Volume to be placed in the world.
      */
-    private void setVolume(int x, int y, int z, Volume v){
-        removeVolume(x, y, z);
-        v.setX(x);
-        v.setY(y);
-        v.setZ(z);
+    private void setVolume(Coord location, Volume v){
+        removeVolume(location);
+        v.setLocation(location);
         volumes.add(v);
     }
 
@@ -212,17 +205,21 @@ public class World {
         return Space.volZToZ(z_length);
     }
 
-    public int getBlock(int x, int y, int z){
+    public int getBlock(Coord location){
+        int x = location.getX();
+        int y = location.getY();
+        int z = location.getZ();
         int volx = x / Space.VOL_X;
         int voly = y / Space.VOL_Y;
         int volz = z / Space.VOL_Z;
+        Coord volume_location = new Coord(volx, voly, volz);
         int blockx = x % Space.VOL_X;
         int blocky = y % Space.VOL_Y;
         int blockz = z % Space.VOL_Z;
 
         int block;
         try {
-            block = findVolume(volx, voly, volz).getBlock(blockx, blocky, blockz);
+            block = findVolume(volume_location).getBlock(blockx, blocky, blockz);
         } catch (NullPointerException e){
             block =  0;
         }
@@ -253,7 +250,8 @@ public class World {
             if(index >= 0) {
                 try {
                     //peak = terrain[volx][index][volz].getMaxHeight(blockx, blockz);
-                    peak = getVolume(volx, index, volz).getMaxHeight(blockx, blockz);
+                    Coord volume_location = new Coord(volx, index, volz);
+                    peak = getVolume(volume_location).getMaxHeight(blockx, blockz);
                 } catch (NullPointerException e){
                     //Do nothing. just move on to a terrain volume that DOES exist.
                 }

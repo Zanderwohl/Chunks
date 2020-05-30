@@ -70,4 +70,8 @@ public class Coord {
     public boolean otherInHorizontalRadius(Coord other, double radius){
         return (this.horizontalDistance(other) <= radius);
     }
+
+    public boolean equals(Coord other){
+        return this.getX() == other.getX() && this.getY() == other.getY() && this.getZ() == other.getZ();
+    }
 }

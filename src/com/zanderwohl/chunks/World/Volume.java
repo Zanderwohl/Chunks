@@ -195,4 +195,13 @@ public class Volume {
         Coord newLocation = new Coord(location.getX(), location.getY(), z);
         setLocation(newLocation);
     }
+
+    /**
+     * Determines if this Volume is at a location.
+     * @param locationToCompare The location to check.
+     * @return True if locationToCompare is the location of this Volume.
+     */
+    public boolean atLocation(Coord locationToCompare){
+        return location.equals(locationToCompare);
+    }
 }
