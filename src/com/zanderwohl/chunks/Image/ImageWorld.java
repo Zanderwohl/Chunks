@@ -19,22 +19,6 @@ import java.util.Calendar;
 public class ImageWorld {
 
     /**
-     * Don't use this, old test method.
-     * @param args none
-     */
-    public static void main(String[] args){
-        World w;
-        w = new World("image_test");
-        w.prepare();
-        w.addDomain("color");
-        w.initialize();
-        BufferedImage image = ImageWorld.makeImage(w);
-        ImageWorld.saveImage(image, w.getName());
-        BlockLibrary b = w.getLibrary();
-        unrwapBlocks(b);
-    }
-
-    /**
      * Create unwrapped texture maps of each block, and save them.
      * @param bl A block library to provide the blocks.
      */
@@ -60,11 +44,13 @@ public class ImageWorld {
         }
     }
 
+
     /**
      * Make a simple top-down image of a world.
      * @param w The world to image.
      * @return A buffered image of the world.
      */
+    /*
     public static BufferedImage makeImage(World w){
         BufferedImage image = new BufferedImage(w.getX(),w.getZ(),BufferedImage.TYPE_INT_RGB);
 
@@ -100,7 +86,7 @@ public class ImageWorld {
 
         //System.out.println("Highest: " + highest + "\nLowest: " + lowest + "\nCeiling: " + w.getY());
         return image;
-    }
+    }*/
 
     /**
      * Generate a top-down image of a portion of the world.
@@ -112,6 +98,7 @@ public class ImageWorld {
      * @param height The pixel-width of the image.
      * @return The image.
      */
+    /*
     public static BufferedImage makeImage2(World w, int center_x, int center_z, int scale, int width, int height){
         double halfWidth = width / 2.0;
         double halfHeight = height / 2.0;
@@ -179,7 +166,7 @@ public class ImageWorld {
         System.out.println("Highest: " + highest + "\nLowest: " + lowest + "\nCeiling: " + w.getY());
         return image;
     }
-
+*/
 
     /**
      * Create an unwrapped image of a block's sides.

@@ -50,6 +50,7 @@ public class Main {
      * Command-line loop for generating worlds that is deprecated.
      * @param args none.
      */
+    /*
     public static void main_old(String[] args) {
         prepareEnvironment();
 
@@ -126,7 +127,7 @@ public class Main {
 
         } while(!quit);
         System.out.println("Thank you for simulating today!");
-    }
+    }*/
 
     /**
      * Prepares the environment for the program to run, saving/loading files without crashing.
