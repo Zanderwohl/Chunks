@@ -45,7 +45,7 @@ public class ImageWorld {
     }
 
 
-    /**
+    /*
      * Make a simple top-down image of a world.
      * @param w The world to image.
      * @return A buffered image of the world.
@@ -88,7 +88,7 @@ public class ImageWorld {
         return image;
     }*/
 
-    /**
+    /*
      * Generate a top-down image of a portion of the world.
      * @param w The world to image.
      * @param center_x The center of the image on the x-axis

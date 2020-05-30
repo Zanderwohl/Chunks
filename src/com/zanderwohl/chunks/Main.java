@@ -46,7 +46,7 @@ public class Main {
         simThread.start();
     }
 
-    /**
+    /*
      * Command-line loop for generating worlds that is deprecated.
      * @param args none.
      */

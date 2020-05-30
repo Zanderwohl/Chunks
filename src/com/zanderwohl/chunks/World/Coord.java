@@ -74,4 +74,28 @@ public class Coord {
     public boolean equals(Coord other){
         return this.getX() == other.getX() && this.getY() == other.getY() && this.getZ() == other.getZ();
     }
+
+    /**
+     * Produces a copy of this coordinate converted to World coordinate, assuming this is interpreted as a Volume
+     * Coordinate.
+     * @return The new World Coordinate.
+     */
+    public Coord volToWorld(){
+        int x_ = Space.volXToX(x);
+        int y_ = Space.volYToY(y);
+        int z_ = Space.volZToZ(z);
+        return new Coord(x_, y_, z_);
+    }
+
+    /**
+     * Produces a copy of this coordinate converted to Volume coordinate, assuming this is interpreted as a World
+     * Coordinate.
+     * @return
+     */
+    public Coord worldToVol(){
+        int x_= Space.xToVolX(x);
+        int y_ = Space.yToVolY(y);
+        int z_ = Space.zToVolZ(z);
+        return new Coord(x_, y_, z_);
+    }
 }
