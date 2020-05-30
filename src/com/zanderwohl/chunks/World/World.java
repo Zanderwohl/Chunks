@@ -129,7 +129,7 @@ public class World {
                 int x = volume_location.getX();
                 int y = volume_location.getY();
                 int z = volume_location.getZ();
-                String location = "saves/" + name + "/" + x + "_" + y + "_" + x + ".vol";
+                String location = "saves/" + name + "/" + x + "_" + y + "_" + z + ".vol";
                 //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
                 //terrain[x][y][z].load(location);
                 Coord coord = new Coord(0, 0, 0);
