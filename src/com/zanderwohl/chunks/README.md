@@ -1,5 +1,5 @@
 # com.zanderwohl.chunks
-The root director for the Chunks program.
+The root directory for the Chunks program.
 
 ## Main
 The main class. Main.main(String[] args) will start the program with the SuperConsole.
@@ -33,3 +33,19 @@ CommandManager
 #### Write:
 
 Console
+
+## Included Libraries
+
+### OpenSimplex
+
+OpenSimplex Noise in Java by Kurt Spencer.
+
+Found at KdotJPG's [GitHub Repository](https://github.com/KdotJPG/OpenSimplex2).
+
+### SuperConsole
+
+A console tool written by me.
+
+### org.json
+
+The reference Java Json implementation. License and information available in the org.json package README.
