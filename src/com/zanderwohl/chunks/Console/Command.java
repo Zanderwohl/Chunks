@@ -10,6 +10,7 @@ public class Command {
 
     private String command = "";
     private String[] arguments = {};
+    private String argumentsString = "";
 
     /**
      * Constructs a command out of a string that contains a command plus arguments.
@@ -20,8 +21,10 @@ public class Command {
     public Command(String message) throws OpenStringException{
         String[] split = split(message);
 
-        command = split[0]; //place 0th item as command
+        command = split[0].toUpperCase(); //place 0th item as command
         arguments = Arrays.copyOfRange(split, 1, split.length); //place 1-end as arguments.
+
+        argumentsString = message.split("\\s",2)[1];
     }
 
     /**
@@ -73,6 +76,30 @@ public class Command {
             return_list[i] = list.get(i);
         }
         return return_list;
+    }
+
+    @Override
+    public String toString() {
+        return "Command{" +
+                "command='" + command + '\'' +
+                ", arguments=" + Arrays.toString(arguments) +
+                '}';
+    }
+
+    public String getCommand(){
+        return command;
+    }
+
+    public String[] getArguments(){
+        return arguments.clone();
+    }
+
+    public String getArgument(int index){
+        return arguments[index];
+    }
+
+    public String getArgumentsString(){
+        return argumentsString;
     }
 
     /**

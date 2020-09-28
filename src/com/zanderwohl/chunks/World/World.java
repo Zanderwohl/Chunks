@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * A collection of Volumes and their relations to each other, to allow for dynamic generation of the world in small
@@ -40,6 +41,7 @@ public class World {
     public World(String name, String saveFile){
         this.name = name;
         this.seed = 0; //TODO: get seed from file.
+        //TODO: get generation algorithm from save file.
         g = new Simplex(seed);
     }
 
@@ -56,11 +58,7 @@ public class World {
 
         for(Volume volume : volumes){
             //System.out.println(volume);
-            try {
-                volume.save("saves/" + saveName);
-            } catch(FileNotFoundException exception){
-                exception.printStackTrace();
-            }
+            volume.save("saves/" + saveName);
 
         }
 
@@ -268,5 +266,16 @@ public class World {
             volumes_array[i] = volumes_list.get(i);
         }
         return volumes_array;
+    }
+
+    public void unloadDistant(double radius, Coord center, String saveName){
+        Iterator<Volume> i = volumes.iterator();
+        while (i.hasNext()) {
+            Volume v = i.next(); // must be called before you can call i.remove()
+            if(!center.otherInRadius(v.getLocation(), radius)) {
+                v.save("saves/" + saveName);
+                i.remove();
+            }
+        }
     }
 }

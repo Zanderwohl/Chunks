@@ -22,24 +22,29 @@ public class Main {
     public static void main(String[] args){
         prepareEnvironment();
 
+        //creates queues to and from console
         ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<>();
 
-        //toConsole.add(new Message("message=Uh"));
-
+        //Start the game's console - not the user-facing console, but the part of this program that receives and sends
+        //to SuperConsole - on its own thread.
         Console consoleConnector = new Console(toConsole, fromConsole);
         Thread consoleConnectorThread = new Thread(consoleConnector);
         consoleConnectorThread.start();
 
+        //Star a SuperConsole window
         SuperConsole console = new SuperConsole();
         Thread consoleThread = new Thread(console);
         consoleThread.start();
 
         Console.log("","Main", "NORMAL", "");
 
+        //Start the simulation on a thread
         SimLoop simLoop = new SimLoop(toConsole, fromConsole);
         Thread simThread = new Thread(simLoop);
         simThread.start();
+
+        //Start the user interface on a thread
     }
 
     /*

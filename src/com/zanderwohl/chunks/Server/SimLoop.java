@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Server;
 
 import com.zanderwohl.chunks.Console.CommandManager;
+import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,6 +17,7 @@ public class SimLoop implements Runnable{
 
 
     CommandManager commandManager;
+    WorldManager worldManager;
 
     /**
      * Only constructor?
@@ -23,7 +25,8 @@ public class SimLoop implements Runnable{
      * @param fromConsole The queue of messages from the console to be consumed.
      */
     public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole){
-        commandManager = new CommandManager(toConsole, fromConsole);
+        worldManager = new WorldManager(toConsole);
+        commandManager = new CommandManager(toConsole, fromConsole, worldManager);
     }
 
     /**
@@ -32,6 +35,7 @@ public class SimLoop implements Runnable{
      */
     private void update(double delta){
         commandManager.processCommands();
+        commandManager.doCommands();
         //System.out.println(delta);
     }
 
@@ -55,7 +59,9 @@ public class SimLoop implements Runnable{
             update(delta);
 
             try {
-                Thread.sleep((long)(lastNow - System.nanoTime() + SIM_NS) / 1000000);
+                long sleepTime = (long)(lastNow - System.nanoTime() + SIM_NS) / 1000000;
+                if(sleepTime < 0){ sleepTime = 0; }
+                Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

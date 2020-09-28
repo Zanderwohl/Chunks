@@ -89,8 +89,13 @@ public class Volume {
         }
     }
 
-    public void save(String saveName) throws FileNotFoundException {
-        PrintWriter out = new PrintWriter(saveName + "/" + toString() + "." + World.fileType);
+    public void save(String saveName) {
+        PrintWriter out;
+        try {
+            out = new PrintWriter(saveName + "/" + toString() + "." + World.fileType);
+        } catch (FileNotFoundException e) {
+            return;
+        }
         out.write("x:" + location.getX() + "\n");
         out.write("y:" + location.getY() + "\n");
         out.write("z:" + location.getZ() + "\n");
