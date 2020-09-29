@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks.Console;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -24,7 +25,11 @@ public class Command {
         command = split[0].toUpperCase(); //place 0th item as command
         arguments = Arrays.copyOfRange(split, 1, split.length); //place 1-end as arguments.
 
-        argumentsString = message.split("\\s",2)[1];
+        try {
+            argumentsString = message.split("\\s", 2)[1];
+        } catch (ArrayIndexOutOfBoundsException e){
+            argumentsString = "";
+        }
     }
 
     /**
@@ -95,11 +100,19 @@ public class Command {
     }
 
     public String getArgument(int index){
-        return arguments[index];
+        try {
+            return arguments[index];
+        } catch (IndexOutOfBoundsException e){
+            return null;
+        }
     }
 
     public String getArgumentsString(){
         return argumentsString;
+    }
+
+    public int getArgumentsLength(){
+        return arguments.length;
     }
 
     /**

@@ -28,13 +28,13 @@ public class World {
 
     private String name;
 
-    public World(String name){
-        this.name = name;
-    }
-
     public World(String name, int seed){
         this.name = name;
-        this.seed = seed;
+        if(seed != 0) {
+            this.seed = seed;
+        } else {
+            seed = WorldManager.formatSeed(name);
+        }
         g = new Simplex(seed);
     }
 

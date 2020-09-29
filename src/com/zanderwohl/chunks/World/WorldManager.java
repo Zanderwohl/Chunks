@@ -6,14 +6,15 @@ import org.json.JSONObject;
 import util.FileLoader;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WorldManager {
 
     private BlockLibrary library;
 
-    ArrayList<World> worlds = new ArrayList<>();
+    HashMap<String, World> worlds = new HashMap<>();
 
     ConcurrentLinkedQueue<Message> toConsole;
 
@@ -48,13 +49,56 @@ public class WorldManager {
         return library;
     }
 
-    public void newWorld(String name){ //TODO: Seeds? Generator parameters?
-        World newWorld = new World(name);
+    public String[] listWorldNames(){
+        String[] worldNames = new String[worlds.size()];
+        int i = 0;
+        for(String name: worlds.keySet()){
+            worldNames[i] = name;
+            i++;
+        }
+        Arrays.sort(worldNames);
+        return worldNames;
+    }
+
+    public void newWorld(String name, String seed){ //TODO: Seeds? Generator parameters?
+        World newWorld = new World(name, formatSeed(seed));
         toConsole.add(new Message("message=Creating world '" + name + "'...\nsource=World Manager\n" +
                 "severity=normal"));
         newWorld.initialize(); //TODO: Probably don't do this here.
-        worlds.add(newWorld);
+        worlds.put(name, newWorld);
         toConsole.add(new Message("message=Created world '" + name + "'.\nsource=World Manager\n" +
                 "severity=normal"));
+    }
+
+    public void saveWorld(String name){
+        toConsole.add(new Message("message=Saving world '" + name + "'...\nsource=World Manager"));
+        World worldToSave = worlds.get(name);
+        if(worldToSave == null){
+            toConsole.add(new Message("message=World '" + name + "' does not exist!\nsource=World Manager\n"
+            + "severity=critical"));
+            return;
+        }
+        worldToSave.save(name);
+        toConsole.add(new Message("message=World '" + name + "' saved.\nsource=World Manager"));
+    }
+
+    public void killWorld(String name){
+        toConsole.add(new Message("message=Killing world '" + name + "'...\nsource=World Manager"));
+        World worldToKill = worlds.remove(name);
+
+        toConsole.add(new Message("message=World '" + name + "' killed.\nsource=World Manager"));
+    }
+
+    public static int formatSeed(String seed){
+        if(seed == null){
+            return 0;
+        }
+        int formattedSeed;
+        try {
+            formattedSeed = Integer.parseInt(seed);
+            return formattedSeed;
+        } catch (NumberFormatException e){
+            return seed.hashCode();
+        }
     }
 }
