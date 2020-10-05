@@ -1,12 +1,14 @@
 package com.zanderwohl.chunks.World;
 
 import com.zanderwohl.chunks.Generator.*;
+import com.zanderwohl.console.Message;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * A collection of Volumes and their relations to each other, to allow for dynamic generation of the world in small
@@ -28,8 +30,11 @@ public class World {
 
     private String name;
 
-    public World(String name, int seed){
+    private ConcurrentLinkedQueue<Message> toConsole;
+
+    public World(String name, int seed, ConcurrentLinkedQueue<Message> toConsole){
         this.name = name;
+        this.toConsole = toConsole;
         if(seed != 0) {
             this.seed = seed;
         } else {
@@ -38,8 +43,9 @@ public class World {
         g = new Simplex(seed);
     }
 
-    public World(String name, String saveFile){
+    public World(String name, String saveFile, ConcurrentLinkedQueue<Message> toConsole){
         this.name = name;
+        this.toConsole = toConsole;
         this.seed = 0; //TODO: get seed from file.
         //TODO: get generation algorithm from save file.
         g = new Simplex(seed);
@@ -47,7 +53,7 @@ public class World {
 
     public void initialize(){
         basic();
-        System.out.println("Initialization done!");
+        toConsole.add(new Message("message=Initialization of '" + name + "' done!\nsource=World: " + name));
     }
 
     public void save(String saveName){
@@ -79,6 +85,8 @@ public class World {
             out.write("seed:" + seed + "\n");
             out.close();
         } catch (FileNotFoundException e){
+            toConsole.add(new Message("message=Unable to save '" + name + "'.\nsource=World: " + name
+                    + "\nseverity=critical"));
             e.printStackTrace();
         }
     }
@@ -90,6 +98,8 @@ public class World {
             out.write("Domain.Block:idNo");
             out.close();
         } catch (FileNotFoundException e){
+            toConsole.add(new Message("message=Unable to save block library for '" + name + "'.\nsource=World: "
+                    + name));
             e.printStackTrace();
         }
     }

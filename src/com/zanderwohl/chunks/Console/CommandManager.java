@@ -9,12 +9,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class CommandManager {
 
-    ConcurrentLinkedQueue<Message> fromConsole;
-    ConcurrentLinkedQueue<Message> toConsole;
+    private ConcurrentLinkedQueue<Message> fromConsole;
+    private ConcurrentLinkedQueue<Message> toConsole;
 
-    LinkedList<Command> commandQueue = new LinkedList<>();
+    private LinkedList<Command> commandQueue = new LinkedList<>();
 
-    WorldManager worldManager;
+    private WorldManager worldManager;
 
     public CommandManager(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole,
                           WorldManager worldManager){
@@ -56,6 +56,10 @@ public class CommandManager {
                 case "SAVE":
                     saveWorld(c);
                     break;
+                case "SAVEALL":
+                case "SAVE-ALL":
+                    saveAllWorlds(c);
+                    break;
                 case "KILL":
                     killWorld(c);
                     break;
@@ -94,8 +98,13 @@ public class CommandManager {
         worldManager.saveWorld(command.getArgument(0));
     }
 
-    public void killWorld(Command command){
-        if(command.getArgument(0) == null){
+    private void saveAllWorlds(Command command){
+        //TODO: Save all game state, not just worlds
+        worldManager.saveAllWorlds();
+    }
+
+    public void killWorld(Command command) {
+        if (command.getArgument(0) == null) {
             toConsole.add(new Message("message=Specify a world to kill.\nsource=Command Manager\n"
                     + "severity=warning"));
             return;

@@ -14,9 +14,9 @@ public class WorldManager {
 
     private BlockLibrary library;
 
-    HashMap<String, World> worlds = new HashMap<>();
+    private HashMap<String, World> worlds = new HashMap<>();
 
-    ConcurrentLinkedQueue<Message> toConsole;
+    private ConcurrentLinkedQueue<Message> toConsole;
 
     public WorldManager(ConcurrentLinkedQueue<Message> toConsole){
         this.toConsole = toConsole;
@@ -61,7 +61,7 @@ public class WorldManager {
     }
 
     public void newWorld(String name, String seed){ //TODO: Seeds? Generator parameters?
-        World newWorld = new World(name, formatSeed(seed));
+        World newWorld = new World(name, formatSeed(seed), toConsole);
         toConsole.add(new Message("message=Creating world '" + name + "'...\nsource=World Manager\n" +
                 "severity=normal"));
         newWorld.initialize(); //TODO: Probably don't do this here.
@@ -80,6 +80,14 @@ public class WorldManager {
         }
         worldToSave.save(name);
         toConsole.add(new Message("message=World '" + name + "' saved.\nsource=World Manager"));
+    }
+
+    public void saveAllWorlds(){
+        toConsole.add(new Message("message=Saving all worlds...\nsource=World Manager"));
+        for(String name: worlds.keySet()){
+            saveWorld(name);
+        }
+        toConsole.add(new Message("message=All worlds saved.\nsource=World Manager"));
     }
 
     public void killWorld(String name){
