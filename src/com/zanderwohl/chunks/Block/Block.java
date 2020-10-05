@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks.Block;
 
+import com.zanderwohl.console.Message;
 import util.FileLoader;
 import org.json.JSONObject;
 import com.zanderwohl.chunks.FileConstants;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * An object containing all the information about a block required by the game.
@@ -30,18 +32,22 @@ public class Block {
     private static final int sides = 6; //cubes generally have six sides, but I'm open to higher dimension ports.
     private BufferedImage[] textures = new BufferedImage[sides]; //top, front, left, right, back, bottom
 
+    private ConcurrentLinkedQueue<Message> toConsole;
+
     /**
      * Creates a very simplistic block that has a color but no textures.
      * @param id The id of this block. Should not be already taken.
      * @param name The name of this block. A string with no spaces. Ideally all lowercase words separated by
      *             underscores.
+     * @param toConsole The queue to send messages to the console.
      * @param color The color of the block for use in maps.
      */
-    public Block(int id, String name, Color color){
+    public Block(int id, String name, ConcurrentLinkedQueue<Message> toConsole, Color color){
         this.name = name;
         this.id = id;
         this.color = color;
         domain = "internal";
+        this.toConsole = toConsole;
     }
 
     /**
@@ -49,8 +55,9 @@ public class Block {
      * folder. Constructor receives this information from a json file whose name is supplied as the argument.
      * @param path The name of the json file as found in the /[domain]/blocks folder. Format like "[blockName].json".
      * @param domain The name of the domain this block is from.
+     * @param toConsole The queue to send messages to the console.
      */
-    public Block(String path, String domain){
+    public Block(String path, String domain, ConcurrentLinkedQueue<Message> toConsole){
         this.domain = domain;
         String jsonString;
         JSONObject json = new JSONObject();
@@ -68,7 +75,9 @@ public class Block {
         //System.out.println(r + " " + g + " " + b);
         color = new Color(r, g, b);
         loadTextures(json);
-        System.out.println("\tAdded block " + getFullName() + "!");
+        //System.out.println("\tAdded block " + getFullName() + "!");
+        toConsole.add(new Message("message=Added block " + name + ".\nsource=Block"));
+        this.toConsole = toConsole;
     }
 
     /**
@@ -98,13 +107,21 @@ public class Block {
      */
     private BufferedImage readImage(String fileName){
         try {
-            File file = new File(FileConstants.domainFolder + "/" + domain + "/" + FileConstants.textureFolder + "/" + fileName);
+            File file = new File(FileConstants.domainFolder + "/" + domain + "/"
+                    + FileConstants.textureFolder + "/" + fileName);
             //System.out.println(file.toString());
             return ImageIO.read(file);
         } catch (MalformedURLException e){
-            System.err.println(fileName + ", a specified texture for the block \"" + getFullName() + "\" does not exist, or is named wrongly.");
+            //System.err.println(fileName + ", a specified texture for the block \"" + getFullName()
+            //        + "\" does not exist, or is named wrongly.");
+            toConsole.add(new Message("message=" + fileName + ", a specified texture for the block \""
+                    + getFullName() + "\" does not exist, or is named wrongly.\nsource=Block " + name
+                    + "\nseverity=critical"));
         } catch (IOException e){
-            System.err.println("Cannot find file " + fileName + "!");
+            //System.err.println("Cannot find file " + fileName + "!");
+            toConsole.add(new Message("message=Cannot find file \" + fileName + \"!\nsource=Block " + name
+                    + "\nseverity=critical"));
+
         }
         return null;
     }

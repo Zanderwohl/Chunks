@@ -20,7 +20,7 @@ public class WorldManager {
 
     public WorldManager(ConcurrentLinkedQueue<Message> toConsole){
         this.toConsole = toConsole;
-        library = new BlockLibrary();
+        library = new BlockLibrary(toConsole);
 
         prepare();
     }

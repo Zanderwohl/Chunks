@@ -1,11 +1,13 @@
 package com.zanderwohl.chunks.Block;
 
+import com.zanderwohl.console.Message;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import com.zanderwohl.chunks.FileConstants;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * An object that manages all the blocks in particular world. It is responsible for assigning block ids to each block.
@@ -19,11 +21,14 @@ public class BlockLibrary {
 
     private ArrayList<Block> list = new ArrayList<Block>();
 
+    private ConcurrentLinkedQueue<Message> toConsole;
+
     /**
      * Creates a block library, by default blank except for containing air at id 0.
      */
-    public BlockLibrary(){
-        list.add(new Block(0, "air", new Color(222, 53, 191))); //ALWAYS add air. ALWAYS.
+    public BlockLibrary(ConcurrentLinkedQueue<Message> toConsole){
+        list.add(new Block(0, "air", toConsole, new Color(222, 53, 191))); //ALWAYS add air. ALWAYS.
+        this.toConsole = toConsole;
     }
 
     /**
@@ -38,7 +43,8 @@ public class BlockLibrary {
         JSONArray blocks = domain.getJSONArray("blocks");
         for(int i = 0; i < blocks.length(); i++){
             String domainName = domain.getString("name");
-            addBlock(FileConstants.domainFolder + "/" + domainName + "/" + FileConstants.blockFolder + "/" + blocks.getString(i) + "." + FileConstants.block, domainName);
+            addBlock(FileConstants.domainFolder + "/" + domainName + "/" + FileConstants.blockFolder + "/"
+                    + blocks.getString(i) + "." + FileConstants.block, domainName);
         }
     }
 
@@ -48,8 +54,8 @@ public class BlockLibrary {
      * @param domainName The name of the domain this block belongs to.
      */
     public void addBlock(String path, String domainName){
-        System.out.println("Adding block from " + path + "!");
-        Block block = new Block(path, domainName);
+        toConsole.add(new Message("message=Adding block from " + path + "!\nsource=BlockLibrary"));
+        Block block = new Block(path, domainName, toConsole);
         block.setID(list.size());
         list.add(block);
     }
@@ -60,8 +66,8 @@ public class BlockLibrary {
      * @param saveFile The save file to load the block library from.
      * @return A block library loaded from the file.
      */
-    public static BlockLibrary load(String saveFile){
-        BlockLibrary library = new BlockLibrary();
+    public static BlockLibrary load(String saveFile, ConcurrentLinkedQueue<Message> toConsole){
+        BlockLibrary library = new BlockLibrary(toConsole);
 
         return library;
     }
