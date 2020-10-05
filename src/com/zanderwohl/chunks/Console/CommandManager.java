@@ -63,6 +63,9 @@ public class CommandManager {
                 case "KILL":
                     killWorld(c);
                     break;
+                case "HELP":
+                    listCommands(c);
+                    break;
                 default:
                     unrecognizedCommand(c, commandString);
             }
@@ -110,5 +113,11 @@ public class CommandManager {
             return;
         }
         worldManager.killWorld(command.getArgument(0));
+    }
+
+    public void listCommands(Command command){
+        toConsole.add(new Message("message=say, new, list, worlds, save, saveall, kill, help"
+                + "\nsource=Command Manager\nseverity=normal"
+        ));
     }
 }

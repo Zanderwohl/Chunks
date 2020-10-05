@@ -37,7 +37,7 @@ public class Main {
         Thread consoleThread = new Thread(console);
         consoleThread.start();
 
-        Console.log("","Main", "NORMAL", "");
+        //Console.log("","Main", "NORMAL", "");
 
         //Start the simulation on a thread
         SimLoop simLoop = new SimLoop(toConsole, fromConsole);

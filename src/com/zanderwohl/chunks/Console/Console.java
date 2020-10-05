@@ -42,16 +42,17 @@ public class Console implements Runnable{
     public void run() {
         try (var listener = new ServerSocket(this.PORT)){
             //System.out.println("Console init.");
-            Console.log("Console initializing...","Console Broker", "NORMAL", "");
+            Console.log("Console initializing...","Console Broker", "NORMAL", "None");
             Socket socket = listener.accept();
             Thread send = new Thread(new Console.Send(new PrintWriter(socket.getOutputStream(), true), toConsole));
             Thread receive = new Thread(new Console.Receive(new Scanner(socket.getInputStream()), fromConsole));
             send.start();
             receive.start();
-            Console.log("Console initialized...","Console Broker", "NORMAL", "");
+            Console.log("Console initialized...","Console Broker", "NORMAL", "None");
         } catch (IOException e) {
-            System.err.println("Error at Console Connector's run method.");
-            e.printStackTrace();
+            //System.err.println("Error at Console Connector's run method.");
+            //e.printStackTrace();
+            Console.log("Connection failed.", "Console Broker", "CRITICAL", "None");
         }
     }
 
