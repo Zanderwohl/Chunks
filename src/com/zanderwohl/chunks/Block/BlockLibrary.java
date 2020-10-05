@@ -39,13 +39,16 @@ public class BlockLibrary {
      * @param domain A json object that contains all domain information. See README.
      */
     public void addDomain(JSONObject domain){
-
+        toConsole.add(new Message("message=Adding domain '" + domain.getString("name") + "'.\n"
+                + "source=Block Library"));
         JSONArray blocks = domain.getJSONArray("blocks");
         for(int i = 0; i < blocks.length(); i++){
             String domainName = domain.getString("name");
             addBlock(FileConstants.domainFolder + "/" + domainName + "/" + FileConstants.blockFolder + "/"
                     + blocks.getString(i) + "." + FileConstants.block, domainName);
         }
+        toConsole.add(new Message("message=Added domain '" + domain.getString("name") + "'.\n"
+                + "source=Block Library"));
     }
 
     /**
@@ -54,7 +57,7 @@ public class BlockLibrary {
      * @param domainName The name of the domain this block belongs to.
      */
     public void addBlock(String path, String domainName){
-        toConsole.add(new Message("message=Adding block from " + path + "!\nsource=BlockLibrary"));
+        toConsole.add(new Message("message=Adding block from " + path + "!\nsource=Block Library"));
         Block block = new Block(path, domainName, toConsole);
         block.setID(list.size());
         list.add(block);

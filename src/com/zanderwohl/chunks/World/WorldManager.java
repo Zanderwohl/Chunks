@@ -40,7 +40,9 @@ public class WorldManager {
             json = new JSONObject(domainFile.fileToString());
             library.addDomain(json);
         } catch (FileNotFoundException e){
-            e.printStackTrace();
+            toConsole.add(new Message("message=Domain file for domain '" + domain + "' not found.\n"
+                    + "source=World Manager\nseverity=warning"));
+            //e.printStackTrace();
         }
 
     }
