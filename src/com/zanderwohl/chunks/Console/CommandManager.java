@@ -29,7 +29,6 @@ public class CommandManager {
             try {
                 Command c = new Command(command.getAttribute("message"));
                 commandQueue.add(c);
-                //toConsole.add(new Message("message=" + c.toString()));
             } catch (Command.OpenStringException e) {
                 toConsole.add(new Message("message=" + e.getMessage() + "\nsource=" + "Command Manager" +
                         "\nseverity=warning"));
