@@ -8,16 +8,11 @@ public class FileLoader {
 
     String name, extension, contents = "";
 
-    public FileLoader(String fileName){
+    public FileLoader(String fileName) throws FileNotFoundException {
         String[] split = fileName.split("\\.");
         name = split[0];
         extension = split[1];
-        try{
-            contents = fileToString();
-        } catch(FileNotFoundException e){
-            System.err.println("File " + getFullName() + " not found!");
-            e.printStackTrace();
-        }
+        contents = fileToString();
 
     }
 

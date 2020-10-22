@@ -24,8 +24,9 @@ public class World {
     private Volume emptyVolume = new Volume(this);
 
     Generator g;
+    WorldManager worldManager;
 
-    int x_length = 10, y_length = 2, z_length = 10;
+    int x_length = 20, y_length = 2, z_length = 20;
     private int seed = 0;
 
     private String name;
@@ -49,6 +50,14 @@ public class World {
         this.seed = 0; //TODO: get seed from file.
         //TODO: get generation algorithm from save file.
         g = new Simplex(seed);
+    }
+
+    public void setWorldManager(WorldManager wm){
+        worldManager = wm;
+    }
+
+    public WorldManager getWorldManager(){
+        return worldManager;
     }
 
     public void initialize(){
@@ -104,6 +113,9 @@ public class World {
         }
     }
 
+    /**
+     * Generate a little bit of world. A finite bit.
+     */
     public void basic(){
         //Generator g = new Simplex(seed);
         //Generator g = new Sine(seed);
@@ -124,34 +136,34 @@ public class World {
      * Outward-facing. Does fancy cache stuff,
      * loads the Volume if it's not in memory,
      * generates if it doesn't exists, etc.
-     * @param volume_location The location to search
+     * @param volumeLocation The location to search
      * @return
      */
-    public Volume getVolume(Coord volume_location){
+    public Volume getVolume(Coord volumeLocation){
         //if(terrain[x][y][z] != null){
-        if(findVolume(volume_location) != null){
-            //return terrain[x][y][z];
-            //return emptyVolume;
+        Volume vol = findVolume(volumeLocation);
+        if(vol != null){
+           return vol;
         } else {
             try{
-                int x = volume_location.getX();
-                int y = volume_location.getY();
-                int z = volume_location.getZ();
+                int x = volumeLocation.getX();
+                int y = volumeLocation.getY();
+                int z = volumeLocation.getZ();
                 String location = "saves/" + name + "/" + x + "_" + y + "_" + z + ".vol";
                 //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
                 //terrain[x][y][z].load(location);
-                Coord coord = new Coord(0, 0, 0);
+                Coord coord = new Coord(x, y, z);
                 Volume v = new Volume(coord, g, this);
                 v.load(location);
-                setVolume(volume_location, v);
+                setVolume(volumeLocation, v);
             } catch (FileNotFoundException e){
                 //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
                 Coord coord = new Coord(0, 0, 0);
-                setVolume(volume_location, new Volume(coord, g, this));
+                setVolume(volumeLocation, new Volume(coord, g, this));
             }
         }
         //return terrain[x][y][z];
-        return findVolume(volume_location);
+        return findVolume(volumeLocation);
     }
 
     /**
@@ -210,17 +222,44 @@ public class World {
         int x = location.getX();
         int y = location.getY();
         int z = location.getZ();
+
         int volx = x / Space.VOL_X;
         int voly = y / Space.VOL_Y;
         int volz = z / Space.VOL_Z;
-        Coord volume_location = new Coord(volx, voly, volz);
         int blockx = x % Space.VOL_X;
         int blocky = y % Space.VOL_Y;
         int blockz = z % Space.VOL_Z;
 
+        if(blockx < 0){
+            volx--;
+            blockx = Space.VOL_X - blockx;
+        }
+        if(blocky < 0){
+            voly--;
+            blocky = Space.VOL_Y - blocky;
+        }
+        if(blockz < 0) {
+            volz--;
+            blockz = Space.VOL_Z - blockz;
+        }
+
+        if(blockx >= Space.VOL_X){
+            volx++;
+            blockx = blockx - Space.VOL_X;
+        }
+        if(blocky >= Space.VOL_Y){
+            voly++;
+            blocky = blocky - Space.VOL_Y;
+        }
+        if(blockz >= Space.VOL_Z){
+            volz++;
+            blockz = blockz - Space.VOL_Z;
+        }
+        Coord volumeLocation = new Coord(volx, voly, volz);
+
         int block;
         try {
-            block = findVolume(volume_location).getBlock(blockx, blocky, blockz);
+            block = findVolume(volumeLocation).getBlock(blockx, blocky, blockz);
         } catch (NullPointerException e){
             block =  0;
         }
@@ -243,7 +282,16 @@ public class World {
             blockz = Space.VOL_Z - blockz;
         }
 
-        //System.err.println(volx + "." + blockx + " " + volz + "." + blockz);
+        if(blockx >= Space.VOL_X){
+            volx++;
+            blockx = blockx - Space.VOL_X;
+        }
+        if(blockz >= Space.VOL_Z){
+            volz++;
+            blockz = blockz - Space.VOL_Z;
+        }
+
+        System.err.println(volx + ":" + blockx + " " + volz + ":" + blockz);
         int peak = 0;
         int index = y_length;
         while(peak == 0 && index > 0){  //start from the top, and get the maximums of each volume vertically

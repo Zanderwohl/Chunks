@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks;
 
+import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Console.Console;
 import com.zanderwohl.chunks.Server.SimLoop;
 
@@ -20,11 +21,15 @@ public class Main {
      * @param args No command-line arguments.
      */
     public static void main(String[] args){
+        int port = 32112;
         prepareEnvironment();
 
         //creates queues to and from console
         ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<>();
+
+        Client singleplayerClient = new Client(port, toConsole);
+        Thread clientThread = new Thread(singleplayerClient);
 
         //Start the game's console - not the user-facing console, but the part of this program that receives and sends
         //to SuperConsole - on its own thread.
@@ -32,17 +37,17 @@ public class Main {
         Thread consoleConnectorThread = new Thread(consoleConnector);
         consoleConnectorThread.start();
 
-        //Star a SuperConsole window
+        //Start a SuperConsole window
         SuperConsole console = new SuperConsole();
         Thread consoleThread = new Thread(console);
         consoleThread.start();
 
-        //Console.log("","Main", "NORMAL", "");
-
         //Start the simulation on a thread
-        SimLoop simLoop = new SimLoop(toConsole, fromConsole);
+        SimLoop simLoop = new SimLoop(toConsole, fromConsole, port);
         Thread simThread = new Thread(simLoop);
         simThread.start();
+
+        clientThread.start();
 
         //Start the user interface on a thread
     }

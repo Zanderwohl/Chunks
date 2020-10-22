@@ -28,7 +28,7 @@ public class Chaos extends Generator{
     public int eval(int x, int y, int z) {
         int ground = ground(x, z);
         if(z <= ground){
-            return z % 10 + 1;
+            return z % 3 + 1;
         } else {
             return 0;
         }

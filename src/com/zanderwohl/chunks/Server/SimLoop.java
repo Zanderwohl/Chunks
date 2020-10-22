@@ -9,12 +9,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * The thread that simulates the logic of the game world.
  */
-public class SimLoop implements Runnable{
+public class SimLoop implements Runnable {
 
     private final double ONE_BILLION = 1000000000.0;
     public final double SIM_FPS = 20.0;
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
+    private int port;
 
     CommandManager commandManager;
     WorldManager worldManager;
@@ -26,7 +27,8 @@ public class SimLoop implements Runnable{
      * @param toConsole The queue of messages to send to the console.
      * @param fromConsole The queue of messages from the console to be consumed.
      */
-    public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole){
+    public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole, int port){
+        this.port = port;
         this.toConsole = toConsole;
         worldManager = new WorldManager(toConsole);
         commandManager = new CommandManager(toConsole, fromConsole, worldManager);
@@ -49,6 +51,10 @@ public class SimLoop implements Runnable{
         //System.out.println(delta);
     }
 
+    private void updateClient(){
+
+    }
+
     @Override
     public void run() {
         long lastNow = System.nanoTime();
@@ -67,6 +73,7 @@ public class SimLoop implements Runnable{
             }
 
             update(delta);
+            updateClient();
 
             try {
                 long sleepTime = (long)(lastNow - System.nanoTime() + SIM_NS) / 1000000;

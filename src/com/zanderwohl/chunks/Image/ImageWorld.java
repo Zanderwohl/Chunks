@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks.Image;
 
+import com.zanderwohl.chunks.World.Coord;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.chunks.Block.Block;
 import com.zanderwohl.chunks.Block.BlockLibrary;
@@ -45,18 +46,17 @@ public class ImageWorld {
     }
 
 
-    /*
+    /**
      * Make a simple top-down image of a world.
      * @param w The world to image.
      * @return A buffered image of the world.
      */
-    /*
     public static BufferedImage makeImage(World w){
         BufferedImage image = new BufferedImage(w.getX(),w.getZ(),BufferedImage.TYPE_INT_RGB);
 
         int highest = 0;
         int lowest = Integer.MAX_VALUE;
-        BlockLibrary library = w.getLibrary();
+        BlockLibrary library = w.getWorldManager().getLibrary();
 
         for(int x = 0; x < w.getX(); x++){
             for(int z = 0; z < w.getZ(); z++){
@@ -70,7 +70,7 @@ public class ImageWorld {
 
                 //double degree = (((double) w.getPeak(x,z) / (double)w.getY())) + 0.5;
                 double degree = (Math.sin(((double) w.getPeak(x,z) / (double)w.getY())) + 1.0) / 2.0;
-                Color c = new Color(library.getBlockColor(w.getBlock(x, w.getPeak(x,z), z)));
+                Color c = new Color(library.getBlockColor(w.getBlock(new Coord(x, w.getPeak(x,z), z))));
                 double red = c.getRed() * degree;
                 double blue = c.getBlue() * degree;
                 double green = c.getGreen() * degree;
@@ -86,7 +86,7 @@ public class ImageWorld {
 
         //System.out.println("Highest: " + highest + "\nLowest: " + lowest + "\nCeiling: " + w.getY());
         return image;
-    }*/
+    }
 
     /*
      * Generate a top-down image of a portion of the world.
@@ -98,7 +98,6 @@ public class ImageWorld {
      * @param height The pixel-width of the image.
      * @return The image.
      */
-    /*
     public static BufferedImage makeImage2(World w, int center_x, int center_z, int scale, int width, int height){
         double halfWidth = width / 2.0;
         double halfHeight = height / 2.0;
@@ -117,7 +116,7 @@ public class ImageWorld {
 
         int highest = 0;
         int lowest = Integer.MAX_VALUE;
-        BlockLibrary library = w.getLibrary();
+        BlockLibrary library = w.getWorldManager().getLibrary();
 
         for(int x = startX; x < endX; x++){
             for(int z = startZ; z < endZ; z++){
@@ -155,9 +154,9 @@ public class ImageWorld {
                 Color result = new Color(0, 0, 0,transparency);
 
                 System.out.println(x + " " + z);
-                int blockID = w.getBlock(x, thisPeak, z);
+                int blockID = w.getBlock(new Coord(x, thisPeak, z));
                 Block b = library.getBlockById(blockID);
-                map.drawImage(b.getTexture(0), x, z, scale, scale,null);
+                map.drawImage(b.getTexture(0), x * scale + (int)halfWidth, z * scale + (int) halfHeight, scale, scale,null);
                 //map.setColor(result);
                 //map.fillRect(x, z, scale, scale);
             }
@@ -166,7 +165,6 @@ public class ImageWorld {
         System.out.println("Highest: " + highest + "\nLowest: " + lowest + "\nCeiling: " + w.getY());
         return image;
     }
-*/
 
     /**
      * Create an unwrapped image of a block's sides.

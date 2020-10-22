@@ -68,8 +68,13 @@ public class WorldManager {
                 "severity=normal"));
         newWorld.initialize(); //TODO: Probably don't do this here.
         worlds.put(name, newWorld);
+        newWorld.setWorldManager(this);
         toConsole.add(new Message("message=Created world '" + name + "'.\nsource=World Manager\n" +
                 "severity=normal"));
+    }
+
+    public World getWorld(String worldName){
+        return worlds.get(worldName);
     }
 
     public void saveWorld(String name){

@@ -1,8 +1,13 @@
 package com.zanderwohl.chunks.Console;
 
+import com.zanderwohl.chunks.Image.ImageWorld;
+import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -65,6 +70,9 @@ public class CommandManager {
                 case "HELP":
                     listCommands(c);
                     break;
+                case "IMAGE":
+                    imageWorld(c);
+                    break;
                 default:
                     unrecognizedCommand(c, commandString);
             }
@@ -115,8 +123,33 @@ public class CommandManager {
     }
 
     public void listCommands(Command command){
-        toConsole.add(new Message("message=say, new, list, worlds, save, saveall, kill, help"
+        toConsole.add(new Message("message=say, new, list, worlds, save, saveall, kill, help, image"
                 + "\nsource=Command Manager\nseverity=normal"
         ));
+    }
+
+    public void imageWorld(Command command){
+        World w = worldManager.getWorld(command.getArgument(0));
+        if(w == null){
+            toConsole.add(new Message("message=The world \"" + command.getArgument(0)
+                    + "\" does not exist or is not loaded."
+                    + "\nsource=Command Manager\nseverity=normal"
+            ));
+            return;
+        }
+        BufferedImage image;
+        if("big".equalsIgnoreCase(command.getArgument(1))){
+            image = ImageWorld.makeImage2(w, 0, 0, 16, 1920, 1080);
+        } else {
+            image = ImageWorld.makeImage(w);
+        }
+        ImageWorld.saveImage(image, w.getName());
+
+        //TODO: Remove this code
+        JFrame frame = new JFrame();
+        frame.getContentPane().setLayout(new FlowLayout());
+        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+        frame.pack();
+        frame.setVisible(true);
     }
 }
