@@ -117,13 +117,13 @@ public class World {
      * Generate a little bit of world. A finite bit.
      */
     public void basic(){
-        //Generator g = new Simplex(seed);
-        //Generator g = new Sine(seed);
-        Generator g = new Chaos(seed);
+       // Generator g = new Simplex(seed);
+        Generator g = new Sine(seed);
+        //Generator g = new Chaos(seed);
         //Generator g = new Layers(seed);
-        for(int x = 0; x < x_length; x++){
+        for(int x = -x_length; x < x_length; x++){
             for(int y = 0; y < y_length; y++){
-                for(int z = 0; z < z_length; z++){
+                for(int z = -z_length; z < z_length; z++){
                     Coord location = new Coord(x, y, z);
                     Volume c = new Volume(location, g, this);
                     setVolume(location, c);
@@ -139,7 +139,7 @@ public class World {
      * @param volumeLocation The location to search
      * @return
      */
-    public Volume getVolume(Coord volumeLocation){
+    public Volume getVolume(Coord volumeLocation, boolean createNewVols){
         //if(terrain[x][y][z] != null){
         Volume vol = findVolume(volumeLocation);
         if(vol != null){
@@ -158,8 +158,13 @@ public class World {
                 setVolume(volumeLocation, v);
             } catch (FileNotFoundException e){
                 //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
-                Coord coord = new Coord(0, 0, 0);
-                setVolume(volumeLocation, new Volume(coord, g, this));
+                if(createNewVols) {
+                    Coord coord = new Coord(0, 0, 0);
+                    setVolume(volumeLocation, new Volume(coord, g, this));
+                } else {
+                    System.err.println("empty vol!");
+                    return emptyVolume;
+                }
             }
         }
         //return terrain[x][y][z];
@@ -291,7 +296,7 @@ public class World {
             blockz = blockz - Space.VOL_Z;
         }
 
-        System.err.println(volx + ":" + blockx + " " + volz + ":" + blockz);
+        //System.err.println(volx + ":" + blockx + " " + volz + ":" + blockz);
         int peak = 0;
         int index = y_length;
         while(peak == 0 && index > 0){  //start from the top, and get the maximums of each volume vertically
@@ -300,7 +305,7 @@ public class World {
                 try {
                     //peak = terrain[volx][index][volz].getMaxHeight(blockx, blockz);
                     Coord volume_location = new Coord(volx, index, volz);
-                    peak = getVolume(volume_location).getMaxHeight(blockx, blockz);
+                    peak = getVolume(volume_location, false).getMaxHeight(blockx, blockz);
                 } catch (NullPointerException e){
                     //Do nothing. just move on to a terrain volume that DOES exist.
                 }

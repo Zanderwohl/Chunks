@@ -121,44 +121,36 @@ public class ImageWorld {
         for(int x = startX; x < endX; x++){
             for(int z = startZ; z < endZ; z++){
                 int value = w.getPeak(x, z);
-                if(value > highest){
-                    highest = value;
-                }
-                if(value < lowest){
-                    lowest = value;
-                }
+                highest = Math.max(value, highest);
+                lowest = Math.min(value, lowest);
 
                 int thisPeak = w.getPeak(x, z);
-                int otherPeak = w.getPeak(x, z - 1);
-                int otherOtherPeak = w.getPeak(x, z + 1);
-                int difference = thisPeak - otherPeak - otherOtherPeak;
-                double degree;
+                int northPeak = w.getPeak(x, z - 1);
+                int southPeak = w.getPeak(x, z + 1);
+                int eastPeak = w.getPeak(x + 1, z);
+                int westPeak = w.getPeak(x - 1, z);
 
-                //uses both difference with north block and height to calculate color.
-                //double degree1 = 1.0 - ((difference + 10.0) / 20.0);
-                double degree1 = 0.5 + (1.0/20.0) * difference;
-                //double degree2 = (double)thisPeak / (double)w.getY();
-                //double degree2 = (thisPeak % 20) / 20.0;
-                double degree2 = (Math.sin(thisPeak / 10.0) / 2.0) + 0.5;
-                if(degree1 < 0){
-                    degree1 = 0;
-                }
-                if(degree1 > 1){
-                    degree1 = 1;
-                }
-                degree = degree1 * 1.0 + degree2 * 0.0;
+                int northDifference = Math.abs(thisPeak - northPeak);
+                int southDifference = Math.abs(thisPeak - southPeak);
+                int eastDifference = Math.abs(thisPeak - eastPeak);
+                int westDifference = Math.abs(thisPeak - westPeak);
 
-                int transparency = (int)(degree * 200);
-                //System.out.println(transparency);
-                //Color result = new Color((int)red, (int)green, (int)blue,transparency);//weird effect tho.
-                Color result = new Color(0, 0, 0,transparency);
+                double northEast = northDifference + eastDifference;
+                double southWest = southDifference + westDifference;
 
-                System.out.println(x + " " + z);
+                double northEastRatio = clamp(northEast / 7.0);
+                double southWestRatio = clamp(southWest / 7.0);
+                double combinedRatio = clamp(northEastRatio - southWestRatio + .5);
+
+                int transparency = (int)(combinedRatio * 200);
+                Color result = new Color(0, 0, 0, transparency);
+
                 int blockID = w.getBlock(new Coord(x, thisPeak, z));
                 Block b = library.getBlockById(blockID);
-                map.drawImage(b.getTexture(0), x * scale + (int)halfWidth, z * scale + (int) halfHeight, scale, scale,null);
-                //map.setColor(result);
-                //map.fillRect(x, z, scale, scale);
+                map.drawImage(b.getTexture(0), x * scale + (int)halfWidth, z * scale + (int) halfHeight,
+                        scale, scale,null);
+                map.setColor(result);
+                map.fillRect(x  * scale + (int)halfWidth, z * scale + (int) halfHeight, scale, scale);
             }
         }
 
@@ -191,5 +183,9 @@ public class ImageWorld {
      */
     public static String getTime(){
         return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime());
+    }
+
+    private static double clamp(double input){
+        return Math.max(0.0, Math.min(1.0, input));
     }
 }
