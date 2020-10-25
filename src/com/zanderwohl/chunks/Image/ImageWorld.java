@@ -88,7 +88,7 @@ public class ImageWorld {
         return image;
     }
 
-    /*
+    /**
      * Generate a top-down image of a portion of the world.
      * @param w The world to image.
      * @param center_x The center of the image on the x-axis
@@ -185,6 +185,11 @@ public class ImageWorld {
         return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime());
     }
 
+    /**
+     * A [0.0, 1.0]-ranged clamp function.
+     * @param input The unclamped value.
+     * @return The value, but clamped.
+     */
     private static double clamp(double input){
         return Math.max(0.0, Math.min(1.0, input));
     }

@@ -34,6 +34,7 @@ public class Command {
 
     /**
      * More complex split that allows arguments to be enclosed in quotes to allow for spaces in them.
+     * This is a really convoluted solution and needs to be done by someone who knows how to write parsers.
      * @param s The string to be parsed.
      * @return An array of each token.
      * @throws OpenStringException If an odd number of quotes is present.
@@ -83,6 +84,10 @@ public class Command {
         return return_list;
     }
 
+    /**
+     * Shows contents of Command as a string. Form will change.
+     * @return A list of contents useful for a human but not for a computer.
+     */
     @Override
     public String toString() {
         return "Command{" +
@@ -91,14 +96,27 @@ public class Command {
                 '}';
     }
 
+    /**
+     * Gets just the command, sans arguments.
+     * @return The command.
+     */
     public String getCommand(){
         return command;
     }
 
+    /**
+     * Get the arguments in array form.
+     * @return The arguments.
+     */
     public String[] getArguments(){
         return arguments.clone();
     }
 
+    /**
+     * Get an argument by index. Agnostic to particular command structure.
+     * @param index The index of the wanted command.
+     * @return The argument at the given index.
+     */
     public String getArgument(int index){
         try {
             return arguments[index];
@@ -107,10 +125,18 @@ public class Command {
         }
     }
 
+    /**
+     * Gets the list of arguments in a single string, whitespace-delimited.
+     * @return The full list of arguments in a single string.
+     */
     public String getArgumentsString(){
         return argumentsString;
     }
 
+    /**
+     * Gets the number of arguments.
+     * @return The number of arguments.
+     */
     public int getArgumentsLength(){
         return arguments.length;
     }

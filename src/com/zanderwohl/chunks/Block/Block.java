@@ -109,16 +109,12 @@ public class Block {
         try {
             File file = new File(FileConstants.domainFolder + "/" + domain + "/"
                     + FileConstants.textureFolder + "/" + fileName);
-            //System.out.println(file.toString());
             return ImageIO.read(file);
         } catch (MalformedURLException e){
-            //System.err.println(fileName + ", a specified texture for the block \"" + getFullName()
-            //        + "\" does not exist, or is named wrongly.");
             toConsole.add(new Message("message=" + fileName + ", a specified texture for the block \""
                     + getFullName() + "\" does not exist, or is named wrongly.\nsource=Block " + name
                     + "\nseverity=critical"));
         } catch (IOException e){
-            //System.err.println("Cannot find file " + fileName + "!");
             toConsole.add(new Message("message=Cannot find file \" + fileName + \"!\nsource=Block " + name
                     + "\nseverity=critical"));
 

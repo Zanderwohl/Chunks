@@ -1,6 +1,7 @@
 com.kdotJPG.OpenSimplex
 com.zanderwohl.chunks
 com.zanderwohl.chunks.Block
+com.zanderwohl.chunks.Client
 com.zanderwohl.chunks.Console
 com.zanderwohl.chunks.Generator
 com.zanderwohl.chunks.Image

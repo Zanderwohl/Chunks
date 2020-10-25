@@ -58,7 +58,6 @@ Once the textures are loaded into the block, they are stored in this order:
 0: Top, 1: Front, 2: Left, 3: Right, 4: Back, 5: Bottom
 
 ## BlockLibrary
-
 An object that manages all the blocks in particular world. It is responsible for assigning block ids to each block.
 
 Receives blocks through the addition of a domain. Takes all blocks from the domain.json file and loads their properties
@@ -69,7 +68,6 @@ It also manages multiple domains.
 It can find block ids by name and find block names by ids.
 
 ### Domain file
-
 A domain file lists all the blocks included in the domain, as well as other information about the domain.
 
 A block file may be added to the domain by:

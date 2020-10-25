@@ -24,8 +24,10 @@ public class SimLoop implements Runnable {
 
     /**
      * Only constructor?
+     * TODO: Fix this function's documentation.
      * @param toConsole The queue of messages to send to the console.
      * @param fromConsole The queue of messages from the console to be consumed.
+     * @param port The port on which the server should run.
      */
     public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole, int port){
         this.port = port;
@@ -51,10 +53,16 @@ public class SimLoop implements Runnable {
         //System.out.println(delta);
     }
 
+    /**
+     * Send updates to all clients over the network.
+     */
     private void updateClient(){
 
     }
 
+    /**
+     * Run the world. Simulate physics and deal with client updates. Update clients.
+     */
     @Override
     public void run() {
         long lastNow = System.nanoTime();

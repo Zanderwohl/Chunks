@@ -1,23 +1,44 @@
 package com.zanderwohl.chunks.World;
 
+/**
+ * A thruple of x, y, and z coordinates in integer form.
+ */
 public class Coord {
 
     private int x, y, z;
 
+    /**
+     * Create new coordinate.
+     * @param x X-value.
+     * @param y Y-value.
+     * @param z Z-value.
+     */
     public Coord(int x, int y, int z){
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
+    /**
+     * Getter for x.
+     * @return x-component of this Coord.
+     */
     public int getX(){
         return x;
     }
 
+    /**
+     * Getter for y.
+     * @return y-component of this Coord.
+     */
     public int getY(){
         return y;
     }
 
+    /**
+     * Getter for z.
+     * @return z-component of this Coord.
+     */
     public int getZ(){
         return z;
     }
@@ -90,7 +111,7 @@ public class Coord {
     /**
      * Produces a copy of this coordinate converted to Volume coordinate, assuming this is interpreted as a World
      * Coordinate.
-     * @return
+     * @return The new Volume coordinate.
      */
     public Coord worldToVol(){
         int x_= Space.xToVolX(x);
