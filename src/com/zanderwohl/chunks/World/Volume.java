@@ -68,9 +68,10 @@ public class Volume {
     }
 
     /**
-     * TODO: IDK what this actually is doing???
-     * @param location
-     * @throws FileNotFoundException
+     * Load data into this Volume from a file. Currently supports only blocks with no specific data,
+     * as well as an internal marker of location.
+     * @param location The name of the file, including the extension.
+     * @throws FileNotFoundException If the file specified is not found.
      */
     public void load(String location) throws FileNotFoundException {
         FileLoader volumeFile = new FileLoader(location);
@@ -94,6 +95,11 @@ public class Volume {
         }
     }
 
+    /**
+     * Save the data in this Volume to a file. Currently supports only blocks with no specific data,
+     * as awell as an internal marker of location.
+     * @param saveName
+     */
     public void save(String saveName) {
         PrintWriter out;
         try {
@@ -120,6 +126,10 @@ public class Volume {
         out.close();
     }
 
+    /**
+     * Only the location of the Volume.
+     * @return The location coordinates, underscored-delimited.
+     */
     public String toString(){
         int save_x = location.getX();
         int save_y = location.getY();
@@ -128,11 +138,11 @@ public class Volume {
     }
 
     public int getBlock(int x, int y, int z){
-        //System.out.println(x + " " + y + " " + z);
         return blocks[x][y][z];
     }
 
     /**
+     * Calculates the maximum points in each column in this Volume.
      * MUST be called before getMaxHeight or getMaxBlock after every update of this Volume's contents.
      */
     private void calcMaximums(){
@@ -148,10 +158,24 @@ public class Volume {
         }
     }
 
+    /**
+     * Get the maximum y-value at a particular location.
+     * The maximum is the highest y-value in the Volume that does not have air.
+     * @param x The x-coordinate.
+     * @param z The z-coordinate.
+     * @return The maximum height in this column.
+     */
     public int getMaxHeight(int x, int z){
         return maximums[x][z];
     }
 
+    /**
+     * Get the block type id in at the highest position in the particular column.
+     * The block type id is specified by the Block Library. It may change per-instance, per-run.
+     * @param x The x-coordinate.
+     * @param z The z-coordinate.
+     * @return The block type id at the maximum filled height in the specified column.
+     */
     public int getMaxBlock(int x, int z){
         return maxBlocks[x][z];
     }
@@ -163,26 +187,52 @@ public class Volume {
 
     }
 
+    /**
+     * Get the world that this Volume belongs to.
+     * @return The world this Volume belongs to.
+     */
     public World getWorld(){
         return w;
     }
 
+    /**
+     * Gets the Coord, in Volume coordinates, that this Volume is located at within the world.
+     * @return The location Coord.
+     */
     public Coord getLocation(){
         return location;
     }
 
+    /**
+     * Getter for the x-coordinate, in Volume scale.
+     * @return The x-coordinate.
+     */
     public int getX(){
         return location.getX();
     }
 
+    /**
+     * Getter for the y-coordinate, in Volume scale.
+     * @return The y-coordinate.
+     */
     public int getY(){
         return location.getY();
     }
 
+    /**
+     * Getter for the z-coordinate, in Volume scale.
+     * @return The z-coordinate.
+     */
     public int getZ(){
         return location.getZ();
     }
 
+    /**
+     * Set the location of this Volume within the world.
+     * Should be given in Volume-scale.
+     * Does not check if this location is already occupied by another Volume.
+     * @param newLocation The location this Volume should now have.
+     */
     public void setLocation(Coord newLocation){
         location = newLocation;
         int swb_x = Space.volXToX(location.getX());
@@ -191,16 +241,31 @@ public class Volume {
         swb = new Coord(swb_x, swb_y, swb_z);
     }
 
+    /**
+     * Modify the x-coordinate of this Volume within the world.
+     * Should be given in Volume-scale.
+     * @param x The new x-coordinate.
+     */
     public void setX(int x){
         Coord newLocation = new Coord(x, location.getY(), location.getZ());
         setLocation(newLocation);
     }
 
+    /**
+     * Modify the y-coordinate of this Volume within the world.
+     * Should be given in Volume-scale.
+     * @param y The new x-coordinate.
+     */
     public void setY(int y){
         Coord newLocation = new Coord(location.getX(), y, location.getZ());
         setLocation(newLocation);
     }
 
+    /**
+     * Modify the z-coordinate of this Volume within the world.
+     * Should be given in Volume-scale.
+     * @param z The new x-coordinate.
+     */
     public void setZ(int z){
         Coord newLocation = new Coord(location.getX(), location.getY(), z);
         setLocation(newLocation);
