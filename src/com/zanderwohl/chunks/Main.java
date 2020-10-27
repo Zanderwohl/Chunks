@@ -5,6 +5,8 @@ import com.zanderwohl.chunks.Console.Console;
 import com.zanderwohl.chunks.Server.SimLoop;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.zanderwohl.console.SuperConsole;
@@ -20,7 +22,7 @@ public class Main {
      * Initializes the Message queues to pass messages to and from the console.
      * @param args No command-line arguments.
      */
-    public static void main(String[] args){
+    public static void main(String[] args) throws MalformedURLException {
         int port = 32112;
         prepareEnvironment();
 
@@ -28,7 +30,7 @@ public class Main {
         ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<>();
 
-        Client singleplayerClient = new Client(port, toConsole);
+        Client singleplayerClient = new Client(new URL("http://localhost"), port, toConsole);
         Thread clientThread = new Thread(singleplayerClient);
 
         //Start the game's console - not the user-facing console, but the part of this program that receives and sends

@@ -2,7 +2,7 @@
 The classes that deal with the external console, both sending and receiving Messages.
 
 The console uses the SuperConsole library, which I wrote. This is a console meant to be slightly easier to use than a
-normal command-line console. It has a history you can scroll through.
+normal userCommand-line console. It has a history you can scroll through.
 
 Planned features include detail dialogues similar to how QLab handles editing details per-cue and the saving and
 loading of past sessions.
@@ -27,10 +27,10 @@ Consumes Messages from the fromConsole queue and notifies the appropriate object
 The method to call when the CommandManager should consume all commands on the queue and take the relevant actions.
 
 ## Command
-An object that contains a console command to be sent between different objects. Takes in a single string in the
-constructor, and internally will parse out the different pieces of the command.
+An object that contains a console userCommand to be sent between different objects. Takes in a single string in the
+constructor, and internally will parse out the different pieces of the userCommand.
 
 ### Future
 Will later on be able to take in a json string as final argument and parse out optional/unordered arguments that will be
-internally keyed by string. Each command type will have a lambda to pass in that will allow ordered arguments to also
+internally keyed by string. Each userCommand type will have a lambda to pass in that will allow ordered arguments to also
 be arranged with string keys.

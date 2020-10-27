@@ -98,10 +98,15 @@ public class WorldManager {
     }
 
     public void killWorld(String name){
-        toConsole.add(new Message("message=Killing world '" + name + "'...\nsource=World Manager"));
-        World worldToKill = worlds.remove(name);
-
-        toConsole.add(new Message("message=World '" + name + "' killed.\nsource=World Manager"));
+        World worldToKill = worlds.get(name);
+        if(worldToKill == null){
+            toConsole.add(new Message("message=No active world by the name '" + name +
+                    "'.\nsource=World Manager"));
+        } else {
+            toConsole.add(new Message("message=Killing world '" + name + "'...\nsource=World Manager"));
+            worlds.remove(name);
+            toConsole.add(new Message("message=World '" + name + "' killed.\nsource=World Manager"));
+        }
     }
 
     public static int formatSeed(String seed){
