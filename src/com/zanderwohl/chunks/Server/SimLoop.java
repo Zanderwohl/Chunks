@@ -4,6 +4,11 @@ import com.zanderwohl.chunks.Console.CommandManager;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -15,12 +20,18 @@ public class SimLoop implements Runnable {
     public final double SIM_FPS = 20.0;
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
+    private int maximumClients = 10;
     private int port;
 
-    CommandManager commandManager;
-    WorldManager worldManager;
+    private CommandManager commandManager;
+    private WorldManager worldManager;
 
-    ConcurrentLinkedQueue<Message> toConsole;
+    private ConcurrentLinkedQueue<Message> toConsole;
+    private ConcurrentLinkedQueue<Message> fromConsole;
+
+    private ServerSocket serverSocket;
+    private List<ClientHandler> clients;
+    private ClientAccepter clientAccepter;
 
     /**
      * Only constructor?
@@ -29,11 +40,16 @@ public class SimLoop implements Runnable {
      * @param fromConsole The queue of messages from the console to be consumed.
      * @param port The port on which the server should run.
      */
-    public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole, int port){
+    public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole, int port) throws IOException {
         this.port = port;
         this.toConsole = toConsole;
+        this.fromConsole = fromConsole;
+        this.serverSocket = new ServerSocket(port);
+
         worldManager = new WorldManager(toConsole);
         commandManager = new CommandManager(toConsole, fromConsole, worldManager);
+        clients = Collections.synchronizedList(new ArrayList<ClientHandler>());
+        clientAccepter = new ClientAccepter(serverSocket, clients, toConsole);
     }
 
     /**
@@ -56,7 +72,11 @@ public class SimLoop implements Runnable {
     /**
      * Send updates to all clients over the network.
      */
-    private void updateClient(){
+    private void updateClients(){
+        //for(int i = 0; i < )
+    }
+
+    private void updateClient(int index){
 
     }
 
@@ -68,6 +88,8 @@ public class SimLoop implements Runnable {
         long lastNow = System.nanoTime();
         double delta = 0.0;
         long lastFPSTime = 0;
+
+        clientAccepter.run();
 
         while(true){
             long now = System.nanoTime();
@@ -81,7 +103,7 @@ public class SimLoop implements Runnable {
             }
 
             update(delta);
-            updateClient();
+            updateClients();
 
             try {
                 long sleepTime = (long)(lastNow - System.nanoTime() + SIM_NS) / 1000000;
