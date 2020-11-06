@@ -5,7 +5,10 @@ import com.zanderwohl.chunks.Main;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.console.SuperConsole;
 
+import javax.swing.*;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -21,6 +24,8 @@ public class Client implements Runnable {
     private final ClientIdentity identity;
     private ConcurrentLinkedQueue<Message> toConsole;
 
+    PrintWriter out;
+    ObjectOutputStream objectOut;
 
     /**
      * An entry point that only starts a client, not a server.
@@ -76,9 +81,17 @@ public class Client implements Runnable {
 
         try {
             clientSocket = new Socket(serverHost, serverPort);
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            objectOut = new ObjectOutputStream(clientSocket.getOutputStream());
+            objectOut.writeObject(identity);
         } catch (IOException e){
             toConsole.add(new Message("source=Client\nseverity=critical\nmessage="
                     + "Could not connect to host '" + serverHost + "' on port " + serverPort + "!"));
+            return;
         }
+
+        JFrame testFrame = new JFrame();
+        testFrame.setVisible(true);
     }
 }
+

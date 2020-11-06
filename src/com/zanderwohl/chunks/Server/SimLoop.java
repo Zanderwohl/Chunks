@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -20,7 +21,6 @@ public class SimLoop implements Runnable {
     public final double SIM_FPS = 20.0;
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
-    private int maximumClients = 10;
     private int port;
 
     private CommandManager commandManager;
@@ -30,7 +30,7 @@ public class SimLoop implements Runnable {
     private ConcurrentLinkedQueue<Message> fromConsole;
 
     private ServerSocket serverSocket;
-    private List<ClientHandler> clients;
+    private List<Thread> clients;
     private ClientAccepter clientAccepter;
 
     /**
@@ -47,8 +47,8 @@ public class SimLoop implements Runnable {
         this.serverSocket = new ServerSocket(port);
 
         worldManager = new WorldManager(toConsole);
-        commandManager = new CommandManager(toConsole, fromConsole, worldManager);
-        clients = Collections.synchronizedList(new ArrayList<ClientHandler>());
+        commandManager = new CommandManager(toConsole, fromConsole, worldManager, this);
+        clients = Collections.synchronizedList(new ArrayList<Thread>());
         clientAccepter = new ClientAccepter(serverSocket, clients, toConsole);
     }
 
@@ -80,6 +80,16 @@ public class SimLoop implements Runnable {
 
     }
 
+    private void pruneDeadClients(){
+        Iterator<Thread> i = clients.iterator();
+        while(i.hasNext()){
+            Thread t = i.next();
+            if(!t.isAlive()){
+                clients.remove(t);
+            }
+        }
+    }
+
     /**
      * Run the world. Simulate physics and deal with client updates. Update clients.
      */
@@ -89,7 +99,8 @@ public class SimLoop implements Runnable {
         double delta = 0.0;
         long lastFPSTime = 0;
 
-        clientAccepter.run();
+        Thread clientAccepterThread = new Thread(clientAccepter);
+        clientAccepterThread.start();
 
         while(true){
             long now = System.nanoTime();
@@ -102,6 +113,7 @@ public class SimLoop implements Runnable {
                 lastFPSTime = 0;
             }
 
+            pruneDeadClients(); //TODO: Only do this once per second, or maybe less.
             update(delta);
             updateClients();
 

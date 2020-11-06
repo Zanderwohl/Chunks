@@ -1,9 +1,11 @@
 package com.zanderwohl.chunks.Client;
 
+import java.io.Serializable;
+
 /**
  * Client identity includes username. In the future will include authentication information, skin, and character model.
  */
-public class ClientIdentity {
+public class ClientIdentity implements java.io.Serializable {
 
     private String username;
 

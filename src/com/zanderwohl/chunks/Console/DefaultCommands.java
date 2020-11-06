@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Console;
 
 import com.zanderwohl.chunks.Image.ImageWorld;
+import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
@@ -16,17 +17,19 @@ import java.util.function.BiConsumer;
 
 public class DefaultCommands {
 
+    private static SimLoop simLoop;
     private static CommandManager commandManager;
     private static WorldManager worldManager;
     private static ArrayList<Command> commands;
     private static HashMap<String, Command> commandMap;
 
     public static void giveObjects(CommandManager c, WorldManager wm, ArrayList<Command> cm,
-                                   HashMap<String, Command> cs){
+                                   HashMap<String, Command> cs, SimLoop sl){
         commandManager = c;
         worldManager = wm;
         commands = cm;
         commandMap = cs;
+        simLoop = sl;
     }
 
     public static void addDefaultCommands(){
@@ -69,6 +72,11 @@ public class DefaultCommands {
         Command help = new Command("help", "Lists commands or gives help for a command.", new Help());
         help.addArgument("command", true, "A specific command to get help on.");
         commandManager.addCommand(help);
+
+        Command kick = new Command("kick", "Forcefully disconnects a user from the server.",
+                new Kick());
+        kick.addArgument("user",true,"The user to kick.");
+        commandManager.addCommand(kick);
     }
 
     public static class Say implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>>{
@@ -186,6 +194,22 @@ public class DefaultCommands {
                 Command c = commandMap.get(arguments.get("command"));
                 String helpText = c.documentation();
                 toConsole.add(new Message("source=Command Manager\nmessage=" + helpText));
+            }
+        }
+    }
+
+    public static class Kick implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+
+        @Override
+        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole) {
+            if(arguments.get("user") == null){
+                toConsole.add(new Message("source=Command Manager\nseverity=warning\nmessage="
+                + "Specify a user to kick."));
+            } else {
+                String userToKick = arguments.get("user");
+                toConsole.add(new Message("source=Command Manager\nseverity=warning\nmessage="
+                        + "Sorry, can't kick " + userToKick + ". This command has not yet been implemented."));
+                //TODO: Find and kick user.
             }
         }
     }

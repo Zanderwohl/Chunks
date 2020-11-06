@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks.Console;
 
+import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
@@ -19,13 +20,13 @@ public class CommandManager {
     private ArrayList<Command> commandsList;
 
     public CommandManager(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole,
-                          WorldManager worldManager){
+                          WorldManager worldManager, SimLoop simLoop){
         this.fromConsole = fromConsole;
         this.toConsole = toConsole;
         this.worldManager = worldManager;
         this.commands = new HashMap<>();
         this.commandsList = new ArrayList<>();
-        DefaultCommands.giveObjects(this, worldManager, commandsList, commands);
+        DefaultCommands.giveObjects(this, worldManager, commandsList, commands, simLoop);
         DefaultCommands.addDefaultCommands();
     }
 

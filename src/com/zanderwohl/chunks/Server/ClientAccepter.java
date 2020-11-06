@@ -8,26 +8,32 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ClientAccepter extends Thread {
+public class ClientAccepter implements Runnable {
 
     private ServerSocket serverSocket;
     private ConcurrentLinkedQueue<Message> toConsole;
-    private List<ClientHandler> clients;
+    private List<Thread> clients;
 
-    public ClientAccepter(ServerSocket serverSocket, List<ClientHandler> clients,
+    private int maximumClients = 10;
+
+    public ClientAccepter(ServerSocket serverSocket, List<Thread> clients,
                           ConcurrentLinkedQueue<Message> toConsole){
         this.serverSocket = serverSocket;
         this.clients = clients;
         this.toConsole = toConsole;
     }
 
+    @Override
     public void run(){
         while(true){
             try {
                 Socket socket = serverSocket.accept();
                 ClientHandler newClient = new ClientHandler(socket, toConsole);
-                clients.add(newClient);
-                newClient.start();
+                Thread clientThread = new Thread(newClient);
+                clients.add(clientThread);
+                clientThread.start();
+                toConsole.add(new Message("source=Client Accepter\nmessage="
+                + "New client connected!"));
             } catch (IOException e) {
                 toConsole.add(new Message("source=Client Accepter\nseverity=critical\nmessage="
                 + "A client failed to connect to the server."));
