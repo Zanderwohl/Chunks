@@ -15,9 +15,9 @@ import static com.zanderwohl.chunks.World.Space.*;
 public class Volume {
 
     //private int x, y, z;
-    private Coord location = new Coord(0, 0, 0 );
+    private Coord location = new Coord(0, 0, 0, Coord.Scale.VOLUME);
     //private int swb_x, swb_y, swb_z; //Southwestbottom corner x, y, and z block coordinates to world.
-    private Coord swb = new Coord(0, 0, 0); //Southwestbottom corner x, y, and z block coordinates to world.
+    private Coord swb = new Coord(0, 0, 0, Coord.Scale.BLOCK); //Southwestbottom corner x, y, and z block coordinates to world.
     private int[][][] blocks;
     private int[][] maximums; //The max heights per-column
     private int[][] maxBlocks; //The blocks at the max heights in each column.
@@ -34,7 +34,7 @@ public class Volume {
     public Volume(World w){
         this.w = w;
 
-        setLocation(new Coord(0, 0, 0));
+        setLocation(new Coord(0, 0, 0, Coord.Scale.VOLUME));
         blocks = new int[VOL_X][VOL_Y][VOL_Z];
         maximums = new int[VOL_X][VOL_Z];
         maxBlocks = new int[VOL_X][VOL_Z];
@@ -229,16 +229,17 @@ public class Volume {
 
     /**
      * Set the location of this Volume within the world.
-     * Should be given in Volume-scale.
+     * Should be given in Volume-scale. Converts if Coord is explicitly Block-scale.
      * Does not check if this location is already occupied by another Volume.
      * @param newLocation The location this Volume should now have.
      */
     public void setLocation(Coord newLocation){
+        newLocation = newLocation.blockToVol();
         location = newLocation;
         int swb_x = Space.volXToBlockX(location.getX());
         int swb_y = Space.volYToBlockY(location.getY());
         int swb_z = Space.volZToBlockZ(location.getZ());
-        swb = new Coord(swb_x, swb_y, swb_z);
+        swb = new Coord(swb_x, swb_y, swb_z, Coord.Scale.BLOCK);
     }
 
     /**
@@ -247,7 +248,7 @@ public class Volume {
      * @param x The new x-coordinate.
      */
     public void setX(int x){
-        Coord newLocation = new Coord(x, location.getY(), location.getZ());
+        Coord newLocation = new Coord(x, location.getY(), location.getZ(), Coord.Scale.VOLUME);
         setLocation(newLocation);
     }
 
@@ -257,7 +258,7 @@ public class Volume {
      * @param y The new x-coordinate.
      */
     public void setY(int y){
-        Coord newLocation = new Coord(location.getX(), y, location.getZ());
+        Coord newLocation = new Coord(location.getX(), y, location.getZ(), Coord.Scale.VOLUME);
         setLocation(newLocation);
     }
 
@@ -267,7 +268,7 @@ public class Volume {
      * @param z The new x-coordinate.
      */
     public void setZ(int z){
-        Coord newLocation = new Coord(location.getX(), location.getY(), z);
+        Coord newLocation = new Coord(location.getX(), location.getY(), z, Coord.Scale.VOLUME);
         setLocation(newLocation);
     }
 

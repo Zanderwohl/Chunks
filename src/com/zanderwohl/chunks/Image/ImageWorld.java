@@ -70,7 +70,7 @@ public class ImageWorld {
 
                 //double degree = (((double) w.getPeak(x,z) / (double)w.getY())) + 0.5;
                 double degree = (Math.sin(((double) w.getPeak(x,z) / (double)w.getY())) + 1.0) / 2.0;
-                Color c = new Color(library.getBlockColor(w.getBlock(new Coord(x, w.getPeak(x,z), z))));
+                Color c = new Color(library.getBlockColor(w.getBlock(new Coord(x, w.getPeak(x,z), z, Coord.Scale.BLOCK))));
                 double red = c.getRed() * degree;
                 double blue = c.getBlue() * degree;
                 double green = c.getGreen() * degree;
@@ -145,7 +145,7 @@ public class ImageWorld {
                 int transparency = (int)(combinedRatio * 200);
                 Color result = new Color(0, 0, 0, transparency);
 
-                int blockID = w.getBlock(new Coord(x, thisPeak, z));
+                int blockID = w.getBlock(new Coord(x, thisPeak, z, Coord.Scale.BLOCK));
                 Block b = library.getBlockById(blockID);
                 map.drawImage(b.getTexture(0), x * scale + (int)halfWidth, z * scale + (int) halfHeight,
                         scale, scale,null);

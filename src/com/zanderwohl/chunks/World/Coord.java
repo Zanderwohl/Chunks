@@ -138,7 +138,7 @@ public class Coord {
         int x_ = Space.volXToBlockX(x);
         int y_ = Space.volYToBlockY(y);
         int z_ = Space.volZToBlockZ(z);
-        return new Coord(x_, y_, z_);
+        return new Coord(x_, y_, z_, Scale.BLOCK);
     }
 
     /**
@@ -154,6 +154,14 @@ public class Coord {
         int x_= Space.blockXToVolX(x);
         int y_ = Space.blockYToVolY(y);
         int z_ = Space.blockZToVolZ(z);
-        return new Coord(x_, y_, z_);
+        return new Coord(x_, y_, z_, Scale.VOLUME);
+    }
+
+    /**
+     * Getter for scale.
+     * @return The scale that this Coord is in.
+     */
+    public Scale getScale(){
+        return this.scale;
     }
 }
