@@ -212,15 +212,15 @@ public class World {
     }
 
     public int getX(){
-        return Space.volXToX(x_length);
+        return Space.volXToBlockX(x_length);
     }
 
     public int getY(){
-        return Space.volYToY(y_length);
+        return Space.volYToBlockY(y_length);
     }
 
     public int getZ(){
-        return Space.volZToZ(z_length);
+        return Space.volZToBlockZ(z_length);
     }
 
     public int getBlock(Coord location){
@@ -312,7 +312,7 @@ public class World {
             }
         }
 
-        return peak + Space.volYToY(index);
+        return peak + Space.volYToBlockY(index);
     }
 
     public Volume[] getVolumesInRadius(double radius, Coord center){

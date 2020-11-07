@@ -6,6 +6,8 @@ package com.zanderwohl.chunks.World;
 public class Coord {
 
     private int x, y, z;
+    public enum Scale { UNKNOWN, VOLUME, BLOCK };
+    private Scale scale;
 
     /**
      * Create new coordinate.
@@ -17,6 +19,21 @@ public class Coord {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.scale = Scale.UNKNOWN;
+    }
+
+    /**
+     * Create new coordinate.
+     * @param x X-value.
+     * @param y Y-value.
+     * @param z Z-value.
+     * @param scale Whether this is a volume-coordinate or block-coordinate.
+     */
+    public Coord(int x, int y, int z, Scale scale){
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.scale = scale;
     }
 
     /**
@@ -92,31 +109,51 @@ public class Coord {
         return (this.horizontalDistance(other) <= radius);
     }
 
+    /**
+     * Determines if two coordinates are equal in position.
+     * Uses the scale of the Coord method is called on.
+     * @param other The other coordinate.
+     * @return
+     */
     public boolean equals(Coord other){
+        if(this.scale == Scale.BLOCK && other.scale == Scale.VOLUME){
+            other = other.volToBlock();
+        }
+        if(this.scale == Scale.VOLUME && other.scale == Scale.BLOCK){
+            other = other.blockToVol();
+        }
         return this.getX() == other.getX() && this.getY() == other.getY() && this.getZ() == other.getZ();
     }
 
     /**
-     * Produces a copy of this coordinate converted to World coordinate, assuming this is interpreted as a Volume
-     * Coordinate.
+     * Produces a copy of this coordinate converted to Block coordinate.
+     * If already Block coordinate, returns itself.
+     * Can be used as a guardrail to ALWAYS have a Block coordinate.
      * @return The new World Coordinate.
      */
-    public Coord volToWorld(){
-        int x_ = Space.volXToX(x);
-        int y_ = Space.volYToY(y);
-        int z_ = Space.volZToZ(z);
+    public Coord volToBlock(){
+        if(this.scale == Scale.BLOCK){
+            return this;
+        }
+        int x_ = Space.volXToBlockX(x);
+        int y_ = Space.volYToBlockY(y);
+        int z_ = Space.volZToBlockZ(z);
         return new Coord(x_, y_, z_);
     }
 
     /**
-     * Produces a copy of this coordinate converted to Volume coordinate, assuming this is interpreted as a World
-     * Coordinate.
+     * Produces a copy of this coordinate converted to Volume coordinate.
+     * If already a volume coordinate, returns itself.
+     * Can be used as a guardrail to ALWAYS have a Volume coordinate.
      * @return The new Volume coordinate.
      */
-    public Coord worldToVol(){
-        int x_= Space.xToVolX(x);
-        int y_ = Space.yToVolY(y);
-        int z_ = Space.zToVolZ(z);
+    public Coord blockToVol(){
+        if(this.scale == Scale.VOLUME){
+            return this;
+        }
+        int x_= Space.blockXToVolX(x);
+        int y_ = Space.blockYToVolY(y);
+        int z_ = Space.blockZToVolZ(z);
         return new Coord(x_, y_, z_);
     }
 }

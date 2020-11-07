@@ -41,27 +41,27 @@ public class Space {
     public static final int DIRECTION_DOWN = -1;
 
 
-    public static int xToVolX(int x){
+    public static int blockXToVolX(int x){
         return x / VOL_X;
     }
 
-    public static int yToVolY(int y){
+    public static int blockYToVolY(int y){
         return y / VOL_Y;
     }
 
-    public static int zToVolZ(int z){
+    public static int blockZToVolZ(int z){
         return z / VOL_Z;
     }
 
-    public static int volXToX(int x){
+    public static int volXToBlockX(int x){
         return x * VOL_X;
     }
 
-    public static int volYToY(int y){
+    public static int volYToBlockY(int y){
         return y * VOL_Y;
     }
 
-    public static int volZToZ(int z){
+    public static int volZToBlockZ(int z){
         return z * VOL_Z;
     }
 

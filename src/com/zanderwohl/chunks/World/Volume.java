@@ -235,9 +235,9 @@ public class Volume {
      */
     public void setLocation(Coord newLocation){
         location = newLocation;
-        int swb_x = Space.volXToX(location.getX());
-        int swb_y = Space.volYToY(location.getY());
-        int swb_z = Space.volZToZ(location.getZ());
+        int swb_x = Space.volXToBlockX(location.getX());
+        int swb_y = Space.volYToBlockY(location.getY());
+        int swb_z = Space.volZToBlockZ(location.getZ());
         swb = new Coord(swb_x, swb_y, swb_z);
     }
 
