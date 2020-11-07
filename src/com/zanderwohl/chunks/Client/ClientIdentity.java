@@ -27,6 +27,7 @@ public class ClientIdentity implements java.io.Serializable {
      */
     public ClientIdentity(String username, String nickname){
         this.username = username;
+        this.nickname = nickname;
         this.token = "" + username.hashCode(); //TODO: Find a method to actually authenticate people.
     }
 

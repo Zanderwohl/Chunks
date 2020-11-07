@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -29,10 +30,9 @@ public class Client implements Runnable {
 
     /**
      * An entry point that only starts a client, not a server.
-     * @param args
-     * @throws MalformedURLException
+     * @param args Unused.
      */
-    public static void main(String[] args) throws MalformedURLException {
+    public static void main(String[] args) {
         int port = 32112;
         Main.prepareEnvironment();
 
@@ -66,7 +66,7 @@ public class Client implements Runnable {
         this.serverHost = host;
         this.serverPort = port;
         this.toConsole = toConsole;
-        identity = new ClientIdentity("rexpup");
+        identity = new ClientIdentity("Player " + (new Random()).nextInt(1000));
 
 
     }

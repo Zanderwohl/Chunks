@@ -8,6 +8,10 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Thread that runs in the background and listens for new attempts to connect.
+ * On a new connection, start a new thread for the new client.
+ */
 public class ClientAccepter implements Runnable {
 
     private ServerSocket serverSocket;
@@ -16,6 +20,14 @@ public class ClientAccepter implements Runnable {
 
     private int maximumClients = 10;
 
+    /**
+     * Start a Client Accepter. There should probably only be one of these.
+     * Perhaps a second could run on another socket, listening on a different port, to add the new user to a
+     * different environment?
+     * @param serverSocket The socket the server is listening on.
+     * @param clients The list of clients, to which new clients should be added.
+     * @param toConsole The queue of messages to send to the server console.
+     */
     public ClientAccepter(ServerSocket serverSocket, List<Thread> clients,
                           ConcurrentLinkedQueue<Message> toConsole){
         this.serverSocket = serverSocket;
@@ -23,6 +35,9 @@ public class ClientAccepter implements Runnable {
         this.toConsole = toConsole;
     }
 
+    /**
+     * Run the Client Accepter, which will continuously listen for new clents.
+     */
     @Override
     public void run(){
         while(true){

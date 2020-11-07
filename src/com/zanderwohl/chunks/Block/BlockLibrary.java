@@ -25,6 +25,7 @@ public class BlockLibrary {
 
     /**
      * Creates a block library, by default blank except for containing air at id 0.
+     * @param toConsole The queue of Messages to the Console.
      */
     public BlockLibrary(ConcurrentLinkedQueue<Message> toConsole){
         list.add(new Block(0, "air", toConsole, new Color(222, 53, 191))); //ALWAYS add air. ALWAYS.
@@ -67,6 +68,7 @@ public class BlockLibrary {
      * Constructs a BlockLibrary from an existing save file.
      * Needs to be written.
      * @param saveFile The save file to load the block library from.
+     * @param toConsole The queue of Messages to the Console.
      * @return A block library loaded from the file.
      */
     public static BlockLibrary load(String saveFile, ConcurrentLinkedQueue<Message> toConsole){

@@ -137,7 +137,8 @@ public class World {
      * loads the Volume if it's not in memory,
      * generates if it doesn't exists, etc.
      * @param volumeLocation The location to search
-     * @return
+     * @param createNewVols Whether or not a new Volume should be created if not found.
+     * @return The volume.
      */
     public Volume getVolume(Coord volumeLocation, boolean createNewVols){
         //if(terrain[x][y][z] != null){

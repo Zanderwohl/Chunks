@@ -7,7 +7,6 @@ import com.zanderwohl.chunks.Server.SimLoop;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.zanderwohl.console.SuperConsole;
@@ -22,8 +21,9 @@ public class Main {
      * Main method.
      * Initializes the Message queues to pass messages to and from the console.
      * @param args No command-line arguments.
+     * @throws IOException When the server cannot bind the the port.
      */
-    public static void main(String[] args) throws MalformedURLException, IOException {
+    public static void main(String[] args) throws IOException {
         int port = 32112;
         prepareEnvironment();
 
@@ -54,89 +54,6 @@ public class Main {
 
         //Start the user interface on a thread
     }
-
-    /*
-     * Command-line loop for generating worlds that is deprecated.
-     * @param args none.
-     */
-    /*
-    public static void main_old(String[] args) {
-        prepareEnvironment();
-
-        World w = new World("default");
-        boolean quit = false;
-
-        Scanner scan = new Scanner(System.in);
-        do {
-            System.out.print('>');
-            String[] command = scan.nextLine().split(" ");
-
-            switch(command.length){
-                case 0:
-                    System.out.println("Please enter a command.");
-                    break;
-
-                case 1:
-                    if(command[0].equals("save")){
-                        w.save(w.getName());
-                    }
-                    if(command[0].equals("image")){
-                        BufferedImage image = ImageWorld.makeImage(w);
-                        ImageWorld.saveImage(image, w.getName());
-                    }
-                    if(command[0].equals("quit")){
-                        quit = true;
-                    }
-                    if(command[0].equals("init")){
-                        w.initialize();
-                    }
-                    if(command[0].equals("prepare")){
-                        w.prepare();
-                    }
-                    break;
-
-                case 2:
-                    if(command[0].equals("new")){
-                        w = new World(command[1]);
-                    }
-                    if(command[0].equals("save")){
-                        w.setName(command[1]);
-                        w.save(command[1]);
-                    }
-                    if(command[0].equals("load")){
-
-                    }
-                    if(command[0].equals("test")){
-                        w = new World(command[1]);
-                        w.prepare();
-                        w.addDomain("color");
-                        w.initialize();
-                        w.save(w.getName());
-                        System.out.println("Printing Image!");
-                        //BufferedImage image = ImageWorld.makeImage2(w, 0, 0, 16, 1920, 1080);
-                        BufferedImage image = ImageWorld.makeImage(w);
-                        ImageWorld.saveImage(image, w.getName());
-                        System.out.println("Done!");
-                    }
-                    if(command[0].equals("domain")){
-                        w.addDomain(command[1]);
-                    }
-                    break;
-
-                case 3:
-                    if(command[0].equals("new")){
-                        w = new World(command[1], Integer.parseInt(command[2]));
-                    }
-                    break;
-
-                default:
-                    System.out.println("Command not recognized.");
-                    break;
-            }
-
-        } while(!quit);
-        System.out.println("Thank you for simulating today!");
-    }*/
 
     /**
      * Prepares the environment for the program to run, saving/loading files without crashing.

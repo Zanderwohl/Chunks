@@ -39,6 +39,7 @@ public class SimLoop implements Runnable {
      * @param toConsole The queue of messages to send to the console.
      * @param fromConsole The queue of messages from the console to be consumed.
      * @param port The port on which the server should run.
+     * @throws IOException When the server cannot bind to the port.
      */
     public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole, int port) throws IOException {
         this.port = port;
@@ -76,10 +77,18 @@ public class SimLoop implements Runnable {
         //for(int i = 0; i < )
     }
 
+    /**
+     * Send update information to a single client.
+     * Usually called in a loop to update all clients in a row.
+     * @param index The index of the client to update.
+     */
     private void updateClient(int index){
 
     }
 
+    /**
+     * Remove all clients that have disconnected, to allow for more clients to be added.
+     */
     private void pruneDeadClients(){
         Iterator<Thread> i = clients.iterator();
         while(i.hasNext()){

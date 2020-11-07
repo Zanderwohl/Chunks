@@ -3,7 +3,7 @@ package com.zanderwohl.chunks.World;
 /**
  * A thruple of x, y, and z coordinates in integer form.
  */
-public class Coord {
+public class Coord implements java.io.Serializable {
 
     private int x, y, z;
     public enum Scale { UNKNOWN, VOLUME, BLOCK };
@@ -113,7 +113,7 @@ public class Coord {
      * Determines if two coordinates are equal in position.
      * Uses the scale of the Coord method is called on.
      * @param other The other coordinate.
-     * @return
+     * @return True if they are in the same location, false otherwise.
      */
     public boolean equals(Coord other){
         if(this.scale == Scale.BLOCK && other.scale == Scale.VOLUME){

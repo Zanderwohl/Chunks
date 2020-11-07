@@ -10,9 +10,9 @@ import static com.zanderwohl.chunks.World.Space.*;
 
 /**
  * A unit of blocks in three dimensions that has a height, width and depth. Is stored as a single file, and is given a
- * generator in order to generate and populate its own contents when called to do so.
+ * generator in order to generate and populate its own contents when called to do so
  */
-public class Volume {
+public class Volume implements java.io.Serializable {
 
     //private int x, y, z;
     private Coord location = new Coord(0, 0, 0, Coord.Scale.VOLUME);
@@ -98,7 +98,7 @@ public class Volume {
     /**
      * Save the data in this Volume to a file. Currently supports only blocks with no specific data,
      * as awell as an internal marker of location.
-     * @param saveName
+     * @param saveName The name to save the Volume under.
      */
     public void save(String saveName) {
         PrintWriter out;

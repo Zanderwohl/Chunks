@@ -7,17 +7,29 @@ import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * The server-side class that deals with listening to and
+ */
 public class ClientHandler implements Runnable{
 
     private Socket socket;
     ConcurrentLinkedQueue<Message> toConsole;
     ClientIdentity identity;
 
+    /**
+     * A Client Handler sends and receives data from a client, updating the server about client actions and vice
+     * versa.
+     * @param clientSocket The socket the client is behind.
+     * @param toConsole The stream of messages to the server's Console.
+     */
     public ClientHandler(Socket clientSocket, ConcurrentLinkedQueue<Message> toConsole){
         this.socket = clientSocket;
         this.toConsole = toConsole;
     }
 
+    /**
+     * Oh goodness please no.
+     */
     public void run(){
         InputStream in;
         ObjectInputStream oin;
@@ -60,7 +72,7 @@ public class ClientHandler implements Runnable{
                         + "A client just disconnected due to an error."));
                 return;
             } catch (NullPointerException e){
-
+                //Do nothing. It's okay, we'll just try again.
             }
         }
     }
