@@ -5,6 +5,7 @@ import com.zanderwohl.console.Message;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -16,15 +17,19 @@ public class ClientHandler implements Runnable{
     ConcurrentLinkedQueue<Message> toConsole;
     ClientIdentity identity;
 
+    ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
+
     /**
      * A Client Handler sends and receives data from a client, updating the server about client actions and vice
      * versa.
      * @param clientSocket The socket the client is behind.
      * @param toConsole The stream of messages to the server's Console.
      */
-    public ClientHandler(Socket clientSocket, ConcurrentLinkedQueue<Message> toConsole){
+    public ClientHandler(Socket clientSocket, ConcurrentLinkedQueue<Message> toConsole,
+                         ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById){
         this.socket = clientSocket;
         this.toConsole = toConsole;
+        this.clientsById = clientsById;
     }
 
     /**
@@ -41,6 +46,7 @@ public class ClientHandler implements Runnable{
             br = new BufferedReader(new InputStreamReader(in));
             out = new DataOutputStream(socket.getOutputStream());
             identity = (ClientIdentity) oin.readObject();
+            clientsById.put(identity, this);
         } catch (IOException e) {
             toConsole.add(new Message("source=Client Handler\nseverity=critical\nmessage="
             + "A client just failed to connect."));

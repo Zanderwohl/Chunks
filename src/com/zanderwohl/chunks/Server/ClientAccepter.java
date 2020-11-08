@@ -1,11 +1,13 @@
 package com.zanderwohl.chunks.Server;
 
+import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.console.Message;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -17,6 +19,7 @@ public class ClientAccepter implements Runnable {
     private ServerSocket serverSocket;
     private ConcurrentLinkedQueue<Message> toConsole;
     private List<Thread> clients;
+    private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
 
     private int maximumClients = 10;
 
@@ -26,12 +29,15 @@ public class ClientAccepter implements Runnable {
      * different environment?
      * @param serverSocket The socket the server is listening on.
      * @param clients The list of clients, to which new clients should be added.
+     * @param clientsById A hashmap of all clients, indexed by their ID object.
      * @param toConsole The queue of messages to send to the server console.
      */
     public ClientAccepter(ServerSocket serverSocket, List<Thread> clients,
+                          ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById,
                           ConcurrentLinkedQueue<Message> toConsole){
         this.serverSocket = serverSocket;
         this.clients = clients;
+        this.clientsById = clientsById;
         this.toConsole = toConsole;
     }
 
@@ -43,7 +49,7 @@ public class ClientAccepter implements Runnable {
         while(true){
             try {
                 Socket socket = serverSocket.accept();
-                ClientHandler newClient = new ClientHandler(socket, toConsole);
+                ClientHandler newClient = new ClientHandler(socket, toConsole, clientsById);
                 Thread clientThread = new Thread(newClient);
                 clients.add(clientThread);
                 clientThread.start();

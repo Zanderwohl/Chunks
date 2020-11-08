@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks.Console;
 
+import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Image.ImageWorld;
 import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.chunks.World.World;
@@ -76,6 +77,7 @@ public class DefaultCommands {
         Command kick = new Command("kick", "Forcefully disconnects a user from the server.",
                 new Kick());
         kick.addArgument("user",true,"The user to kick.");
+        kick.addArgument("reason", false, "Tells the user why they were kicked.");
         commandManager.addCommand(kick);
     }
 
@@ -208,7 +210,9 @@ public class DefaultCommands {
             } else {
                 String userToKick = arguments.get("user");
                 toConsole.add(new Message("source=Command Manager\nseverity=warning\nmessage="
-                        + "Sorry, can't kick " + userToKick + ". This command has not yet been implemented."));
+                        + "Kicking user " + userToKick + "..."));
+                ClientIdentity client = simLoop.findClientByDisplayName(arguments.get("user"));
+                simLoop.disconnectUser(client, "Kicked: " + arguments.get("reason"));
                 //TODO: Find and kick user.
             }
         }

@@ -1,15 +1,14 @@
 package com.zanderwohl.chunks.Server;
 
+import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.CommandManager;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -31,6 +30,7 @@ public class SimLoop implements Runnable {
 
     private ServerSocket serverSocket;
     private List<Thread> clients;
+    private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
     private ClientAccepter clientAccepter;
 
     /**
@@ -50,7 +50,8 @@ public class SimLoop implements Runnable {
         worldManager = new WorldManager(toConsole);
         commandManager = new CommandManager(toConsole, fromConsole, worldManager, this);
         clients = Collections.synchronizedList(new ArrayList<Thread>());
-        clientAccepter = new ClientAccepter(serverSocket, clients, toConsole);
+        clientsById = new ConcurrentHashMap<>();
+        clientAccepter = new ClientAccepter(serverSocket, clients, clientsById, toConsole);
     }
 
     /**
@@ -84,6 +85,38 @@ public class SimLoop implements Runnable {
      */
     private void updateClient(int index){
 
+    }
+
+    /**
+     * Return a client as searched by an exact string match.
+     * @param name The name to search for.
+     * @returns The identity of a particular client.
+     */
+    public ClientIdentity findClientByDisplayName(String name){
+        ClientIdentity client = null;
+        for(ClientIdentity ci: clientsById.keySet()){
+            if(ci.getDisplayName().equals(name)){
+                client = ci;
+            }
+        }
+        return client;
+    }
+
+    /**
+     * Disconnects a user from the server gracefully.
+     * @param user The user to disconnect.
+     * @param reason If active, will tell the user why they were disconnected.
+     * @returns True if the user was successfully disconnected, false otherwise.
+     */
+    public boolean disconnectUser(ClientIdentity user, String reason){
+        ClientHandler threadToKill = clientsById.get(user);
+        if(threadToKill == null){
+            return false;
+        }
+        //TODO: Save user state.
+        clients.remove(threadToKill);
+        clientsById.remove(user);
+        return true;
     }
 
     /**
