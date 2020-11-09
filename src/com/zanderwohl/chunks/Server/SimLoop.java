@@ -1,10 +1,14 @@
 package com.zanderwohl.chunks.Server;
 
+import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.CommandManager;
+import com.zanderwohl.chunks.Delta.Chat;
+import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.*;
@@ -28,10 +32,14 @@ public class SimLoop implements Runnable {
     private ConcurrentLinkedQueue<Message> toConsole;
     private ConcurrentLinkedQueue<Message> fromConsole;
 
+    protected ConcurrentLinkedQueue<Delta> clientUpdates;
+
     private ServerSocket serverSocket;
     private List<Thread> clients;
     private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
     private ClientAccepter clientAccepter;
+
+    protected LinkedList<Chat> chats;
 
     /**
      * Only constructor?
@@ -47,18 +55,30 @@ public class SimLoop implements Runnable {
         this.fromConsole = fromConsole;
         this.serverSocket = new ServerSocket(port);
 
+        clientUpdates = new ConcurrentLinkedQueue<>();
+
         worldManager = new WorldManager(toConsole);
         commandManager = new CommandManager(toConsole, fromConsole, worldManager, this);
         clients = Collections.synchronizedList(new ArrayList<Thread>());
         clientsById = new ConcurrentHashMap<>();
-        clientAccepter = new ClientAccepter(serverSocket, clients, clientsById, toConsole);
+        clientAccepter = new ClientAccepter(serverSocket, clients, clientsById, toConsole, clientUpdates);
+
+        chats = new LinkedList<>();
+    }
+
+    public ArrayList<ClientIdentity> getClients(){
+        ArrayList<ClientIdentity> clientList = new ArrayList<>();
+        for(ClientIdentity identity: clientsById.keySet()){
+            clientList.add(identity);
+        }
+        return clientList;
     }
 
     /**
      * Update the simulation.
-     * @param delta The difference in time from this to the last update.
+     * @param deltaT The difference in time from this to the last update.
      */
-    private void update(double delta) {
+    private void update(double deltaT) {
         commandManager.processCommands();
         commandManager.doCommands();
 
@@ -68,22 +88,45 @@ public class SimLoop implements Runnable {
         } catch (InterruptedException e){
             System.err.println("no");
         }*/
-        //System.out.println(delta);
+        //System.out.println(deltaT);
+    }
+
+    private void processClientUpdates(){
+        while(!clientUpdates.isEmpty()){
+            Delta d = clientUpdates.remove();
+            if(d instanceof Chat){
+                chats.add((Chat) d);
+            }
+        }
     }
 
     /**
      * Send updates to all clients over the network.
      */
     private void updateClients(){
-        //for(int i = 0; i < )
+        while(!chats.isEmpty()){
+            Chat c = chats.remove();
+            toConsole.add(new Message("source=" + c.getFrom().getDisplayName() + "\nmessage=" + c.toString()));
+            sendToAllClients(c);
+        }
+    }
+
+    /**
+     * Sends an update to every client currently connected.
+     * @param update The update to send.
+     */
+    private void sendToAllClients(Delta update){
+        for(ClientHandler client: clientsById.values()){
+            client.serverUpdates.add(update);
+        }
     }
 
     /**
      * Send update information to a single client.
      * Usually called in a loop to update all clients in a row.
-     * @param index The index of the client to update.
+     * @param update The index of the client to update.
      */
-    private void updateClient(int index){
+    private void updateClient(Delta update){
 
     }
 
@@ -109,13 +152,18 @@ public class SimLoop implements Runnable {
      * @returns True if the user was successfully disconnected, false otherwise.
      */
     public boolean disconnectUser(ClientIdentity user, String reason){
-        ClientHandler threadToKill = clientsById.get(user);
-        if(threadToKill == null){
+        if(user == null){
+            return false;
+        }
+        ClientHandler client = clientsById.get(user);
+        if(client == null){
             return false;
         }
         //TODO: Save user state.
-        clients.remove(threadToKill);
+        clients.remove(client);
         clientsById.remove(user);
+        toConsole.add(new Message("source=Sim Loop\nmessage="
+                + "User " + client.identity.getDisplayName() + " has disconnected!"));
         return true;
     }
 
@@ -123,13 +171,19 @@ public class SimLoop implements Runnable {
      * Remove all clients that have disconnected, to allow for more clients to be added.
      */
     private void pruneDeadClients(){
-        Iterator<Thread> i = clients.iterator();
-        while(i.hasNext()){
-            Thread t = i.next();
-            if(!t.isAlive()){
-                clients.remove(t);
+        Iterator<Map.Entry<ClientIdentity, ClientHandler>> i = clientsById.entrySet().iterator();
+        while(i.hasNext()) {
+            Map.Entry<ClientIdentity, ClientHandler> entry = i.next();
+            ClientHandler client = entry.getValue();
+            if(!client.running) {
+                ClientIdentity identity = entry.getKey();
+                disconnectUser(identity,null);
             }
         }
+    }
+
+    public void addChat(Chat c){
+        chats.add(c);
     }
 
     /**
@@ -155,6 +209,7 @@ public class SimLoop implements Runnable {
                 lastFPSTime = 0;
             }
 
+            processClientUpdates();
             pruneDeadClients(); //TODO: Only do this once per second, or maybe less.
             update(delta);
             updateClients();

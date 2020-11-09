@@ -1,6 +1,8 @@
 package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Console.Console;
+import com.zanderwohl.chunks.Delta.Chat;
+import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Main;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.console.SuperConsole;
@@ -23,8 +25,8 @@ public class Client implements Runnable {
     private final ClientIdentity identity;
     private ConcurrentLinkedQueue<Message> toConsole;
 
-    private ConcurrentLinkedQueue<Serializable> serverUpdates;
-    private ConcurrentLinkedQueue<Serializable> clientUpdates;
+    private ConcurrentLinkedQueue<Delta> serverUpdates;
+    private ConcurrentLinkedQueue<Delta> clientUpdates;
 
     private ConcurrentLinkedQueue<Message> queue;
 
@@ -98,7 +100,7 @@ public class Client implements Runnable {
         send.start();
         receive.start();
 
-        ClientWindow w = new ClientWindow();
+        ClientWindow w = new ClientWindow(clientUpdates, serverUpdates, identity);
         w.start();
     }
 
@@ -106,9 +108,9 @@ public class Client implements Runnable {
 
         Client parent;
         Socket server;
-        ConcurrentLinkedQueue<Serializable> clientUpdates;
+        ConcurrentLinkedQueue<Delta> clientUpdates;
 
-        public Send(Client client, Socket server, ConcurrentLinkedQueue<Serializable> clientUpdates){
+        public Send(Client client, Socket server, ConcurrentLinkedQueue<Delta> clientUpdates){
             parent = client;
             this.server = server;
             this.clientUpdates = clientUpdates;
@@ -135,6 +137,7 @@ public class Client implements Runnable {
                 parent.running = false;
                 return;
             }
+            parent.running = false;
         }
     }
 
@@ -142,9 +145,9 @@ public class Client implements Runnable {
 
         Client parent;
         Socket server;
-        ConcurrentLinkedQueue<Serializable> serverUpdates;
+        ConcurrentLinkedQueue<Delta> serverUpdates;
 
-        public Receive(Client client, Socket server, ConcurrentLinkedQueue<Serializable> serverUpdates){
+        public Receive(Client client, Socket server, ConcurrentLinkedQueue<Delta> serverUpdates){
             parent = client;
             this.server = server;
             this.serverUpdates = serverUpdates;
@@ -160,9 +163,12 @@ public class Client implements Runnable {
                 oin = new ObjectInputStream(in);
                 while (parent.running) {
                     Object object = oin.readObject();
-                    if(Serializable.class.isAssignableFrom(object.getClass())){
-                        Serializable serializableObject = (Serializable) object;
-                        serverUpdates.add(serializableObject);
+                    if(object instanceof Delta){
+                        Delta d = (Delta) object;
+                        serverUpdates.add(d);
+                    } else {
+                        parent.toConsole.add(new Message("source=Client Handler\nseverity=warning\nmessage="
+                                + "The server sent a non-delta object!"));
                     }
                 }
             } catch (IOException e) {
@@ -176,6 +182,7 @@ public class Client implements Runnable {
                 parent.running = false;
                 return;
             }
+            parent.running = false;
         }
     }
 }

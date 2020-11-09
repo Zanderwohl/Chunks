@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Console;
 
 import com.zanderwohl.chunks.Client.ClientIdentity;
+import com.zanderwohl.chunks.Delta.Chat;
 import com.zanderwohl.chunks.Image.ImageWorld;
 import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.chunks.World.World;
@@ -79,6 +80,9 @@ public class DefaultCommands {
         kick.addArgument("user",true,"The user to kick.");
         kick.addArgument("reason", false, "Tells the user why they were kicked.");
         commandManager.addCommand(kick);
+
+        Command online = new Command("online","Lists all online users.", new ListOnlineUsers());
+        commandManager.addCommand(online);
     }
 
     public static class Say implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>>{
@@ -89,8 +93,7 @@ public class DefaultCommands {
                 toConsole.add(new Message("message=Input a message.\n" +
                         "source=Command Manager\nseverity=normal"));
             }
-            toConsole.add(new Message("message=SERVER: " + text + "\n" +
-                    "source=Command Manager\nseverity=normal"));
+            simLoop.addChat(new Chat(arguments.get("text")));
         }
     }
 
@@ -209,12 +212,27 @@ public class DefaultCommands {
                 + "Specify a user to kick."));
             } else {
                 String userToKick = arguments.get("user");
-                toConsole.add(new Message("source=Command Manager\nseverity=warning\nmessage="
-                        + "Kicking user " + userToKick + "..."));
                 ClientIdentity client = simLoop.findClientByDisplayName(arguments.get("user"));
-                simLoop.disconnectUser(client, "Kicked: " + arguments.get("reason"));
+                boolean success = simLoop.disconnectUser(client, "Kicked: " + arguments.get("reason"));
+                if(success){
+                    toConsole.add(new Message("source=Command Manager\nseverity=warning\nmessage="
+                            + "Kicked user " + userToKick + "."));
+                } else {
+                    toConsole.add(new Message("source=Command Manager\nseverity=warning\nmessage="
+                            + "User " + userToKick + " was not found."));
+                }
                 //TODO: Find and kick user.
             }
+        }
+    }
+
+    public static class ListOnlineUsers implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+
+        @Override
+        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole) {
+            ArrayList<ClientIdentity> clients = simLoop.getClients();
+            String clientList = clients.toString();
+            toConsole.add(new Message("source=Command Manager\nmessage=" + clientList));
         }
     }
 }

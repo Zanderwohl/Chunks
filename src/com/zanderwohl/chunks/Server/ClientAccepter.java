@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Server;
 
 import com.zanderwohl.chunks.Client.ClientIdentity;
+import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.console.Message;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class ClientAccepter implements Runnable {
     private ConcurrentLinkedQueue<Message> toConsole;
     private List<Thread> clients;
     private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
+    private ConcurrentLinkedQueue<Delta> clientUpdates;
 
     private int maximumClients = 10;
 
@@ -34,11 +36,13 @@ public class ClientAccepter implements Runnable {
      */
     public ClientAccepter(ServerSocket serverSocket, List<Thread> clients,
                           ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById,
-                          ConcurrentLinkedQueue<Message> toConsole){
+                          ConcurrentLinkedQueue<Message> toConsole,
+                          ConcurrentLinkedQueue<Delta> clientUpdates){
         this.serverSocket = serverSocket;
         this.clients = clients;
         this.clientsById = clientsById;
         this.toConsole = toConsole;
+        this.clientUpdates = clientUpdates;
     }
 
     /**
@@ -49,7 +53,7 @@ public class ClientAccepter implements Runnable {
         while(true){
             try {
                 Socket socket = serverSocket.accept();
-                ClientHandler newClient = new ClientHandler(socket, toConsole, clientsById);
+                ClientHandler newClient = new ClientHandler(socket, toConsole, clientsById, clientUpdates);
                 Thread clientThread = new Thread(newClient);
                 clients.add(clientThread);
                 clientThread.start();

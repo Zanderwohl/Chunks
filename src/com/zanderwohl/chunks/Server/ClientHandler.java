@@ -1,6 +1,8 @@
 package com.zanderwohl.chunks.Server;
 
+import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Client.ClientIdentity;
+import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.console.Message;
 
 import java.io.*;
@@ -13,11 +15,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class ClientHandler implements Runnable{
 
-    private Socket socket;
-    ConcurrentLinkedQueue<Message> toConsole;
-    ClientIdentity identity;
+    protected volatile boolean running;
 
-    ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
+    private Socket socket;
+    protected ConcurrentLinkedQueue<Message> toConsole;
+    protected ClientIdentity identity;
+
+    private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
+
+    protected ConcurrentLinkedQueue<Delta> clientUpdates;
+    protected ConcurrentLinkedQueue<Delta> serverUpdates;
 
     /**
      * A Client Handler sends and receives data from a client, updating the server about client actions and vice
@@ -26,10 +33,18 @@ public class ClientHandler implements Runnable{
      * @param toConsole The stream of messages to the server's Console.
      */
     public ClientHandler(Socket clientSocket, ConcurrentLinkedQueue<Message> toConsole,
-                         ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById){
+                         ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById,
+                         ConcurrentLinkedQueue<Delta> clientUpdates){
+        this.running = true;
         this.socket = clientSocket;
         this.toConsole = toConsole;
         this.clientsById = clientsById;
+        this.clientUpdates = clientUpdates;
+        this.serverUpdates = new ConcurrentLinkedQueue<>();
+    }
+
+    public void disconnect(){
+        running = false;
     }
 
     /**
@@ -39,12 +54,12 @@ public class ClientHandler implements Runnable{
         InputStream in;
         ObjectInputStream oin;
         BufferedReader br;
-        DataOutputStream out;
+        ObjectOutputStream out;
         try{
             in = socket.getInputStream();
             oin = new ObjectInputStream(in);
-            br = new BufferedReader(new InputStreamReader(in));
-            out = new DataOutputStream(socket.getOutputStream());
+            //br = new BufferedReader(new InputStreamReader(in));
+            out = new ObjectOutputStream(socket.getOutputStream());
             identity = (ClientIdentity) oin.readObject();
             clientsById.put(identity, this);
         } catch (IOException e) {
@@ -58,27 +73,76 @@ public class ClientHandler implements Runnable{
         }
         toConsole.add(new Message("source=Client Handler\nmessage=" +
                 "User " + identity.getUsername() + " connected to the server!"));
-        String nextLine;
-        while(true){
-            try{
-                nextLine = br.readLine();
-                if(nextLine.equalsIgnoreCase("DISCONNECT")){
-                    socket.close();
-                    toConsole.add(new Message("source=ClientHandler\nseverity=normal\nmessage="
-                            + "A client just disconnected."));
-                    return;
-                } else {
-                    toConsole.add(new Message("source=ClientHandler\nseverity=normal\nmessage="
-                    + "Received from client: " + nextLine));
-                    out.writeBytes("ACK\r\n");
-                    out.flush();
+
+        Send send = new Send(this, out);
+        Receive receive = new Receive(this, oin);
+
+        Thread sendThread = new Thread(send);
+        Thread receiveThread = new Thread(receive);
+
+        sendThread.start();
+        receiveThread.start();
+    }
+
+    private static class Send implements Runnable {
+
+        private ClientHandler parent;
+        private ObjectOutputStream out;
+
+        public Send(ClientHandler parent, ObjectOutputStream out){
+            this.parent = parent;
+            this.out = out;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (parent.running) {
+                    while (!parent.serverUpdates.isEmpty()) {
+                        Delta update = parent.serverUpdates.remove();
+                            out.writeObject(update);
+                    }
                 }
-            } catch(IOException e){
-                toConsole.add(new Message("source=ClientHandler\nseverity=critical\nmessage="
-                        + "A client just disconnected due to an error."));
-                return;
-            } catch (NullPointerException e){
-                //Do nothing. It's okay, we'll just try again.
+            } catch (IOException e) {
+            parent.running = false;
+            parent.toConsole.add(new Message("source=Client Handler\nseverity=critical\nmessage="
+                    + "Connection to client " + parent.identity.getDisplayName() + " failed."));
+            }
+        }
+    }
+
+    private static class Receive implements Runnable {
+
+        private ClientHandler parent;
+        private ObjectInputStream in;
+
+        public Receive(ClientHandler parent, ObjectInputStream in){
+            this.parent = parent;
+            this.in = in;
+        }
+
+        @Override
+        public void run() {
+            try {
+                try {
+                    while(parent.running){
+                        Object o = in.readObject();
+                        if(o instanceof Delta){
+                            Delta d = (Delta) o;
+                            d.setFrom(parent.identity);
+                            parent.clientUpdates.add(d);
+                        } else {
+                            parent.toConsole.add(new Message("source=Client Handler\nseverity=warning\nmessage="
+                            + "The client " + parent.identity + " sent a non-delta object!"));
+                        }
+                    }
+                } catch (ClassNotFoundException e) {
+                    parent.toConsole.add(new Message("source=Client Handler\nseverity=warning\nmessage="
+                    + "The client " + parent.identity + " sent an unrecognized object!"));
+                }
+            } catch (IOException e) {
+                parent.running = false;
+
             }
         }
     }

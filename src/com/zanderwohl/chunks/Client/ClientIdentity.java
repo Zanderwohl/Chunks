@@ -82,4 +82,12 @@ public class ClientIdentity implements java.io.Serializable {
             return nickname;
         }
     }
+
+    /**
+     * Override of toString for some built-in Java functions.
+     * @return getDisplayName()
+     */
+    public String toString(){
+        return getDisplayName();
+    }
 }
