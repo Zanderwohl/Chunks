@@ -10,6 +10,7 @@ import com.zanderwohl.console.SuperConsole;
 import java.io.*;
 import java.net.Socket;
 import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -23,10 +24,10 @@ public class Client implements Runnable {
     private String serverHost;
     private int serverPort;
     private final ClientIdentity identity;
-    private ConcurrentLinkedQueue<Message> toConsole;
+    private ArrayBlockingQueue<Message> toConsole;
 
-    private ConcurrentLinkedQueue<Delta> serverUpdates;
-    private ConcurrentLinkedQueue<Delta> clientUpdates;
+    private ArrayBlockingQueue<Delta> serverUpdates;
+    private ArrayBlockingQueue<Delta> clientUpdates;
 
     private ConcurrentLinkedQueue<Message> queue;
 
@@ -38,8 +39,8 @@ public class Client implements Runnable {
         int port = 32112;
         Main.prepareEnvironment();
 
-        ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<>();
-        ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<>();
+        ArrayBlockingQueue<Message> toConsole = new ArrayBlockingQueue<>(50);
+        ArrayBlockingQueue<Message> fromConsole = new ArrayBlockingQueue<>(50);
 
         Client singleplayerClient = new Client("localhost", port, toConsole);
         Thread clientThread = new Thread(singleplayerClient);
@@ -64,14 +65,15 @@ public class Client implements Runnable {
      * @param port The port the server will be listening on.
      * @param toConsole The queue to send messages to the server.
      */
-    public Client(String host, int port, ConcurrentLinkedQueue<Message> toConsole){
+    public Client(String host, int port, ArrayBlockingQueue<Message> toConsole){
         this.serverHost = host;
         this.serverPort = port;
         this.toConsole = toConsole;
         identity = new ClientIdentity("Player " + (new Random()).nextInt(1000));
 
-        serverUpdates = new ConcurrentLinkedQueue<>();
-        clientUpdates = new ConcurrentLinkedQueue<>();
+        int queueSize = 30;
+        serverUpdates = new ArrayBlockingQueue<>(queueSize);
+        clientUpdates = new ArrayBlockingQueue<>(queueSize);
     }
 
     /**
@@ -100,7 +102,7 @@ public class Client implements Runnable {
         send.start();
         receive.start();
 
-        ClientWindow w = new ClientWindow(clientUpdates, serverUpdates, identity);
+        ClientWindow w = new ClientWindow(clientUpdates, serverUpdates, identity, toConsole);
         w.start();
     }
 
@@ -108,9 +110,9 @@ public class Client implements Runnable {
 
         Client parent;
         Socket server;
-        ConcurrentLinkedQueue<Delta> clientUpdates;
+        ArrayBlockingQueue<Delta> clientUpdates;
 
-        public Send(Client client, Socket server, ConcurrentLinkedQueue<Delta> clientUpdates){
+        public Send(Client client, Socket server, ArrayBlockingQueue<Delta> clientUpdates){
             parent = client;
             this.server = server;
             this.clientUpdates = clientUpdates;
@@ -127,15 +129,16 @@ public class Client implements Runnable {
                 objectOut.writeObject(parent.identity);
 
                 while (parent.running) {
-                    while (!clientUpdates.isEmpty()) {
-                        objectOut.writeObject(clientUpdates.remove());
-                    }
+                    objectOut.writeObject(clientUpdates.take());
                 }
             } catch (IOException e){
                 parent.toConsole.add(new Message("severity=critical\nsource=Client\nmessage="
                         + "Client disconnected from server!"));
                 parent.running = false;
                 return;
+            } catch (InterruptedException e){
+                parent.toConsole.add(new Message("severity=critical\nsource=Client\nmessage="
+                + "Client was unexpectedly interrupted!"));
             }
             parent.running = false;
         }
@@ -145,9 +148,9 @@ public class Client implements Runnable {
 
         Client parent;
         Socket server;
-        ConcurrentLinkedQueue<Delta> serverUpdates;
+        ArrayBlockingQueue<Delta> serverUpdates;
 
-        public Receive(Client client, Socket server, ConcurrentLinkedQueue<Delta> serverUpdates){
+        public Receive(Client client, Socket server, ArrayBlockingQueue<Delta> serverUpdates){
             parent = client;
             this.server = server;
             this.serverUpdates = serverUpdates;

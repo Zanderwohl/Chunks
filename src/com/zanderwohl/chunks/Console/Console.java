@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -18,8 +19,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Console implements Runnable{
 
     private final int PORT = 288;
-    private static ConcurrentLinkedQueue<Message> toConsole;
-    private static ConcurrentLinkedQueue<Message> fromConsole;
+    private static ArrayBlockingQueue<Message> toConsole;
+    private static ArrayBlockingQueue<Message> fromConsole;
 
     public static void log(String message, String source, String severity, String category){
         String time = Instant.now().getEpochSecond() + "";
@@ -33,7 +34,7 @@ public class Console implements Runnable{
      * @param fromConsole The queue of messages that have been received from the console,
      *                    for consumption by the program.
      */
-    public Console(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole){
+    public Console(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole){
         this.toConsole = toConsole;
         this.fromConsole = fromConsole;
     }
@@ -62,9 +63,9 @@ public class Console implements Runnable{
     private static class Send implements Runnable {
 
         private PrintWriter output;
-        private ConcurrentLinkedQueue<Message> queue;
+        private ArrayBlockingQueue<Message> queue;
 
-        public Send(PrintWriter output, ConcurrentLinkedQueue queue){
+        public Send(PrintWriter output, ArrayBlockingQueue queue){
             this.output = output;
             this.queue = queue;
         }
@@ -80,9 +81,7 @@ public class Console implements Runnable{
                     //    Message m = new Message(SendMessagesLoop.blankMessage());
                     //    output.println(m.toString());
                     //}
-                    while(!queue.isEmpty()){
-                        output.println(queue.remove().toString());
-                    }
+                    output.println(queue.take().toString());
                 }
             } catch (Exception e){
                 System.out.println("Error:\n" + e);
@@ -96,9 +95,9 @@ public class Console implements Runnable{
     private static class Receive implements Runnable {
 
         private Scanner input;
-        private ConcurrentLinkedQueue<Message> queue;
+        private ArrayBlockingQueue<Message> queue;
 
-        public Receive(Scanner input, ConcurrentLinkedQueue queue){
+        public Receive(Scanner input, ArrayBlockingQueue queue){
             this.input = input;
             this.queue = queue;
         }

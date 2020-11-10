@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -31,9 +32,9 @@ public class World {
 
     private String name;
 
-    private ConcurrentLinkedQueue<Message> toConsole;
+    private ArrayBlockingQueue<Message> toConsole;
 
-    public World(String name, int seed, ConcurrentLinkedQueue<Message> toConsole){
+    public World(String name, int seed, ArrayBlockingQueue<Message> toConsole){
         this.name = name;
         this.toConsole = toConsole;
         if(seed != 0) {
@@ -44,7 +45,7 @@ public class World {
         g = new Simplex(seed);
     }
 
-    public World(String name, String saveFile, ConcurrentLinkedQueue<Message> toConsole){
+    public World(String name, String saveFile, ArrayBlockingQueue<Message> toConsole){
         this.name = name;
         this.toConsole = toConsole;
         this.seed = 0; //TODO: get seed from file.

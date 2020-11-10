@@ -7,6 +7,7 @@ import com.zanderwohl.chunks.FileConstants;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -21,13 +22,13 @@ public class BlockLibrary {
 
     private ArrayList<Block> list = new ArrayList<Block>();
 
-    private ConcurrentLinkedQueue<Message> toConsole;
+    private ArrayBlockingQueue<Message> toConsole;
 
     /**
      * Creates a block library, by default blank except for containing air at id 0.
      * @param toConsole The queue of Messages to the Console.
      */
-    public BlockLibrary(ConcurrentLinkedQueue<Message> toConsole){
+    public BlockLibrary(ArrayBlockingQueue<Message> toConsole){
         list.add(new Block(0, "air", toConsole, new Color(222, 53, 191))); //ALWAYS add air. ALWAYS.
         this.toConsole = toConsole;
     }
@@ -71,7 +72,7 @@ public class BlockLibrary {
      * @param toConsole The queue of Messages to the Console.
      * @return A block library loaded from the file.
      */
-    public static BlockLibrary load(String saveFile, ConcurrentLinkedQueue<Message> toConsole){
+    public static BlockLibrary load(String saveFile, ArrayBlockingQueue<Message> toConsole){
         BlockLibrary library = new BlockLibrary(toConsole);
 
         return library;

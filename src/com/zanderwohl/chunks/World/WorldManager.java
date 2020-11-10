@@ -8,6 +8,7 @@ import util.FileLoader;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WorldManager {
@@ -16,9 +17,9 @@ public class WorldManager {
 
     private HashMap<String, World> worlds = new HashMap<>();
 
-    private ConcurrentLinkedQueue<Message> toConsole;
+    private ArrayBlockingQueue<Message> toConsole;
 
-    public WorldManager(ConcurrentLinkedQueue<Message> toConsole){
+    public WorldManager(ArrayBlockingQueue<Message> toConsole){
         this.toConsole = toConsole;
         library = new BlockLibrary(toConsole);
 

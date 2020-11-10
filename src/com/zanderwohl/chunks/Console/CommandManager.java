@@ -5,12 +5,13 @@ import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class CommandManager {
 
-    private ConcurrentLinkedQueue<Message> fromConsole;
-    private ConcurrentLinkedQueue<Message> toConsole;
+    private ArrayBlockingQueue<Message> fromConsole;
+    private ArrayBlockingQueue<Message> toConsole;
 
     private LinkedList<UserCommand> userCommandQueue = new LinkedList<>();
 
@@ -19,7 +20,7 @@ public class CommandManager {
     private HashMap<String, Command> commands;
     private ArrayList<Command> commandsList;
 
-    public CommandManager(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole,
+    public CommandManager(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole,
                           WorldManager worldManager, SimLoop simLoop){
         this.fromConsole = fromConsole;
         this.toConsole = toConsole;

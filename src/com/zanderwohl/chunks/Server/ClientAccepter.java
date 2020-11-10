@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -18,10 +19,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class ClientAccepter implements Runnable {
 
     private ServerSocket serverSocket;
-    private ConcurrentLinkedQueue<Message> toConsole;
+    private ArrayBlockingQueue<Message> toConsole;
     private List<Thread> clients;
     private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
-    private ConcurrentLinkedQueue<Delta> clientUpdates;
+    private ArrayBlockingQueue<Delta> clientUpdates;
 
     private int maximumClients = 10;
 
@@ -36,8 +37,8 @@ public class ClientAccepter implements Runnable {
      */
     public ClientAccepter(ServerSocket serverSocket, List<Thread> clients,
                           ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById,
-                          ConcurrentLinkedQueue<Message> toConsole,
-                          ConcurrentLinkedQueue<Delta> clientUpdates){
+                          ArrayBlockingQueue<Message> toConsole,
+                          ArrayBlockingQueue<Delta> clientUpdates){
         this.serverSocket = serverSocket;
         this.clients = clients;
         this.clientsById = clientsById;

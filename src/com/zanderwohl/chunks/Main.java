@@ -7,6 +7,7 @@ import com.zanderwohl.chunks.Server.SimLoop;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.zanderwohl.console.SuperConsole;
@@ -28,8 +29,8 @@ public class Main {
         prepareEnvironment();
 
         //creates queues to and from console
-        ConcurrentLinkedQueue<Message> toConsole = new ConcurrentLinkedQueue<>();
-        ConcurrentLinkedQueue<Message> fromConsole = new ConcurrentLinkedQueue<>();
+        ArrayBlockingQueue<Message> toConsole = new ArrayBlockingQueue<>(50);
+        ArrayBlockingQueue<Message> fromConsole = new ArrayBlockingQueue<>(50);
 
         Client singleplayerClient = new Client("localhost", port, toConsole);
         Thread clientThread = new Thread(singleplayerClient);

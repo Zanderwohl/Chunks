@@ -12,6 +12,7 @@ import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -29,10 +30,10 @@ public class SimLoop implements Runnable {
     private CommandManager commandManager;
     private WorldManager worldManager;
 
-    private ConcurrentLinkedQueue<Message> toConsole;
-    private ConcurrentLinkedQueue<Message> fromConsole;
+    private ArrayBlockingQueue<Message> toConsole;
+    private ArrayBlockingQueue<Message> fromConsole;
 
-    protected ConcurrentLinkedQueue<Delta> clientUpdates;
+    protected ArrayBlockingQueue<Delta> clientUpdates;
 
     private ServerSocket serverSocket;
     private List<Thread> clients;
@@ -49,13 +50,13 @@ public class SimLoop implements Runnable {
      * @param port The port on which the server should run.
      * @throws IOException When the server cannot bind to the port.
      */
-    public SimLoop(ConcurrentLinkedQueue<Message> toConsole, ConcurrentLinkedQueue<Message> fromConsole, int port) throws IOException {
+    public SimLoop(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole, int port) throws IOException {
         this.port = port;
         this.toConsole = toConsole;
         this.fromConsole = fromConsole;
         this.serverSocket = new ServerSocket(port);
 
-        clientUpdates = new ConcurrentLinkedQueue<>();
+        clientUpdates = new ArrayBlockingQueue<>(50);
 
         worldManager = new WorldManager(toConsole);
         commandManager = new CommandManager(toConsole, fromConsole, worldManager, this);

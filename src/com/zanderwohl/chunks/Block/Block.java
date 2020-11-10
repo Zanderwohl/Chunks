@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -32,7 +33,7 @@ public class Block {
     private static final int sides = 6; //cubes generally have six sides, but I'm open to higher dimension ports.
     private BufferedImage[] textures = new BufferedImage[sides]; //top, front, left, right, back, bottom
 
-    private ConcurrentLinkedQueue<Message> toConsole;
+    private ArrayBlockingQueue<Message> toConsole;
 
     /**
      * Creates a very simplistic block that has a color but no textures.
@@ -42,7 +43,7 @@ public class Block {
      * @param toConsole The queue to send messages to the console.
      * @param color The color of the block for use in maps.
      */
-    public Block(int id, String name, ConcurrentLinkedQueue<Message> toConsole, Color color){
+    public Block(int id, String name, ArrayBlockingQueue<Message> toConsole, Color color){
         this.name = name;
         this.id = id;
         this.color = color;
@@ -57,7 +58,7 @@ public class Block {
      * @param domain The name of the domain this block is from.
      * @param toConsole The queue to send messages to the console.
      */
-    public Block(String path, String domain, ConcurrentLinkedQueue<Message> toConsole){
+    public Block(String path, String domain, ArrayBlockingQueue<Message> toConsole){
         this.domain = domain;
         String jsonString;
         JSONObject json = new JSONObject();

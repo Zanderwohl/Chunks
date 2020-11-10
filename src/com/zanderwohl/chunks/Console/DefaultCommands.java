@@ -14,6 +14,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 
@@ -85,9 +87,9 @@ public class DefaultCommands {
         commandManager.addCommand(online);
     }
 
-    public static class Say implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>>{
+    public static class Say implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>>{
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole) {
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole) {
             String text = arguments.get("text");
             if(text == null){
                 toConsole.add(new Message("message=Input a message.\n" +
@@ -97,9 +99,9 @@ public class DefaultCommands {
         }
     }
 
-    public static class NewWorld implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class NewWorld implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole){
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
             if(arguments.get("name") == null){
 
             }
@@ -114,18 +116,18 @@ public class DefaultCommands {
         }
     }
 
-    public static class ListWorlds implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class ListWorlds implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole){
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
             String[] worlds = worldManager.listWorldNames();
             String message = "Active worlds: " + Arrays.toString(worlds);
             toConsole.add(new Message("message=" + message + "\nsource=Command Manager"));
         }
     }
 
-    public static class SaveWorld implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class SaveWorld implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole){
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
             if(arguments.get("world") == null){
                 toConsole.add(new Message("message=Specify a world to save.\nsource=Command Manager\n"
                         + "severity=warning"));
@@ -135,16 +137,16 @@ public class DefaultCommands {
         }
     }
 
-    public static class SaveAll implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class SaveAll implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole){
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
             worldManager.saveAllWorlds();
         }
     }
 
-    public static class KillWorld implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class KillWorld implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole){
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
              if (arguments.get("world") == null) {
                 toConsole.add(new Message("message=Specify a world to kill.\nsource=Command Manager\n"
                         + "severity=warning"));
@@ -154,9 +156,9 @@ public class DefaultCommands {
         }
     }
 
-    public static class TopDownMap implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class TopDownMap implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole){
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
             World w = worldManager.getWorld(arguments.get("world"));
             if(w == null){
                 toConsole.add(new Message("message=The world \"" + arguments.get("world")
@@ -188,9 +190,9 @@ public class DefaultCommands {
         }
     }
 
-    public static class Help implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class Help implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole){
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
             if(arguments.get("command") == null){
                 for(Command c: commands){
                     toConsole.add(new Message("source=Command Manager\nmessage=" + c.toString()));
@@ -203,10 +205,10 @@ public class DefaultCommands {
         }
     }
 
-    public static class Kick implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class Kick implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
 
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole) {
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole) {
             if(arguments.get("user") == null){
                 toConsole.add(new Message("source=Command Manager\nseverity=warning\nmessage="
                 + "Specify a user to kick."));
@@ -226,10 +228,10 @@ public class DefaultCommands {
         }
     }
 
-    public static class ListOnlineUsers implements BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> {
+    public static class ListOnlineUsers implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
 
         @Override
-        public void accept(HashMap<String, String> arguments, ConcurrentLinkedQueue<Message> toConsole) {
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole) {
             ArrayList<ClientIdentity> clients = simLoop.getClients();
             String clientList = clients.toString();
             toConsole.add(new Message("source=Command Manager\nmessage=" + clientList));

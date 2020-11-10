@@ -7,6 +7,7 @@ import com.zanderwohl.console.Message;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -18,13 +19,13 @@ public class ClientHandler implements Runnable{
     protected volatile boolean running;
 
     private Socket socket;
-    protected ConcurrentLinkedQueue<Message> toConsole;
+    protected ArrayBlockingQueue<Message> toConsole;
     protected ClientIdentity identity;
 
     private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
 
-    protected ConcurrentLinkedQueue<Delta> clientUpdates;
-    protected ConcurrentLinkedQueue<Delta> serverUpdates;
+    protected ArrayBlockingQueue<Delta> clientUpdates;
+    protected ArrayBlockingQueue<Delta> serverUpdates;
 
     /**
      * A Client Handler sends and receives data from a client, updating the server about client actions and vice
@@ -32,15 +33,15 @@ public class ClientHandler implements Runnable{
      * @param clientSocket The socket the client is behind.
      * @param toConsole The stream of messages to the server's Console.
      */
-    public ClientHandler(Socket clientSocket, ConcurrentLinkedQueue<Message> toConsole,
+    public ClientHandler(Socket clientSocket, ArrayBlockingQueue<Message> toConsole,
                          ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById,
-                         ConcurrentLinkedQueue<Delta> clientUpdates){
+                         ArrayBlockingQueue<Delta> clientUpdates){
         this.running = true;
         this.socket = clientSocket;
         this.toConsole = toConsole;
         this.clientsById = clientsById;
         this.clientUpdates = clientUpdates;
-        this.serverUpdates = new ConcurrentLinkedQueue<>();
+        this.serverUpdates = new ArrayBlockingQueue<>(10);
     }
 
     public void disconnect(){
@@ -98,15 +99,16 @@ public class ClientHandler implements Runnable{
         public void run() {
             try {
                 while (parent.running) {
-                    while (!parent.serverUpdates.isEmpty()) {
-                        Delta update = parent.serverUpdates.remove();
-                            out.writeObject(update);
-                    }
+                    Delta update = parent.serverUpdates.take();
+                    out.writeObject(update);
                 }
             } catch (IOException e) {
             parent.running = false;
             parent.toConsole.add(new Message("source=Client Handler\nseverity=critical\nmessage="
                     + "Connection to client " + parent.identity.getDisplayName() + " failed."));
+            } catch (InterruptedException e){
+                parent.toConsole.add(new Message("source=Client Handle\nseverity=critical\nmessage="
+                + "Client Handler was unexpectedly interrupted!"));
             }
         }
     }

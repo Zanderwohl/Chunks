@@ -3,6 +3,7 @@ package com.zanderwohl.chunks.Console;
 import com.zanderwohl.console.Message;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 
@@ -13,11 +14,11 @@ public class Command {
     private int requiredArgumentsLength = 0;
     private String name;
     private String description;
-    private BiConsumer<HashMap<String, String>, ConcurrentLinkedQueue<Message>> action;
+    private BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> action;
     boolean argumentListSorted = false;
 
     public Command(String name, String description, BiConsumer<HashMap<String, String>,
-            ConcurrentLinkedQueue<Message>> action){
+            ArrayBlockingQueue<Message>> action){
         argumentMap = new HashMap<>();
         argumentList = new ArrayList<>();
         this.name = name;
@@ -109,7 +110,7 @@ public class Command {
         }
     }
 
-    public void accept(UserCommand command, ConcurrentLinkedQueue<Message> toConsole) {
+    public void accept(UserCommand command, ArrayBlockingQueue<Message> toConsole) {
         try {
             HashMap<String, String> arguments = arrangeArguments(command.getArguments());
             action.accept(arguments, toConsole);
