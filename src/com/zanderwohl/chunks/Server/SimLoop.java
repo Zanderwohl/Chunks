@@ -224,8 +224,8 @@ public class SimLoop implements Runnable {
                 }
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
-                toConsole.add(new Message("source=Sim Loop\nseverity=error\n"
-                        + "message=Java Error: " + e.getStackTrace()));
+                toConsole.add(new Message("source=Sim Loop\nseverity=critical\n"
+                        + "message=Server was interrupted at an unexpected time."));
             }
 
 
