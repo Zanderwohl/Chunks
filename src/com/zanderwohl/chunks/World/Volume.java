@@ -19,8 +19,8 @@ public class Volume implements java.io.Serializable {
     //private int swb_x, swb_y, swb_z; //Southwestbottom corner x, y, and z block coordinates to world.
     private Coord swb = new Coord(0, 0, 0, Coord.Scale.BLOCK); //Southwestbottom corner x, y, and z block coordinates to world.
     private int[][][] blocks;
-    private int[][] maximums; //The max heights per-column
-    private int[][] maxBlocks; //The blocks at the max heights in each column.
+    private transient int[][] maximums; //The max heights per-column
+    private transient int[][] maxBlocks; //The blocks at the max heights in each column.
     //type[][]
     //6 arrays: array of meshes for up-facing quads, array of meshes for north-facing quads, etc.
     //array of ALL quads.

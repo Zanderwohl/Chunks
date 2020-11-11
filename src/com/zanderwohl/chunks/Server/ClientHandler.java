@@ -3,6 +3,8 @@ package com.zanderwohl.chunks.Server;
 import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Delta.Delta;
+import com.zanderwohl.chunks.Delta.Kick;
+import com.zanderwohl.chunks.Delta.PPos;
 import com.zanderwohl.console.Message;
 
 import java.io.*;
@@ -44,8 +46,13 @@ public class ClientHandler implements Runnable{
         this.serverUpdates = new ArrayBlockingQueue<>(10);
     }
 
-    public void disconnect(){
+    public void disconnect(String reason){
+        if(reason == null){
+            reason = "An unspecified reason.";
+        }
+        reason = "Disconnected from Server: " + reason;
         running = false;
+        serverUpdates.add(new Kick(reason));
     }
 
     /**
@@ -98,6 +105,7 @@ public class ClientHandler implements Runnable{
         @Override
         public void run() {
             try {
+                out.writeObject(new PPos(20.0, 40.0, 20.0, 0.0, 0.0));
                 while (parent.running) {
                     Delta update = parent.serverUpdates.take();
                     out.writeObject(update);

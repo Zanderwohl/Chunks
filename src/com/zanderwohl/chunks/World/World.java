@@ -24,10 +24,10 @@ public class World {
     private ArrayList<Volume> volumes = new ArrayList<>();
     private Volume emptyVolume = new Volume(this);
 
-    Generator g;
-    WorldManager worldManager;
+    private Generator g;
+    private WorldManager worldManager;
 
-    int x_length = 20, y_length = 2, z_length = 20;
+    public final int x_length = 20, y_length = 2, z_length = 20;
     private int seed = 0;
 
     private String name;

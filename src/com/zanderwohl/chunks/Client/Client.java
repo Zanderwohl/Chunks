@@ -1,7 +1,6 @@
 package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Console.Console;
-import com.zanderwohl.chunks.Delta.Chat;
 import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Main;
 import com.zanderwohl.console.Message;
@@ -102,7 +101,7 @@ public class Client implements Runnable {
         send.start();
         receive.start();
 
-        ClientWindow w = new ClientWindow(clientUpdates, serverUpdates, identity, toConsole);
+        ClientLoop w = new ClientLoop(clientUpdates, serverUpdates, identity, toConsole);
         w.start();
     }
 

@@ -5,6 +5,7 @@ import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.CommandManager;
 import com.zanderwohl.chunks.Delta.Chat;
 import com.zanderwohl.chunks.Delta.Delta;
+import com.zanderwohl.chunks.Delta.PPos;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
@@ -20,6 +21,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * The thread that simulates the logic of the game world.
  */
 public class SimLoop implements Runnable {
+
+    private boolean running;
 
     private final double ONE_BILLION = 1000000000.0;
     public final double SIM_FPS = 20.0;
@@ -98,6 +101,10 @@ public class SimLoop implements Runnable {
             if(d instanceof Chat){
                 chats.add((Chat) d);
             }
+            if(d instanceof PPos){
+                PPos pos = (PPos) d;
+                System.out.println(pos.getFrom().getDisplayName() + "\t" + pos.x + "\t" + pos.y + "\t" + pos.z);
+            }
         }
     }
 
@@ -161,6 +168,7 @@ public class SimLoop implements Runnable {
             return false;
         }
         //TODO: Save user state.
+        client.disconnect(reason);
         clients.remove(client);
         clientsById.remove(user);
         toConsole.add(new Message("source=Sim Loop\nmessage="
@@ -192,14 +200,16 @@ public class SimLoop implements Runnable {
      */
     @Override
     public void run() {
+        running = true;
+
         long lastNow = System.nanoTime();
-        double delta = 0.0;
+        double delta;
         long lastFPSTime = 0;
 
         Thread clientAccepterThread = new Thread(clientAccepter);
         clientAccepterThread.start();
 
-        while(true){
+        while(running){
             long now = System.nanoTime();
             long updateLength = now - lastNow;
             lastNow = now;
@@ -226,6 +236,7 @@ public class SimLoop implements Runnable {
             } catch (InterruptedException e) {
                 toConsole.add(new Message("source=Sim Loop\nseverity=critical\n"
                         + "message=Server was interrupted at an unexpected time."));
+                running = false;
             }
 
 

@@ -214,8 +214,12 @@ public class DefaultCommands {
                 + "Specify a user to kick."));
             } else {
                 String userToKick = arguments.get("user");
+                String reason = arguments.get("reason");
+                if(reason == null){
+                    reason = "No given reason.";
+                }
                 ClientIdentity client = simLoop.findClientByDisplayName(arguments.get("user"));
-                boolean success = simLoop.disconnectUser(client, "Kicked: " + arguments.get("reason"));
+                boolean success = simLoop.disconnectUser(client, "Kicked: " + reason);
                 if(success){
                     toConsole.add(new Message("source=Command Manager\nseverity=warning\nmessage="
                             + "Kicked user " + userToKick + "."));

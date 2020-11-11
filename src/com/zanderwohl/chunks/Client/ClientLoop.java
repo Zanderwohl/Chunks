@@ -2,20 +2,21 @@ package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Delta.Chat;
 import com.zanderwohl.chunks.Delta.Delta;
+import com.zanderwohl.chunks.Delta.Kick;
+import com.zanderwohl.chunks.Delta.PPos;
 import com.zanderwohl.console.Message;
 
 import javax.swing.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ClientWindow {
+public class ClientLoop {
 
     private final double ONE_BILLION = 1000000000.0;
     public final double SIM_FPS = 20.0;
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
     private volatile boolean running;
-    JFrame gameWindow;
+    private JFrame gameWindow;
 
     private ArrayBlockingQueue<Delta> serverUpdates;
     private ArrayBlockingQueue<Delta> clientUpdates;
@@ -23,16 +24,18 @@ public class ClientWindow {
     private ArrayBlockingQueue<Message> toConsole;
 
     private ClientIdentity identity;
+    private PPos position;
 
-    public ClientWindow(ArrayBlockingQueue<Delta> clientUpdates, ArrayBlockingQueue<Delta> serverUpdates,
-                        ClientIdentity clientIdentity,
-                        ArrayBlockingQueue<Message> toConsole){
+    public ClientLoop(ArrayBlockingQueue<Delta> clientUpdates, ArrayBlockingQueue<Delta> serverUpdates,
+                      ClientIdentity clientIdentity,
+                      ArrayBlockingQueue<Message> toConsole){
         this.clientUpdates = clientUpdates;
         this.serverUpdates = serverUpdates;
         this.identity = clientIdentity;
         gameWindow = new JFrame();
 
         this.toConsole = toConsole;
+        position = new PPos(0.0, 0.0, 0.0, 0.0, 0.0);
 
         running = true;
     }
@@ -52,7 +55,23 @@ public class ClientWindow {
         if(update instanceof Chat){
             Chat c = (Chat) update;
             System.out.println(c.toString());
+            return;
         }
+        if(update instanceof Kick){
+            Kick k = (Kick) update;
+            toConsole.add(new Message("source=Client Window\nmessage=" + k.getReason()));
+        }
+        if(update instanceof PPos){
+            position = (PPos) update;
+        }
+    }
+
+    private void updatePosition(){
+        //TODO: Get user input???
+    }
+
+    private void sendPosition(){
+        clientUpdates.add(position);
     }
 
     public void start(){
@@ -77,6 +96,8 @@ public class ClientWindow {
 
             informServer();
             acceptUpdates();
+            updatePosition();
+            sendPosition();
 
             try {
                 long sleepTime = (long)(lastNow - System.nanoTime() + SIM_NS) / 1000000;

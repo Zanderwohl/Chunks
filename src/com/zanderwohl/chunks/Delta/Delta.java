@@ -4,10 +4,10 @@ import com.zanderwohl.chunks.Client.ClientIdentity;
 
 public abstract class Delta implements java.io.Serializable {
 
-    private transient ClientIdentity from;
+    private transient ClientIdentity from = null;
 
-    public Delta(ClientIdentity fromClient){
-        this.from = fromClient;
+    public Delta(){
+
     }
 
     public ClientIdentity getFrom(){
