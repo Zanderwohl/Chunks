@@ -5,8 +5,7 @@ import com.zanderwohl.chunks.Delta.VolumeAge;
 import util.FileLoader;
 import com.zanderwohl.chunks.Generator.Generator;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 
 import static com.zanderwohl.chunks.World.Space.*;
 
@@ -78,33 +77,19 @@ public class Volume extends Delta implements java.io.Serializable {
      * @param location The name of the file, including the extension.
      * @throws FileNotFoundException If the file specified is not found.
      */
-    public void load(String location) throws FileNotFoundException {
-        FileLoader volumeFile = new FileLoader(location);
-        String volumeString = volumeFile.fileToString();
-        String[] volumeArray = volumeString.split("\\s");
-        int[] blockList = new int[volumeArray.length];
-        for(int i = 3; i < volumeArray.length; i++){
-            try {
-                blockList[i] = Integer.parseInt(volumeArray[i]);
-            } catch(NumberFormatException e){
-                System.err.println(location);
-                throw e;
-                //return;
-            }
+    public static Volume load(String location) throws FileNotFoundException, IOException {
+        FileInputStream fileIn = new FileInputStream(location);
+        ObjectInputStream in;
+        try {
+            in = new ObjectInputStream(fileIn);
+            Volume v = (Volume) in.readObject();
+            v.markUpdated();
+            return v;
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (StreamCorruptedException e){
+            return null;
         }
-        setX(Integer.parseInt(volumeArray[0].split(":")[1]));
-        setY(Integer.parseInt(volumeArray[1].split(":")[1]));
-        setZ(Integer.parseInt(volumeArray[2].split(":")[1]));
-
-        for(int y = 0; y < VOL_Y; y++){
-            for(int x = 0; x < VOL_X; x++){
-                for(int z = 0; z < VOL_Z; z++){
-                    blocks[x][y][z] = blockList[y * VOL_Y * VOL_X + x * VOL_X + z];
-                    //blocks[x][y][z] = Character.toString((char)blockList[y * VOL_Y * VOL_X + x * VOL_X + z]);
-                }
-            }
-        }
-        markUpdated();
     }
 
     /**
@@ -113,29 +98,17 @@ public class Volume extends Delta implements java.io.Serializable {
      * @param saveName The name to save the Volume under.
      */
     public void save(String saveName) {
-        PrintWriter out;
+        FileOutputStream fileOut;
         try {
-            out = new PrintWriter(saveName + "/" + toString() + "." + World.fileType);
+            fileOut = new FileOutputStream(saveName + "/" + toString() + "." + World.fileType);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(this);
+            out.close();
         } catch (FileNotFoundException e) {
             return;
+        } catch (IOException e) {
+            return;
         }
-        out.write("x:" + location.getX() + "\n");
-        out.write("y:" + location.getY() + "\n");
-        out.write("z:" + location.getZ() + "\n");
-        for(int y = 0; y < VOL_Y; y++){
-            for(int x = 0; x < VOL_X; x++){
-                for(int z = 0; z < VOL_Z; z++){
-                    out.write(blocks[x][y][z] + "");
-                    //out.write(Character.toString((char)blocks[x][y][z]));
-                    if(z < VOL_Z - 1){
-                        out.write("\t");
-                    }
-                }
-                out.write("\n");
-            }
-            out.write("\n");
-        }
-        out.close();
     }
 
     /**

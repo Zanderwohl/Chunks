@@ -6,6 +6,7 @@ import com.zanderwohl.console.Message;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -159,17 +160,20 @@ public class World extends Delta {
                     int z = volumeLocation.getZ();
                     String location = "saves/" + name + "/" + x + "_" + y + "_" + z + ".vol";
                     Coord coord = new Coord(x, y, z);
-                    Volume v = new Volume(coord, g, this);
-                    v.load(location);
-                    setVolume(volumeLocation, v);
+                    Volume v = Volume.load(location);
+                    if(v != null) {
+                        setVolume(volumeLocation, v);
+                    }
                 } catch (FileNotFoundException e) {
                     if (createNewVols) {
                         Coord coord = new Coord(0, 0, 0);
-                        setVolume(volumeLocation, new Volume(coord, g, this));
+                        setVolume(volumeLocation, new Volume(volumeLocation, g, this));
                     } else {
                         System.err.println("empty vol!");
                         return emptyVolume;
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             } else {
                 return emptyVolume;
@@ -181,7 +185,7 @@ public class World extends Delta {
 
     public void setVolume(Volume v){
         //TODO: Remove volume if one at Coord already exists.
-        if(volumes == null){
+        if(volumes == null){ //Since volumes is transient, it may be null.
             volumes = new ArrayList<>();
         }
         volumes.add(v);
@@ -199,6 +203,7 @@ public class World extends Delta {
                 return v;
             }
         }
+        //TODO: Some kind of indexing scheme to make lookup much faster.
         //System.out.println("Volume at " + x + " " + y + " " + z + " is null!");
         return null;
     }

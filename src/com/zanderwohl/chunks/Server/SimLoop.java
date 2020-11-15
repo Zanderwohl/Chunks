@@ -248,37 +248,45 @@ public class SimLoop implements Runnable {
         Thread clientAccepterThread = new Thread(clientAccepter);
         clientAccepterThread.start();
 
-        while(running){
-            long now = System.nanoTime();
-            long updateLength = now - lastNow;
-            lastNow = now;
-            delta = updateLength / SIM_NS;
+        try {
+            while (running) {
+                long now = System.nanoTime();
+                long updateLength = now - lastNow;
+                lastNow = now;
+                delta = updateLength / SIM_NS;
 
-            lastFPSTime += updateLength;
-            if(lastFPSTime >= ONE_BILLION){
-                lastFPSTime = 0;
-            }
-
-            processClientUpdates();
-            pruneDeadClients(); //TODO: Only do this once per second, or maybe less.
-            update(delta);
-            updateClients();
-
-            try {
-                long sleepTime = (long)(lastNow - System.nanoTime() + SIM_NS) / 1000000;
-                if(sleepTime < 0){
-                    toConsole.add(new Message("source=Sim Loop\nseverity=warning\n"
-                            + "message=Server can't keep up with physics! " + (-sleepTime) + " ns behind."));
-                    sleepTime = 0;
+                lastFPSTime += updateLength;
+                if (lastFPSTime >= ONE_BILLION) {
+                    lastFPSTime = 0;
                 }
-                Thread.sleep(sleepTime);
-            } catch (InterruptedException e) {
-                toConsole.add(new Message("source=Sim Loop\nseverity=critical\n"
-                        + "message=Server was interrupted at an unexpected time."));
-                running = false;
+
+                processClientUpdates();
+                pruneDeadClients(); //TODO: Only do this once per second, or maybe less.
+                update(delta);
+                updateClients();
+
+                try {
+                    long sleepTime = (long) (lastNow - System.nanoTime() + SIM_NS) / 1000000;
+                    if (sleepTime < 0) {
+                        toConsole.add(new Message("source=Sim Loop\nseverity=warning\n"
+                                + "message=Server can't keep up with physics! " + (-sleepTime) + " ns behind."));
+                        sleepTime = 0;
+                    }
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    toConsole.add(new Message("source=Sim Loop\nseverity=critical\n"
+                            + "message=Server was interrupted at an unexpected time."));
+                    running = false;
+                }
+
+
             }
-
-
+        } catch (Exception e){
+            toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
+                    + "Server has encountered an unrecoverable error. Stopping."));
+            toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
+                    + e.getStackTrace()));
+            e.printStackTrace(); //TODO: Remove one message details are implemented.
         }
     }
 }

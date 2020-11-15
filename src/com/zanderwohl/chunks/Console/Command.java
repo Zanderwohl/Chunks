@@ -55,7 +55,7 @@ public class Command {
 
     public String documentation(){
         if(!argumentListSorted){
-            argumentList.sort(Comparator.comparing(Argument::getName));
+            //argumentList.sort(Comparator.comparing(Argument::getName));
             argumentListSorted = true;
         }
         String help = name + " - " + description;
