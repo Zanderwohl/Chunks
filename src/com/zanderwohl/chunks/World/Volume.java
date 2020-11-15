@@ -1,5 +1,7 @@
 package com.zanderwohl.chunks.World;
 
+import com.zanderwohl.chunks.Delta.Delta;
+import com.zanderwohl.chunks.Delta.VolumeAge;
 import util.FileLoader;
 import com.zanderwohl.chunks.Generator.Generator;
 
@@ -12,7 +14,7 @@ import static com.zanderwohl.chunks.World.Space.*;
  * A unit of blocks in three dimensions that has a height, width and depth. Is stored as a single file, and is given a
  * generator in order to generate and populate its own contents when called to do so
  */
-public class Volume implements java.io.Serializable {
+public class Volume extends Delta implements java.io.Serializable {
 
     //private int x, y, z;
     private Coord location = new Coord(0, 0, 0, Coord.Scale.VOLUME);
@@ -21,11 +23,12 @@ public class Volume implements java.io.Serializable {
     private int[][][] blocks;
     private transient int[][] maximums; //The max heights per-column
     private transient int[][] maxBlocks; //The blocks at the max heights in each column.
+    private VolumeAge lastUpdated;
     //type[][]
     //6 arrays: array of meshes for up-facing quads, array of meshes for north-facing quads, etc.
     //array of ALL quads.
 
-    private World w; //the world this volume belongs to.
+    private transient World w; //the world this volume belongs to.
 
     /**
      * Empty volume of nothingness. Has no position or anything.
@@ -39,6 +42,7 @@ public class Volume implements java.io.Serializable {
         maximums = new int[VOL_X][VOL_Z];
         maxBlocks = new int[VOL_X][VOL_Z];
         calcMaximums();
+        markUpdated();
     }
 
     /**
@@ -65,6 +69,7 @@ public class Volume implements java.io.Serializable {
         maximums = new int[VOL_X][VOL_Z];
         maxBlocks = new int[VOL_X][VOL_Z];
         calcMaximums();
+        markUpdated();
     }
 
     /**
@@ -79,7 +84,13 @@ public class Volume implements java.io.Serializable {
         String[] volumeArray = volumeString.split("\\s");
         int[] blockList = new int[volumeArray.length];
         for(int i = 3; i < volumeArray.length; i++){
-            blockList[i] = Integer.parseInt(volumeArray[i]);
+            try {
+                blockList[i] = Integer.parseInt(volumeArray[i]);
+            } catch(NumberFormatException e){
+                System.err.println(location);
+                throw e;
+                //return;
+            }
         }
         setX(Integer.parseInt(volumeArray[0].split(":")[1]));
         setY(Integer.parseInt(volumeArray[1].split(":")[1]));
@@ -93,6 +104,7 @@ public class Volume implements java.io.Serializable {
                 }
             }
         }
+        markUpdated();
     }
 
     /**
@@ -240,6 +252,7 @@ public class Volume implements java.io.Serializable {
         int swb_y = Space.volYToBlockY(location.getY());
         int swb_z = Space.volZToBlockZ(location.getZ());
         swb = new Coord(swb_x, swb_y, swb_z, Coord.Scale.BLOCK);
+        markUpdated();
     }
 
     /**
@@ -279,5 +292,13 @@ public class Volume implements java.io.Serializable {
      */
     public boolean atLocation(Coord locationToCompare){
         return location.equals(locationToCompare);
+    }
+
+    private void markUpdated(){
+        lastUpdated = new VolumeAge(System.nanoTime());
+    }
+
+    public VolumeAge getLastUpdated(){
+        return lastUpdated;
     }
 }

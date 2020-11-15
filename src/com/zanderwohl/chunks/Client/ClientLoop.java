@@ -4,6 +4,8 @@ import com.zanderwohl.chunks.Delta.Chat;
 import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Delta.Kick;
 import com.zanderwohl.chunks.Delta.PPos;
+import com.zanderwohl.chunks.World.Volume;
+import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
 
 import javax.swing.*;
@@ -25,6 +27,9 @@ public class ClientLoop {
 
     private ClientIdentity identity;
     private PPos position;
+    private PPos prevPosition;
+
+    private World currentWorld;
 
     public ClientLoop(ArrayBlockingQueue<Delta> clientUpdates, ArrayBlockingQueue<Delta> serverUpdates,
                       ClientIdentity clientIdentity,
@@ -35,7 +40,7 @@ public class ClientLoop {
         gameWindow = new JFrame();
 
         this.toConsole = toConsole;
-        position = new PPos(0.0, 0.0, 0.0, 0.0, 0.0);
+        position = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName());
 
         running = true;
     }
@@ -62,7 +67,23 @@ public class ClientLoop {
             toConsole.add(new Message("source=Client Window\nmessage=" + k.getReason()));
         }
         if(update instanceof PPos){
-            position = (PPos) update;
+            PPos ppos = (PPos) update;
+            if(ppos.player.equals(identity.getDisplayName())){
+                position = ppos;
+                prevPosition = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName());
+            } else {
+                //TODO: Update another player's position.
+            }
+        }
+        if(update instanceof World){
+            World w = (World) update;
+            currentWorld = w;
+            System.out.println("World changed to " + w.getName());
+        }
+        if(update instanceof Volume){
+            Volume v = (Volume) update;
+            currentWorld.setVolume(v);
+            System.out.println("Loaded volume at " + v.getLocation());
         }
     }
 
@@ -71,7 +92,11 @@ public class ClientLoop {
     }
 
     private void sendPosition(){
-        clientUpdates.add(position);
+        if(prevPosition != null && !prevPosition.equals(position)){
+            clientUpdates.add(position);
+            prevPosition = position;
+        }
+
     }
 
     public void start(){

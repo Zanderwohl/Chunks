@@ -2,6 +2,7 @@ package com.zanderwohl.chunks.Server;
 
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Delta.Delta;
+import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
 import java.io.IOException;

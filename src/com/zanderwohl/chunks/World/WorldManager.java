@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class WorldManager {
 
     private BlockLibrary library;
+    public String defaultWorld = null;
 
     private HashMap<String, World> worlds = new HashMap<>();
 
@@ -22,6 +23,8 @@ public class WorldManager {
     public WorldManager(ArrayBlockingQueue<Message> toConsole){
         this.toConsole = toConsole;
         library = new BlockLibrary(toConsole);
+
+        newWorld("Madison","Madison"); //TODO: Allow for flexibility for initial world.
 
         prepare();
     }
@@ -64,6 +67,9 @@ public class WorldManager {
     }
 
     public void newWorld(String name, String seed){ //TODO: Seeds? Generator parameters?
+        if(worlds.size() == 0){ //If there is no default world, this is it.
+            defaultWorld = name;
+        }
         World newWorld = new World(name, formatSeed(seed), toConsole);
         toConsole.add(new Message("message=Creating world '" + name + "'...\nsource=World Manager\n" +
                 "severity=normal"));
@@ -121,5 +127,9 @@ public class WorldManager {
         } catch (NumberFormatException e){
             return seed.hashCode();
         }
+    }
+
+    public World getDefaultWorld(){
+        return worlds.get(defaultWorld);
     }
 }

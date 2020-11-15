@@ -3,9 +3,10 @@ package com.zanderwohl.chunks.Server;
 import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.CommandManager;
-import com.zanderwohl.chunks.Delta.Chat;
-import com.zanderwohl.chunks.Delta.Delta;
-import com.zanderwohl.chunks.Delta.PPos;
+import com.zanderwohl.chunks.Delta.*;
+import com.zanderwohl.chunks.World.Coord;
+import com.zanderwohl.chunks.World.Volume;
+import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
@@ -59,7 +60,7 @@ public class SimLoop implements Runnable {
         this.fromConsole = fromConsole;
         this.serverSocket = new ServerSocket(port);
 
-        clientUpdates = new ArrayBlockingQueue<>(50);
+        clientUpdates = new ArrayBlockingQueue<>(500);
 
         worldManager = new WorldManager(toConsole);
         commandManager = new CommandManager(toConsole, fromConsole, worldManager, this);
@@ -105,6 +106,38 @@ public class SimLoop implements Runnable {
                 PPos pos = (PPos) d;
                 System.out.println(pos.getFrom().getDisplayName() + "\t" + pos.x + "\t" + pos.y + "\t" + pos.z);
             }
+            if(d instanceof WorldRequest){
+                WorldRequest wr = (WorldRequest) d;
+                World worldToSend;
+                if(wr.requestedWorld == null){
+                    worldToSend = worldManager.getDefaultWorld();
+                } else {
+                    worldToSend = worldManager.getWorld(wr.requestedWorld);
+                    if(worldToSend == null){
+                        return;
+                    }
+                }
+                sendToClient(d.getFrom(), worldToSend);
+            }
+            if(d instanceof VolumeRequest){
+                VolumeRequest vr = (VolumeRequest) d;
+                Coord volumeLocation = new Coord(vr.x, vr.y, vr.z, Coord.Scale.VOLUME);
+                //TODO: Can currently only send Volumes from default world, since server doesn't keep track of which world the player is in.
+                Volume volumeToSend = worldManager.getDefaultWorld().getVolume(volumeLocation, true);
+            }
+            if(d instanceof StartingVolumesRequest){
+                StartingVolumesRequest svr = (StartingVolumesRequest) d;
+                //TODO: Send only nearby Volumes, not all of them. Also, select which world the player is in.
+                World w = worldManager.getDefaultWorld();
+                for(int x = 0; x < w.x_length; x++){
+                    for(int y = 0; y < w.y_length; y++){
+                        for(int z = 0; z < w.z_length; z++){
+                            sendToClient(svr.getFrom(), w.getVolume(new Coord(x, y, z, Coord.Scale.VOLUME), true));
+                        }
+                    }
+                }
+
+            }
         }
     }
 
@@ -127,6 +160,12 @@ public class SimLoop implements Runnable {
         for(ClientHandler client: clientsById.values()){
             client.serverUpdates.add(update);
         }
+    }
+
+    private void sendToClient(ClientIdentity client, Delta update){
+        ClientHandler c = clientsById.get(client);
+        c.serverUpdates.add(update);
+
     }
 
     /**

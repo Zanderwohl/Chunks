@@ -6,7 +6,7 @@ package com.zanderwohl.chunks.World;
 public class Coord implements java.io.Serializable {
 
     private int x, y, z;
-    public enum Scale { UNKNOWN, VOLUME, BLOCK };
+    public enum Scale { UNKNOWN, VOLUME, BLOCK, COMPOUND };
     private Scale scale;
 
     /**
@@ -163,5 +163,9 @@ public class Coord implements java.io.Serializable {
      */
     public Scale getScale(){
         return this.scale;
+    }
+
+    public String toString(){
+        return x + "-" + y + "-" + z;
     }
 }

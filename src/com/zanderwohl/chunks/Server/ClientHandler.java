@@ -2,9 +2,9 @@ package com.zanderwohl.chunks.Server;
 
 import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Client.ClientIdentity;
-import com.zanderwohl.chunks.Delta.Delta;
-import com.zanderwohl.chunks.Delta.Kick;
-import com.zanderwohl.chunks.Delta.PPos;
+import com.zanderwohl.chunks.Delta.*;
+import com.zanderwohl.chunks.World.Coord;
+import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
 import java.io.*;
@@ -43,7 +43,7 @@ public class ClientHandler implements Runnable{
         this.toConsole = toConsole;
         this.clientsById = clientsById;
         this.clientUpdates = clientUpdates;
-        this.serverUpdates = new ArrayBlockingQueue<>(10);
+        this.serverUpdates = new ArrayBlockingQueue<>(100);
     }
 
     public void disconnect(String reason){
@@ -105,7 +105,10 @@ public class ClientHandler implements Runnable{
         @Override
         public void run() {
             try {
-                out.writeObject(new PPos(20.0, 40.0, 20.0, 0.0, 0.0));
+                PPos initialPos = new PPos(20.0, 40.0, 20.0, 0.0, 0.0,
+                        parent.identity.getDisplayName());
+                out.writeObject(initialPos);
+                sendInitialVolumes(initialPos.toCoord());
                 while (parent.running) {
                     Delta update = parent.serverUpdates.take();
                     out.writeObject(update);
@@ -118,6 +121,15 @@ public class ClientHandler implements Runnable{
                 parent.toConsole.add(new Message("source=Client Handle\nseverity=critical\nmessage="
                 + "Client Handler was unexpectedly interrupted!"));
             }
+        }
+
+        private void sendInitialVolumes(Coord location){
+            Delta worldRequest = new WorldRequest(null);
+            worldRequest.setFrom(parent.identity);
+            parent.clientUpdates.add(worldRequest);
+            StartingVolumesRequest svr = new StartingVolumesRequest(location);
+            svr.setFrom(parent.identity);
+            parent.clientUpdates.add(svr);
         }
     }
 

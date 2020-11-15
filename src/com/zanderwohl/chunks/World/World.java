@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks.World;
 
+import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Generator.*;
 import com.zanderwohl.console.Message;
 
@@ -15,24 +16,24 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * A collection of Volumes and their relations to each other, to allow for dynamic generation of the world in small
  * pieces at a time. Contains other information.
  */
-public class World {
+public class World extends Delta {
 
-    public static final String fileType = "vol";
-    public static final String metaFileType = "meta";
-    public static final String libraryFileType = "man";
+    public static transient final String fileType = "vol";
+    public static transient final String metaFileType = "meta";
+    public static transient final String libraryFileType = "man";
 
-    private ArrayList<Volume> volumes = new ArrayList<>();
+    private transient ArrayList<Volume> volumes = new ArrayList<>();
     private Volume emptyVolume = new Volume(this);
 
-    private Generator g;
-    private WorldManager worldManager;
+    private transient Generator g;
+    private transient WorldManager worldManager;
 
-    public final int x_length = 20, y_length = 2, z_length = 20;
+    public final int x_length = 5, y_length = 5, z_length = 5;
     private int seed = 0;
 
     private String name;
 
-    private ArrayBlockingQueue<Message> toConsole;
+    private transient ArrayBlockingQueue<Message> toConsole;
 
     public World(String name, int seed, ArrayBlockingQueue<Message> toConsole){
         this.name = name;
@@ -133,6 +134,10 @@ public class World {
         }
     }
 
+    public Volume getVolume(Coord volumeLocation, boolean createNewVols){
+        return getVolume(volumeLocation, createNewVols, true);
+    }
+
     /**
      * Outward-facing. Does fancy cache stuff,
      * loads the Volume if it's not in memory,
@@ -141,36 +146,45 @@ public class World {
      * @param createNewVols Whether or not a new Volume should be created if not found.
      * @return The volume.
      */
-    public Volume getVolume(Coord volumeLocation, boolean createNewVols){
+    public Volume getVolume(Coord volumeLocation, boolean createNewVols, boolean loadFromDisk){
         //if(terrain[x][y][z] != null){
         Volume vol = findVolume(volumeLocation);
         if(vol != null){
            return vol;
         } else {
-            try{
-                int x = volumeLocation.getX();
-                int y = volumeLocation.getY();
-                int z = volumeLocation.getZ();
-                String location = "saves/" + name + "/" + x + "_" + y + "_" + z + ".vol";
-                //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
-                //terrain[x][y][z].load(location);
-                Coord coord = new Coord(x, y, z);
-                Volume v = new Volume(coord, g, this);
-                v.load(location);
-                setVolume(volumeLocation, v);
-            } catch (FileNotFoundException e){
-                //terrain[x][y][z] = new Volume(0, 0, 0, g, this);
-                if(createNewVols) {
-                    Coord coord = new Coord(0, 0, 0);
-                    setVolume(volumeLocation, new Volume(coord, g, this));
-                } else {
-                    System.err.println("empty vol!");
-                    return emptyVolume;
+            if(loadFromDisk) {
+                try {
+                    int x = volumeLocation.getX();
+                    int y = volumeLocation.getY();
+                    int z = volumeLocation.getZ();
+                    String location = "saves/" + name + "/" + x + "_" + y + "_" + z + ".vol";
+                    Coord coord = new Coord(x, y, z);
+                    Volume v = new Volume(coord, g, this);
+                    v.load(location);
+                    setVolume(volumeLocation, v);
+                } catch (FileNotFoundException e) {
+                    if (createNewVols) {
+                        Coord coord = new Coord(0, 0, 0);
+                        setVolume(volumeLocation, new Volume(coord, g, this));
+                    } else {
+                        System.err.println("empty vol!");
+                        return emptyVolume;
+                    }
                 }
+            } else {
+                return emptyVolume;
             }
         }
         //return terrain[x][y][z];
         return findVolume(volumeLocation);
+    }
+
+    public void setVolume(Volume v){
+        //TODO: Remove volume if one at Coord already exists.
+        if(volumes == null){
+            volumes = new ArrayList<>();
+        }
+        volumes.add(v);
     }
 
     /**

@@ -62,6 +62,7 @@ public class Command {
         for(Argument a: argumentList){
             help += "\n" + a.documentation();
         }
+        System.out.println(help); //TODO: Remove when command details are created.
         return help;
     }
 
