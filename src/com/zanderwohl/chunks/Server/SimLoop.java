@@ -71,6 +71,14 @@ public class SimLoop implements Runnable {
         chats = new LinkedList<>();
     }
 
+    public void closeServer(ServerClose quit){
+        toConsole.add(new Message("source=Sim Loop\nmessage=Server closing: " + quit.closeMessage));
+        sendToAllClients(quit);
+        running = false;
+
+        worldManager.saveAllWorlds();
+    }
+
     public ArrayList<ClientIdentity> getClients(){
         ArrayList<ClientIdentity> clientList = new ArrayList<>();
         for(ClientIdentity identity: clientsById.keySet()){
@@ -291,5 +299,7 @@ public class SimLoop implements Runnable {
                     + e.getStackTrace()));
             e.printStackTrace(); //TODO: Remove one message details are implemented.
         }
+
+        toConsole.add(new Message("source=Sim Loop\nmessage=Server closed."));
     }
 }

@@ -2,6 +2,7 @@ package com.zanderwohl.chunks.Console;
 
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Delta.Chat;
+import com.zanderwohl.chunks.Delta.ServerClose;
 import com.zanderwohl.chunks.Image.ImageWorld;
 import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.chunks.World.World;
@@ -85,6 +86,10 @@ public class DefaultCommands {
 
         Command online = new Command("online","Lists all online users.", new ListOnlineUsers());
         commandManager.addCommand(online);
+
+        Command closeServer = new Command("quit", "Closes the server.", new CloseServer());
+        closeServer.addArgument("reason", true, "Gives the users a reason why the server closed.");
+        commandManager.addCommand(closeServer);
     }
 
     public static class Say implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>>{
@@ -239,6 +244,21 @@ public class DefaultCommands {
             ArrayList<ClientIdentity> clients = simLoop.getClients();
             String clientList = clients.toString();
             toConsole.add(new Message("source=Command Manager\nmessage=" + clientList));
+        }
+    }
+
+    public static class CloseServer implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
+
+        @Override
+        public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
+            String reason = arguments.get("reason");
+            ServerClose quit;
+            if(reason == null){
+                quit = new ServerClose();
+            } else {
+                quit = new ServerClose(reason);
+            }
+            simLoop.closeServer(quit);
         }
     }
 }
