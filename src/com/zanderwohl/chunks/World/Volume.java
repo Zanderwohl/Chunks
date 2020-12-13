@@ -22,7 +22,9 @@ public class Volume extends Delta implements java.io.Serializable {
     private int[][][] blocks;
     private transient int[][] maximums; //The max heights per-column
     private transient int[][] maxBlocks; //The blocks at the max heights in each column.
+    private transient boolean[][] hasMaximum; //If there are any blocks at all in a given column.
     private VolumeAge lastUpdated;
+
     //type[][]
     //6 arrays: array of meshes for up-facing quads, array of meshes for north-facing quads, etc.
     //array of ALL quads.
@@ -40,6 +42,7 @@ public class Volume extends Delta implements java.io.Serializable {
         blocks = new int[VOL_X][VOL_Y][VOL_Z];
         maximums = new int[VOL_X][VOL_Z];
         maxBlocks = new int[VOL_X][VOL_Z];
+        hasMaximum = new boolean[VOL_X][VOL_Z];
         calcMaximums();
         markUpdated();
     }
@@ -130,17 +133,27 @@ public class Volume extends Delta implements java.io.Serializable {
      * Calculates the maximum points in each column in this Volume.
      * MUST be called before getMaxHeight or getMaxBlock after every update of this Volume's contents.
      */
-    private void calcMaximums(){
-        for(int x = 0; x < VOL_X; x++) {
+    private void calcMaximums() {
+        for (int x = 0; x < VOL_X; x++) {
             for (int z = 0; z < VOL_Z; z++) {
-                int y = VOL_Y - 1;
-                while(blocks[x][y][z] == 0 && y > 0){
-                    y--;
-                }
-                maximums[x][z] = y;
-                maxBlocks[x][z] = blocks[x][y][z];
+                calcMaximum(x, z);
             }
         }
+    }
+
+    /**
+     * Calculates the maximum of any given column.
+     * @param x The x-coordinate, relative to this Vol's base.
+     * @param z The z-coordinate, relative to this Vol's base.
+     */
+    private void calcMaximum(int x, int z){
+        int y = VOL_Y - 1;
+        while(blocks[x][y][z] == 0 && y > 0){
+            y--;
+        }
+        hasMaximum[x][z] = y == 0 ? true : false;
+        maximums[x][z] = y;
+        maxBlocks[x][z] = blocks[x][y][z];
     }
 
     /**
@@ -152,6 +165,16 @@ public class Volume extends Delta implements java.io.Serializable {
      */
     public int getMaxHeight(int x, int z){
         return maximums[x][z];
+    }
+
+    /**
+     * Get whether the given column has a maximum; in other words, if it is not empty.
+     * @param x The x-coordinate.
+     * @param z The z-coordinate.
+     * @return True if there is a maximum, false otherwise.
+     */
+    public boolean hasMaxHeight(int x, int z){
+        return hasMaximum[x][z];
     }
 
     /**

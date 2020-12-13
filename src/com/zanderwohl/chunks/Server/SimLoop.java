@@ -132,7 +132,10 @@ public class SimLoop implements Runnable {
                 for(int x = 0; x < w.x_length; x++){
                     for(int y = 0; y < w.y_length; y++){
                         for(int z = 0; z < w.z_length; z++){
-                            sendToClient(svr.getFrom(), w.getVolume(new Coord(x, y, z, Coord.Scale.VOLUME), true));
+                            Volume v = w.getVolume(new Coord(x, y, z, Coord.Scale.VOLUME), true);
+                            if(v != null){
+                                sendToClient(svr.getFrom(), v);
+                            }
                         }
                     }
                 }

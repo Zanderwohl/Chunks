@@ -9,9 +9,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * A collection of Volumes and their relations to each other, to allow for dynamic generation of the world in small
@@ -23,13 +23,13 @@ public class World extends Delta {
     public static transient final String metaFileType = "meta";
     public static transient final String libraryFileType = "man";
 
-    private transient ArrayList<Volume> volumes = new ArrayList<>();
+    private transient HashMap<Coord, Volume> volumes = new HashMap<>();
     private Volume emptyVolume = new Volume(this);
 
     private transient Generator g;
     private transient WorldManager worldManager;
 
-    public final int x_length = 5, y_length = 5, z_length = 5;
+    public static final int x_length = 5, y_length = 5, z_length = 5;
     private int seed = 0;
 
     private String name;
@@ -74,7 +74,7 @@ public class World extends Delta {
         saveWorldData("saves/", saveName);
         saveBlockLibrary("saves/", saveName);
 
-        for(Volume volume : volumes){
+        for(Volume volume : volumes.values()){
             //System.out.println(volume);
             volume.save("saves/" + saveName);
 
@@ -159,17 +159,17 @@ public class World extends Delta {
                     int y = volumeLocation.getY();
                     int z = volumeLocation.getZ();
                     String location = "saves/" + name + "/" + x + "_" + y + "_" + z + ".vol";
-                    Coord coord = new Coord(x, y, z);
                     Volume v = Volume.load(location);
                     if(v != null) {
                         setVolume(volumeLocation, v);
                     }
+                    return v;
                 } catch (FileNotFoundException e) {
                     if (createNewVols) {
                         Coord coord = new Coord(0, 0, 0);
                         setVolume(volumeLocation, new Volume(volumeLocation, g, this));
                     } else {
-                        System.err.println("empty vol!");
+                        //System.err.println("empty vol!");
                         return emptyVolume;
                     }
                 } catch (IOException e) {
@@ -179,16 +179,18 @@ public class World extends Delta {
                 return emptyVolume;
             }
         }
-        //return terrain[x][y][z];
-        return findVolume(volumeLocation);
+
+        return null;
     }
 
     public void setVolume(Volume v){
-        //TODO: Remove volume if one at Coord already exists.
         if(volumes == null){ //Since volumes is transient, it may be null.
-            volumes = new ArrayList<>();
+            volumes = new HashMap<>();
         }
-        volumes.add(v);
+        if(volumes.get(v) != null){
+            volumes.remove(v);
+        }
+        volumes.put(v.getLocation(), v);
     }
 
     /**
@@ -198,14 +200,13 @@ public class World extends Delta {
      * @return
      */
     private Volume findVolume(Coord location){
-        for(Volume v: volumes){
-            if(v.atLocation(location)){
-                return v;
-            }
+        return volumes.get(location);
+        /*if(volumes.containsKey(location)){
+            return volumes.get(location);
         }
         //TODO: Some kind of indexing scheme to make lookup much faster.
-        //System.out.println("Volume at " + x + " " + y + " " + z + " is null!");
-        return null;
+        System.out.println("Volume at " + location + " is null!");
+        return null;*/
     }
 
     /**
@@ -229,7 +230,7 @@ public class World extends Delta {
     private void setVolume(Coord location, Volume v){
         removeVolume(location);
         v.setLocation(location);
-        volumes.add(v);
+        volumes.put(location, v); //TODO: remove old volumes?
     }
 
     public int getX(){
@@ -294,28 +295,11 @@ public class World extends Delta {
     }
 
     public int getPeak(int x, int z){
-        int volx = x / Space.VOL_X;
-        int volz = z / Space.VOL_Z;
-        int blockx = x % Space.VOL_X;
-        int blockz = z % Space.VOL_Z;
-
-        if(blockx < 0){
-            volx--;
-            blockx = Space.VOL_X - blockx;
-        }
-        if(blockz < 0) {
-            volz--;
-            blockz = Space.VOL_Z - blockz;
-        }
-
-        if(blockx >= Space.VOL_X){
-            volx++;
-            blockx = blockx - Space.VOL_X;
-        }
-        if(blockz >= Space.VOL_Z){
-            volz++;
-            blockz = blockz - Space.VOL_Z;
-        }
+        PartCoord loc = new PartCoord(x, 0, z);
+        int volx = loc.getVolX();
+        int volz = loc.getVolZ();
+        int blockx = loc.getBlockX();
+        int blockz = loc.getBlockZ();
 
         //System.err.println(volx + ":" + blockx + " " + volz + ":" + blockz);
         int peak = 0;
@@ -326,7 +310,10 @@ public class World extends Delta {
                 try {
                     //peak = terrain[volx][index][volz].getMaxHeight(blockx, blockz);
                     Coord volume_location = new Coord(volx, index, volz);
-                    peak = getVolume(volume_location, false).getMaxHeight(blockx, blockz);
+                    System.out.println(volume_location);
+                    Volume volume = getVolume(volume_location, false);
+                    System.out.println(volume);
+                    peak = volume.getMaxHeight(blockx, blockz);
                 } catch (NullPointerException e){
                     //Do nothing. just move on to a terrain volume that DOES exist.
                 }
@@ -339,7 +326,7 @@ public class World extends Delta {
     public Volume[] getVolumesInRadius(double radius, Coord center){
         ArrayList<Volume> volumes_list = new ArrayList<>();
 
-        for(Volume v: this.volumes){ //TODO: This is inefficient at high numbers of Volumes.
+        for(Volume v: this.volumes.values()){ //TODO: This is inefficient at high numbers of Volumes.
             if(center.otherInRadius(v.getLocation(), radius)){
                 volumes_list.add(v);
             }
@@ -353,7 +340,7 @@ public class World extends Delta {
     }
 
     public void unloadDistant(double radius, Coord center, String saveName){
-        Iterator<Volume> i = volumes.iterator();
+        Iterator<Volume> i = volumes.values().iterator();
         while (i.hasNext()) {
             Volume v = i.next(); // must be called before you can call i.remove()
             if(!center.otherInRadius(v.getLocation(), radius)) {

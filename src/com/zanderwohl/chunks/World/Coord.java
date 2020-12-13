@@ -125,6 +125,10 @@ public class Coord implements java.io.Serializable {
         return this.getX() == other.getX() && this.getY() == other.getY() && this.getZ() == other.getZ();
     }
 
+    public int hashCode(){
+        return x * World.x_length + y * World.x_length * World.y_length + z * World.x_length * World.y_length * World.z_length;
+    }
+
     /**
      * Produces a copy of this coordinate converted to Block coordinate.
      * If already Block coordinate, returns itself.
