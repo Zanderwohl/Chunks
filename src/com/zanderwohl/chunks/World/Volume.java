@@ -40,9 +40,7 @@ public class Volume extends Delta implements java.io.Serializable {
 
         setLocation(new Coord(0, 0, 0, Coord.Scale.VOLUME));
         blocks = new int[VOL_X][VOL_Y][VOL_Z];
-        maximums = new int[VOL_X][VOL_Z];
-        maxBlocks = new int[VOL_X][VOL_Z];
-        hasMaximum = new boolean[VOL_X][VOL_Z];
+        instantiateMaximumArrays();
         calcMaximums();
         markUpdated();
     }
@@ -68,8 +66,7 @@ public class Volume extends Delta implements java.io.Serializable {
             }
         }
 
-        maximums = new int[VOL_X][VOL_Z];
-        maxBlocks = new int[VOL_X][VOL_Z];
+        instantiateMaximumArrays();
         calcMaximums();
         markUpdated();
     }
@@ -86,6 +83,8 @@ public class Volume extends Delta implements java.io.Serializable {
         try {
             in = new ObjectInputStream(fileIn);
             Volume v = (Volume) in.readObject();
+            v.instantiateMaximumArrays();
+            v.calcMaximums();
             v.markUpdated();
             return v;
         } catch (ClassNotFoundException e) {
@@ -139,6 +138,15 @@ public class Volume extends Delta implements java.io.Serializable {
                 calcMaximum(x, z);
             }
         }
+    }
+
+    /**
+     * Instantiate the arrays that store information about the maximums.
+     */
+    private void instantiateMaximumArrays(){
+        maximums = new int[VOL_X][VOL_Z];
+        maxBlocks = new int[VOL_X][VOL_Z];
+        hasMaximum = new boolean[VOL_X][VOL_Z];
     }
 
     /**

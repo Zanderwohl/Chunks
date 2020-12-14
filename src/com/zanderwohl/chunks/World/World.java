@@ -23,13 +23,13 @@ public class World extends Delta {
     public static transient final String metaFileType = "meta";
     public static transient final String libraryFileType = "man";
 
-    private transient HashMap<Coord, Volume> volumes = new HashMap<>();
+    private transient ArrayList<Volume> volumes = new ArrayList<>();
     private Volume emptyVolume = new Volume(this);
 
     private transient Generator g;
     private transient WorldManager worldManager;
 
-    public static final int x_length = 5, y_length = 5, z_length = 5;
+    public static final int x_length = 5, y_length = 2, z_length = 5;
     private int seed = 0;
 
     private String name;
@@ -74,7 +74,7 @@ public class World extends Delta {
         saveWorldData("saves/", saveName);
         saveBlockLibrary("saves/", saveName);
 
-        for(Volume volume : volumes.values()){
+        for(Volume volume : volumes){
             //System.out.println(volume);
             volume.save("saves/" + saveName);
 
@@ -150,6 +150,14 @@ public class World extends Delta {
     public Volume getVolume(Coord volumeLocation, boolean createNewVols, boolean loadFromDisk){
         //if(terrain[x][y][z] != null){
         Volume vol = findVolume(volumeLocation);
+        int x_ = volumeLocation.getX();
+        int y_ = volumeLocation.getY();
+        int z_ = volumeLocation.getZ();
+        //System.out.println(x_ > 0 && y_ > 0 && z_ > 0);
+        if(vol == null){
+            int p = 1;
+            //System.out.println(volumeLocation + " is null.");
+        }
         if(vol != null){
            return vol;
         } else {
@@ -185,12 +193,14 @@ public class World extends Delta {
 
     public void setVolume(Volume v){
         if(volumes == null){ //Since volumes is transient, it may be null.
-            volumes = new HashMap<>();
+            volumes = new ArrayList<>();
         }
-        if(volumes.get(v) != null){
-            volumes.remove(v);
+        Volume extantVolume = findVolume(v.getLocation());
+        if(extantVolume != null){
+            volumes.remove(extantVolume);
         }
-        volumes.put(v.getLocation(), v);
+        System.out.println(v.getLocation());
+        volumes.add(v);
     }
 
     /**
@@ -200,13 +210,14 @@ public class World extends Delta {
      * @return
      */
     private Volume findVolume(Coord location){
-        return volumes.get(location);
-        /*if(volumes.containsKey(location)){
-            return volumes.get(location);
+        for(Volume v: volumes){
+            if(v.getLocation().equals(location)){
+                return v;
+            }
         }
         //TODO: Some kind of indexing scheme to make lookup much faster.
         System.out.println("Volume at " + location + " is null!");
-        return null;*/
+        return null;
     }
 
     /**
@@ -230,7 +241,7 @@ public class World extends Delta {
     private void setVolume(Coord location, Volume v){
         removeVolume(location);
         v.setLocation(location);
-        volumes.put(location, v); //TODO: remove old volumes?
+        volumes.add(v); //TODO: remove old volumes?
     }
 
     public int getX(){
@@ -300,25 +311,19 @@ public class World extends Delta {
         int volz = loc.getVolZ();
         int blockx = loc.getBlockX();
         int blockz = loc.getBlockZ();
+        //System.out.println(blockx + " " + blockz);
 
         //System.err.println(volx + ":" + blockx + " " + volz + ":" + blockz);
         int peak = 0;
         int index = y_length;
-        while(peak == 0 && index > 0){  //start from the top, and get the maximums of each volume vertically
-            index--;
-            if(index >= 0) {
-                try {
-                    //peak = terrain[volx][index][volz].getMaxHeight(blockx, blockz);
-                    Coord volume_location = new Coord(volx, index, volz);
-                    System.out.println(volume_location);
-                    Volume volume = getVolume(volume_location, false);
-                    System.out.println(volume);
-                    peak = volume.getMaxHeight(blockx, blockz);
-                } catch (NullPointerException e){
-                    //Do nothing. just move on to a terrain volume that DOES exist.
-                }
+        do {
+            Volume v  = getVolume(new Coord(volx, index, volz, Coord.Scale.VOLUME), false, false);
+            //System.out.println(v == emptyVolume);
+            if(v != emptyVolume){
+                peak = v.getMaxHeight(blockx, blockz);
             }
-        }
+            index--;
+        } while(peak == 0 && index >= 0);
 
         return peak + Space.volYToBlockY(index);
     }
@@ -326,7 +331,7 @@ public class World extends Delta {
     public Volume[] getVolumesInRadius(double radius, Coord center){
         ArrayList<Volume> volumes_list = new ArrayList<>();
 
-        for(Volume v: this.volumes.values()){ //TODO: This is inefficient at high numbers of Volumes.
+        for(Volume v: volumes){ //TODO: This is inefficient at high numbers of Volumes.
             if(center.otherInRadius(v.getLocation(), radius)){
                 volumes_list.add(v);
             }
@@ -340,7 +345,7 @@ public class World extends Delta {
     }
 
     public void unloadDistant(double radius, Coord center, String saveName){
-        Iterator<Volume> i = volumes.values().iterator();
+        Iterator<Volume> i = volumes.iterator();
         while (i.hasNext()) {
             Volume v = i.next(); // must be called before you can call i.remove()
             if(!center.otherInRadius(v.getLocation(), radius)) {

@@ -1,5 +1,7 @@
 package com.zanderwohl.chunks.World;
 
+import java.util.Objects;
+
 /**
  * A thruple of x, y, and z coordinates in integer form.
  */
@@ -125,8 +127,19 @@ public class Coord implements java.io.Serializable {
         return this.getX() == other.getX() && this.getY() == other.getY() && this.getZ() == other.getZ();
     }
 
+    @Override
     public int hashCode(){
-        return x * World.x_length + y * World.x_length * World.y_length + z * World.x_length * World.y_length * World.z_length;
+        int prime_0 = 31;
+        int prime_1 = 88651;
+        int prime_2 = 88493;
+        int prime_3 = 88337;
+        int code = 1;
+        code = prime_0 * code + x;
+        code = prime_0 * code + y;
+        code = prime_0 * code + z;
+        //(y * prime_2) + (z * prime_3);
+        //System.out.println(toString() + " " + code);
+        return code;
     }
 
     /**
