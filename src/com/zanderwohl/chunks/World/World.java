@@ -199,7 +199,7 @@ public class World extends Delta {
         if(extantVolume != null){
             volumes.remove(extantVolume);
         }
-        System.out.println(v.getLocation());
+        //System.out.println(v.getLocation());
         volumes.add(v);
     }
 
@@ -216,7 +216,7 @@ public class World extends Delta {
             }
         }
         //TODO: Some kind of indexing scheme to make lookup much faster.
-        System.out.println("Volume at " + location + " is null!");
+        //System.out.println("Volume at " + location + " is null!");
         return null;
     }
 

@@ -31,6 +31,8 @@ public class ClientLoop {
 
     private World currentWorld;
 
+    private static boolean debug = false;
+
     public ClientLoop(ArrayBlockingQueue<Delta> clientUpdates, ArrayBlockingQueue<Delta> serverUpdates,
                       ClientIdentity clientIdentity,
                       ArrayBlockingQueue<Message> toConsole){
@@ -78,12 +80,16 @@ public class ClientLoop {
         if(update instanceof World){
             World w = (World) update;
             currentWorld = w;
-            System.out.println("World changed to " + w.getName());
+            if(debug) {
+                System.out.println("World changed to " + w.getName());
+            }
         }
         if(update instanceof Volume){
             Volume v = (Volume) update;
             currentWorld.setVolume(v);
-            System.out.println("Loaded volume at " + v.getLocation());
+            if(debug) {
+                System.out.println("Loaded volume at " + v.getLocation());
+            }
         }
     }
 

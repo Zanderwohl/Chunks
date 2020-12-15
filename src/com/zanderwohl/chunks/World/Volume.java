@@ -75,9 +75,9 @@ public class Volume extends Delta implements java.io.Serializable {
      * Load data into this Volume from a file. Currently supports only blocks with no specific data,
      * as well as an internal marker of location.
      * @param location The name of the file, including the extension.
-     * @throws FileNotFoundException If the file specified is not found.
+     * @throws IOException If the file specified is not found, or perhaps locked by another process.
      */
-    public static Volume load(String location) throws FileNotFoundException, IOException {
+    public static Volume load(String location) throws IOException {
         FileInputStream fileIn = new FileInputStream(location);
         ObjectInputStream in;
         try {
