@@ -1,22 +1,26 @@
 package com.zanderwohl.chunks.Server;
 
-import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.CommandManager;
 import com.zanderwohl.chunks.Delta.*;
+import com.zanderwohl.chunks.FileConstants;
 import com.zanderwohl.chunks.World.Coord;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
-import javax.swing.text.html.parser.Entity;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * The thread that simulates the logic of the game world.
@@ -24,6 +28,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SimLoop implements Runnable {
 
     private boolean running;
+    private String startInstant;
 
     private final double ONE_BILLION = 1000000000.0;
     public final double SIM_FPS = 20.0;
@@ -46,6 +51,8 @@ public class SimLoop implements Runnable {
 
     protected LinkedList<Chat> chats;
 
+    private SimLogDetail logSettings;
+
     /**
      * Only constructor?
      * TODO: Fix this function's documentation.
@@ -60,7 +67,7 @@ public class SimLoop implements Runnable {
         this.fromConsole = fromConsole;
         this.serverSocket = new ServerSocket(port);
 
-        clientUpdates = new ArrayBlockingQueue<>(500);
+        clientUpdates = new ArrayBlockingQueue<>(500); //TODO: Make this a setting of some kind.
 
         worldManager = new WorldManager(toConsole);
         commandManager = new CommandManager(toConsole, fromConsole, worldManager, this);
@@ -69,6 +76,8 @@ public class SimLoop implements Runnable {
         clientAccepter = new ClientAccepter(serverSocket, clients, clientsById, toConsole, clientUpdates);
 
         chats = new LinkedList<>();
+
+        logSettings = new SimLogDetail();
     }
 
     public void closeServer(ServerClose quit){
@@ -105,18 +114,41 @@ public class SimLoop implements Runnable {
     }
 
     private void processClientUpdates(){
+        File logFile = new File(FileConstants.logFolder +  "/" + this.startInstant + "." + FileConstants.logExtension);
+        PrintWriter log = null; //IMPORTANT: Only use .append() as to not overwrite this file.
+        try{
+            if(!logFile.exists()){
+                toConsole.add(new Message("source=Sim Loop\nmessage=Created new log file as \"" + logFile.getName() + "\"."));
+                logFile.createNewFile();
+            }
+            log = new PrintWriter(new FileWriter(logFile, true));
+        } catch (IOException e) {
+            toConsole.add(new Message("source=Sim Loop\nseverity=critical\nWas unable to create new log file."));
+        }
+
         while(!clientUpdates.isEmpty()){
             Delta d = clientUpdates.remove();
+
+            //TODO: Log who did what.
             if(d instanceof Chat){
                 chats.add((Chat) d);
+                if(log != null && logSettings.chats){
+                    log.append(d.toString() + "\n");
+                }
             }
             if(d instanceof PPos){
                 PPos pos = (PPos) d;
                 System.out.println(pos.getFrom().getDisplayName() + "\t" + pos.x + "\t" + pos.y + "\t" + pos.z);
+                if(log != null && logSettings.PPoses){
+                    log.append(d.toString() + "\n");
+                }
             }
             if(d instanceof WorldRequest){
                 WorldRequest wr = (WorldRequest) d;
                 World worldToSend;
+                if(log != null && logSettings.worldRequests){
+                    log.append(d.toString());
+                }
                 if(wr.requestedWorld == null){
                     worldToSend = worldManager.getDefaultWorld();
                 } else {
@@ -129,12 +161,18 @@ public class SimLoop implements Runnable {
             }
             if(d instanceof VolumeRequest){
                 VolumeRequest vr = (VolumeRequest) d;
+                if(log != null && logSettings.volumeRequests){
+                    log.append(d.toString());
+                }
                 Coord volumeLocation = new Coord(vr.x, vr.y, vr.z, Coord.Scale.VOLUME);
                 //TODO: Can currently only send Volumes from default world, since server doesn't keep track of which world the player is in.
                 Volume volumeToSend = worldManager.getDefaultWorld().getVolume(volumeLocation, true);
             }
             if(d instanceof StartingVolumesRequest){
                 StartingVolumesRequest svr = (StartingVolumesRequest) d;
+                if(log != null && logSettings.volumeRequests){
+                    log.append(d.toString() + "\n");
+                }
                 //TODO: Send only nearby Volumes, not all of them. Also, select which world the player is in.
                 World w = worldManager.getDefaultWorld();
                 for(int x = 0; x < w.x_length; x++){
@@ -149,6 +187,9 @@ public class SimLoop implements Runnable {
                 }
 
             }
+        }
+        if(log != null){
+            log.close();
         }
     }
 
@@ -245,6 +286,10 @@ public class SimLoop implements Runnable {
         chats.add(c);
     }
 
+    public void addClientUpdate(Delta d){
+        clientUpdates.add(d);
+    }
+
     /**
      * Run the world. Simulate physics and deal with client updates. Update clients.
      */
@@ -258,6 +303,11 @@ public class SimLoop implements Runnable {
 
         Thread clientAccepterThread = new Thread(clientAccepter);
         clientAccepterThread.start();
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+        Date startDate = new Date();
+        this.startInstant = dateFormat.format(startDate);
+
 
         try {
             while (running) {
@@ -296,7 +346,7 @@ public class SimLoop implements Runnable {
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
                     + "Server has encountered an unrecoverable error. Stopping."));
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
-                    + e.getStackTrace()));
+                    + e.getStackTrace().toString()));
             e.printStackTrace(); //TODO: Remove one message details are implemented.
         }
 

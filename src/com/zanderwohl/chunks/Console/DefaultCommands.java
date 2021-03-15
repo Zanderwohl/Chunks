@@ -100,7 +100,7 @@ public class DefaultCommands {
                 toConsole.add(new Message("message=Input a message.\n" +
                         "source=Command Manager\nseverity=normal"));
             }
-            simLoop.addChat(new Chat(arguments.get("text")));
+            simLoop.addClientUpdate(new Chat(arguments.get("text")));
         }
     }
 

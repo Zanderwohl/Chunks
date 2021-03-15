@@ -11,6 +11,15 @@ public class PPos extends Delta implements Serializable {
     public final double pitch, yaw;
     public final String player;
 
+    /**
+     * A Player position.
+     * @param x
+     * @param y
+     * @param z
+     * @param pitch
+     * @param yaw
+     * @param player
+     */
     public PPos(double x, double y, double z, double pitch, double yaw, String player) {
         this.x = x;
         this.y = y;

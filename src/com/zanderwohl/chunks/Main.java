@@ -3,15 +3,12 @@ package com.zanderwohl.chunks;
 import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Console.Console;
 import com.zanderwohl.chunks.Server.SimLoop;
+import com.zanderwohl.console.Message;
+import com.zanderwohl.console.SuperConsole;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import com.zanderwohl.console.SuperConsole;
-import com.zanderwohl.console.Message;
 
 /**
  * Yikes, what a mess of a file. To be replaced once SuperConsole is up and running.
@@ -69,6 +66,7 @@ public class Main {
     public static void makeDirectories(){
         new File(FileConstants.saveFolder + "/").mkdirs();
         new File(FileConstants.screenshotFolder + "/").mkdirs();
+        new File(FileConstants.logFolder + "/").mkdirs();
     }
 
 

@@ -8,6 +8,12 @@ public class VolumeRequest extends Delta implements Serializable {
 
     public final int x, y, z;
 
+    /**
+     * A request for a volume by world coordinate.
+     * @param x
+     * @param y
+     * @param z
+     */
     public VolumeRequest(int x, int y, int z){
         this.x = x;
         this.y = y;

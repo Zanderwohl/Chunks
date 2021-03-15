@@ -18,4 +18,14 @@ public abstract class Delta implements java.io.Serializable {
         this.from = newFrom;
     }
 
+    public String toString(){
+        ClientIdentity fromPerson = from;
+        String fromString = "";
+        if(from == null){
+            fromString = "unspecified";
+        } else {
+            fromString = fromPerson.toString();
+        }
+        return "{ type: \"unspecified\", from: \"" + fromString+ "\" }";
+    }
 }

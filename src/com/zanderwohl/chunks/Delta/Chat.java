@@ -4,28 +4,35 @@ import com.zanderwohl.chunks.Client.ClientIdentity;
 
 public class Chat extends Delta implements java.io.Serializable {
 
-    private String from;
+    private String fromName;
     private String message;
 
     private static ClientIdentity serverIdentity = new ClientIdentity("SERVER");
 
+    /**
+     * A chat message.
+     * @param from
+     * @param message
+     */
     public Chat(ClientIdentity from, String message){
-        this.from = from.getDisplayName();
+        this.fromName = from.getDisplayName();
+        setFrom(from);
         this.message = message;
     }
 
     public Chat(String message){
-        this.from = serverIdentity.getDisplayName();
+        this.fromName = serverIdentity.getDisplayName();
+        setFrom(serverIdentity);
         this.message = message;
     }
 
     public String toString(){
         String open = "<";
         String close = ">";
-        if(from.equalsIgnoreCase("server")){
+        if(fromName.equalsIgnoreCase("server")){
             open = "[";
             close = "]";
         }
-        return open + from + close + " " + message;
+        return open + fromName + close + " " + message;
     }
 }
