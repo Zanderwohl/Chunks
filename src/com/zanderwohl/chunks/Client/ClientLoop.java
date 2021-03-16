@@ -1,9 +1,6 @@
 package com.zanderwohl.chunks.Client;
 
-import com.zanderwohl.chunks.Delta.Chat;
-import com.zanderwohl.chunks.Delta.Delta;
-import com.zanderwohl.chunks.Delta.Kick;
-import com.zanderwohl.chunks.Delta.PPos;
+import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
@@ -90,6 +87,12 @@ public class ClientLoop {
             if(debug) {
                 System.out.println("Loaded volume at " + v.getLocation());
             }
+        }
+        if(update instanceof ServerClose){
+            toConsole.add(new Message("source=Client Window\nmessage=Disconnected because the server has closed."));
+        }
+        if(update instanceof VolumeAge){
+            //TODO: Compare age of volume we have against age of the server's volume.
         }
     }
 

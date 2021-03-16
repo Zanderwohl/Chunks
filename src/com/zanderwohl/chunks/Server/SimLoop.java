@@ -52,6 +52,7 @@ public class SimLoop implements Runnable {
     protected LinkedList<Chat> chats;
 
     private SimLogDetail logSettings;
+    private String logPath;
 
     /**
      * Only constructor?
@@ -78,11 +79,15 @@ public class SimLoop implements Runnable {
         chats = new LinkedList<>();
 
         logSettings = new SimLogDetail();
+        logPath = FileConstants.logFolder +  "/" + this.startInstant + "." + FileConstants.logExtension;
     }
 
     public void closeServer(ServerClose quit){
         toConsole.add(new Message("source=Sim Loop\nmessage=Server closing: " + quit.closeMessage));
         sendToAllClients(quit);
+        PrintWriter log = openLog(logPath);
+        writeToLog(log, "Server closed.");
+        closeLog(log);
         running = false;
 
         worldManager.saveAllWorlds();
@@ -113,8 +118,8 @@ public class SimLoop implements Runnable {
         //System.out.println(deltaT);
     }
 
-    private void processClientUpdates(){
-        File logFile = new File(FileConstants.logFolder +  "/" + this.startInstant + "." + FileConstants.logExtension);
+    private PrintWriter openLog(String logNameWithPath){
+        File logFile = new File(logNameWithPath);
         PrintWriter log = null; //IMPORTANT: Only use .append() as to not overwrite this file.
         try{
             if(!logFile.exists()){
@@ -125,16 +130,47 @@ public class SimLoop implements Runnable {
         } catch (IOException e) {
             toConsole.add(new Message("source=Sim Loop\nseverity=critical\nWas unable to create new log file."));
         }
+        return log;
+    }
+
+    private void closeLog(PrintWriter log){
+        if(log != null){
+            log.close();
+        }
+    }
+
+    private boolean writeToLog(PrintWriter log, String data, boolean condition){
+        if(log != null && condition){
+            log.append(data + "\n");
+        }
+        return condition;
+    }
+
+    private boolean writeToLog(PrintWriter log, String data){
+        return writeToLog(log, data, true);
+    }
+
+    /**
+     * An external way to log something. VERY expensive, don't use often.
+     * @param event The string to write to th elog.
+     * @return Whether it was successful or not.
+     */
+    public boolean logEvent(String event){
+        PrintWriter log = openLog(logPath);
+        boolean success = writeToLog(log, event, true);
+        closeLog(log);
+        return success;
+    }
+
+    private void processClientUpdates(){
+        PrintWriter log = openLog(logPath);
 
         while(!clientUpdates.isEmpty()){
             Delta d = clientUpdates.remove();
 
-            //TODO: Log who did what.
             if(d instanceof Chat){
                 chats.add((Chat) d);
-                if(log != null && logSettings.chats){
-                    log.append(d.toString() + "\n");
-                }
+                writeToLog(log, d.toString(), logSettings.chats);
             }
             if(d instanceof PPos){
                 PPos pos = (PPos) d;
@@ -188,9 +224,7 @@ public class SimLoop implements Runnable {
 
             }
         }
-        if(log != null){
-            log.close();
-        }
+        closeLog(log);
     }
 
     /**
@@ -214,6 +248,11 @@ public class SimLoop implements Runnable {
         }
     }
 
+    /**
+     * Send a delta to a client specified by a ClientIdentity.
+     * @param client The client to send to.
+     * @param update The update to send.
+     */
     private void sendToClient(ClientIdentity client, Delta update){
         ClientHandler c = clientsById.get(client);
         c.serverUpdates.add(update);
