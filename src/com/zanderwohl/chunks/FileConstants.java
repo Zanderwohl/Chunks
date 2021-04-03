@@ -19,5 +19,6 @@ public class FileConstants {
     public static final String saveFolder = "saves";
 
     public static final String logFolder = "logs";
+    public static final String clientLogFolder = "clientLogs";
     public static final String logExtension = "log";
 }

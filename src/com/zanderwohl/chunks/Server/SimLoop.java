@@ -4,20 +4,18 @@ import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.CommandManager;
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.FileConstants;
+import com.zanderwohl.chunks.Logging.Log;
 import com.zanderwohl.chunks.World.Coord;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,15 +32,13 @@ public class SimLoop implements Runnable {
     public final double SIM_FPS = 20.0;
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
-    private int port;
+    private final CommandManager commandManager;
+    private final WorldManager worldManager;
 
-    private CommandManager commandManager;
-    private WorldManager worldManager;
+    private final ArrayBlockingQueue<Message> toConsole;
+    private final ArrayBlockingQueue<Message> fromConsole;
 
-    private ArrayBlockingQueue<Message> toConsole;
-    private ArrayBlockingQueue<Message> fromConsole;
-
-    protected ArrayBlockingQueue<Delta> clientUpdates;
+    protected final ArrayBlockingQueue<Delta> clientUpdates;
 
     private ServerSocket serverSocket;
     private List<Thread> clients;
@@ -63,7 +59,6 @@ public class SimLoop implements Runnable {
      * @throws IOException When the server cannot bind to the port.
      */
     public SimLoop(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole, int port) throws IOException {
-        this.port = port;
         this.toConsole = toConsole;
         this.fromConsole = fromConsole;
         this.serverSocket = new ServerSocket(port);
@@ -85,9 +80,9 @@ public class SimLoop implements Runnable {
     public void closeServer(ServerClose quit){
         toConsole.add(new Message("source=Sim Loop\nmessage=Server closing: " + quit.closeMessage));
         sendToAllClients(quit);
-        PrintWriter log = openLog(logPath);
-        writeToLog(log, "Server closed.");
-        closeLog(log);
+        PrintWriter log = Log.openLog(logPath, toConsole);
+        Log.append(log, "Server closed.");
+        Log.closeLog(log);
         running = false;
 
         worldManager.saveAllWorlds();
@@ -118,73 +113,37 @@ public class SimLoop implements Runnable {
         //System.out.println(deltaT);
     }
 
-    private PrintWriter openLog(String logNameWithPath){
-        File logFile = new File(logNameWithPath);
-        PrintWriter log = null; //IMPORTANT: Only use .append() as to not overwrite this file.
-        try{
-            if(!logFile.exists()){
-                toConsole.add(new Message("source=Sim Loop\nmessage=Created new log file as \"" + logFile.getName() + "\"."));
-                logFile.createNewFile();
-            }
-            log = new PrintWriter(new FileWriter(logFile, true));
-        } catch (IOException e) {
-            toConsole.add(new Message("source=Sim Loop\nseverity=critical\nWas unable to create new log file."));
-        }
-        return log;
-    }
-
-    private void closeLog(PrintWriter log){
-        if(log != null){
-            log.close();
-        }
-    }
-
-    private boolean writeToLog(PrintWriter log, String data, boolean condition){
-        if(log != null && condition){
-            log.append(data + "\n");
-        }
-        return condition;
-    }
-
-    private boolean writeToLog(PrintWriter log, String data){
-        return writeToLog(log, data, true);
-    }
-
     /**
-     * An external way to log something. VERY expensive, don't use often.
+     * An external way to log something with the server loop. VERY expensive, don't use often.
      * @param event The string to write to th elog.
      * @return Whether it was successful or not.
      */
     public boolean logEvent(String event){
-        PrintWriter log = openLog(logPath);
-        boolean success = writeToLog(log, event, true);
-        closeLog(log);
+        PrintWriter log = Log.openLog(logPath, toConsole);
+        boolean success = Log.append(log, event, true);
+        Log.closeLog(log);
         return success;
     }
 
     private void processClientUpdates(){
-        PrintWriter log = openLog(logPath);
+        PrintWriter log = Log.openLog(logPath, toConsole);
 
         while(!clientUpdates.isEmpty()){
             Delta d = clientUpdates.remove();
 
             if(d instanceof Chat){
                 chats.add((Chat) d);
-                writeToLog(log, d.toString(), logSettings.chats);
+                Log.append(log, d.toString(), logSettings.chats);
             }
             if(d instanceof PPos){
                 PPos pos = (PPos) d;
                 System.out.println(pos.getFrom().getDisplayName() + "\t" + pos.x + "\t" + pos.y + "\t" + pos.z);
-                if(log != null && logSettings.PPoses){
-                    log.append(d.toString() + "\n");
-                }
+                Log.append(log, d.toString(), logSettings.PPoses);
             }
             if(d instanceof WorldRequest){
                 WorldRequest wr = (WorldRequest) d;
                 World worldToSend;
-                if(log != null && logSettings.worldRequests){
-                    log.append(d.toString());
-                }
+                Log.append(log, d.toString(), logSettings.worldRequests);
                 if(wr.requestedWorld == null){
                     worldToSend = worldManager.getDefaultWorld();
                 } else {
@@ -197,23 +156,20 @@ public class SimLoop implements Runnable {
             }
             if(d instanceof VolumeRequest){
                 VolumeRequest vr = (VolumeRequest) d;
-                if(log != null && logSettings.volumeRequests){
-                    log.append(d.toString());
-                }
+                Log.append(log, d.toString(), logSettings.volumeRequests);
                 Coord volumeLocation = new Coord(vr.x, vr.y, vr.z, Coord.Scale.VOLUME);
                 //TODO: Can currently only send Volumes from default world, since server doesn't keep track of which world the player is in.
                 Volume volumeToSend = worldManager.getDefaultWorld().getVolume(volumeLocation, true);
+                sendToClient(vr.getFrom(), volumeToSend);
             }
             if(d instanceof StartingVolumesRequest){
                 StartingVolumesRequest svr = (StartingVolumesRequest) d;
-                if(log != null && logSettings.volumeRequests){
-                    log.append(d.toString() + "\n");
-                }
+                Log.append(log, d.toString(), logSettings.volumeRequests);
                 //TODO: Send only nearby Volumes, not all of them. Also, select which world the player is in.
                 World w = worldManager.getDefaultWorld();
-                for(int x = 0; x < w.x_length; x++){
-                    for(int y = 0; y < w.y_length; y++){
-                        for(int z = 0; z < w.z_length; z++){
+                for(int x = 0; x < World.x_length; x++){ //TODO: this assumes the world is finite
+                    for(int y = 0; y < World.y_length; y++){
+                        for(int z = 0; z < World.z_length; z++){
                             Volume v = w.getVolume(new Coord(x, y, z, Coord.Scale.VOLUME), true);
                             if(v != null){
                                 sendToClient(svr.getFrom(), v);
@@ -224,7 +180,7 @@ public class SimLoop implements Runnable {
 
             }
         }
-        closeLog(log);
+        Log.closeLog(log);
     }
 
     /**
