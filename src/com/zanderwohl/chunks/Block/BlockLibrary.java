@@ -8,7 +8,6 @@ import com.zanderwohl.chunks.FileConstants;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * An object that manages all the blocks in particular world. It is responsible for assigning block ids to each block.
@@ -20,16 +19,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class BlockLibrary {
 
-    private ArrayList<Block> list = new ArrayList<Block>();
+    private final ArrayList<Block> blockList = new ArrayList<>();
 
-    private ArrayBlockingQueue<Message> toConsole;
+    private final ArrayBlockingQueue<Message> toConsole;
 
     /**
      * Creates a block library, by default blank except for containing air at id 0.
      * @param toConsole The queue of Messages to the Console.
      */
     public BlockLibrary(ArrayBlockingQueue<Message> toConsole){
-        list.add(new Block(0, "air", toConsole, new Color(222, 53, 191))); //ALWAYS add air. ALWAYS.
+        blockList.add(new Block(0, "air", toConsole, new Color(222, 53, 191))); //ALWAYS add air. ALWAYS.
         this.toConsole = toConsole;
     }
 
@@ -61,8 +60,8 @@ public class BlockLibrary {
     public void addBlock(String path, String domainName){
         toConsole.add(new Message("message=Adding block from " + path + "!\nsource=Block Library"));
         Block block = new Block(path, domainName, toConsole);
-        block.setID(list.size());
-        list.add(block);
+        block.setID(blockList.size());
+        blockList.add(block);
     }
 
     /**
@@ -74,7 +73,7 @@ public class BlockLibrary {
      */
     public static BlockLibrary load(String saveFile, ArrayBlockingQueue<Message> toConsole){
         BlockLibrary library = new BlockLibrary(toConsole);
-
+        //TODO: Implement loading of block libraries.
         return library;
     }
 
@@ -84,10 +83,10 @@ public class BlockLibrary {
      * @return The name with domain.
      */
     public String getNameById(int id){
-        if(id >= list.size()){
+        if(id >= blockList.size()){
             return "";
         }
-        return list.get(id).getFullName();
+        return blockList.get(id).getFullName();
     }
 
     /**
@@ -97,8 +96,7 @@ public class BlockLibrary {
      * @return The id, if it exists, or 0, the id of air if it does not.
      */
     public int getIdByName(String domain, String name){
-        int id = 0;
-        for(Block block: list){
+        for(Block block: blockList){
             if(block.getName().equals(name) && block.getDomain().equals(domain)){
                 return block.getId();
             }
@@ -112,10 +110,10 @@ public class BlockLibrary {
      * @return The color of the block as an RGB integer.
      */
     public int getBlockColor(int id){
-        if(id >= list.size()){
+        if(id >= blockList.size()){
             return Color.BLACK.getRGB();
         }
-        return list.get(id).getRGB();
+        return blockList.get(id).getRGB();
     }
 
     /**
@@ -123,7 +121,7 @@ public class BlockLibrary {
      * @return The size of the library.
      */
     public int size(){
-        return list.size();
+        return blockList.size();
     }
 
     /**
@@ -132,6 +130,6 @@ public class BlockLibrary {
      * @return The Block.
      */
     public Block getBlockById(int id){
-        return list.get(id);
+        return blockList.get(id);
     }
 }

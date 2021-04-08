@@ -20,13 +20,13 @@ public class Client implements Runnable {
     protected volatile boolean running = true;
 
     private Socket socket;
-    private String serverHost;
-    private int serverPort;
+    private final String serverHost;
+    private final int serverPort;
     private final ClientIdentity identity;
-    private ArrayBlockingQueue<Message> toConsole;
+    private final ArrayBlockingQueue<Message> toConsole;
 
-    private ArrayBlockingQueue<Delta> serverUpdates;
-    private ArrayBlockingQueue<Delta> clientUpdates;
+    private final ArrayBlockingQueue<Delta> serverUpdates;
+    private final ArrayBlockingQueue<Delta> clientUpdates;
 
     private ConcurrentLinkedQueue<Message> queue;
 

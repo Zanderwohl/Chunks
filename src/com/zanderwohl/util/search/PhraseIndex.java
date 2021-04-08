@@ -1,23 +1,13 @@
 package com.zanderwohl.util.search;
 
-import com.sun.source.tree.Tree;
-
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class PhraseIndex {
 
-    protected HashMap index;
-    private int minimumSearchTerm;
+    protected HashMap<String, ArrayList<String>> index;
 
     public PhraseIndex(){
-        index = new HashMap<String, ArrayList<String>>();
-        this.minimumSearchTerm = 2;
-    }
-
-    public PhraseIndex(int minimumSearchTerm){
-        index = new HashMap<String, ArrayList<String>>();
-        this.minimumSearchTerm = minimumSearchTerm >= 2 ? minimumSearchTerm : 2;
+        index = new HashMap<>();
     }
 
     public void put(String key){
@@ -28,11 +18,11 @@ public class PhraseIndex {
         String[] words = value.split("\\s");
         for(String word: words){
             for(int i = 1; i < word.length() + 1; i++){
-                String subkey = word.substring(0, i).toUpperCase(Locale.ROOT);
-                if(!index.containsKey(subkey)){
-                    index.put(subkey, new ArrayList<String>());
+                String subKey = word.substring(0, i).toUpperCase(Locale.ROOT);
+                if(!index.containsKey(subKey)){
+                    index.put(subKey, new ArrayList<>());
                 }
-                ((ArrayList<String>) index.get(subkey)).add(value);
+                index.get(subKey).add(value);
             }
         }
     }
@@ -42,7 +32,7 @@ public class PhraseIndex {
     }
 
     public ArrayList<String> values(String key){
-        return (ArrayList<String>) index.get(key);
+        return index.get(key);
     }
 
     /* Oh God in heaven, hear my plea,
@@ -70,10 +60,10 @@ public class PhraseIndex {
                 foundTermsIndex++;
             }
         }
-        TreeMap<String, Integer> resultsByRelevance = new TreeMap<String, Integer>();
+        TreeMap<String, Integer> resultsByRelevance = new TreeMap<>();
         for(int i = 0; i < foundTermsIndex; i++){
             String term = foundTerms[i];
-            ArrayList<String> resultsForTerm = (ArrayList<String>) index.get(term);
+            ArrayList<String> resultsForTerm = index.get(term);
             for(String result: resultsForTerm){
                 if(resultsByRelevance.containsKey(result)){
                     resultsByRelevance.put(result, resultsByRelevance.get(result) + 1);
@@ -85,45 +75,16 @@ public class PhraseIndex {
         TreeMap<Integer, ArrayList<String>> relevanceRankedResults = new TreeMap<>(Collections.reverseOrder());
         for(Map.Entry<String, Integer> entry: resultsByRelevance.entrySet()){
             if(!relevanceRankedResults.containsKey(entry.getValue())){
-                relevanceRankedResults.put(entry.getValue(), new ArrayList<String>());
+                relevanceRankedResults.put(entry.getValue(), new ArrayList<>());
             }
             relevanceRankedResults.get(entry.getValue()).add(entry.getKey());
         }
         ArrayList<String> results = new ArrayList<>();
-        Set set = relevanceRankedResults.entrySet();
-        Iterator i = set.iterator();
-        while(i.hasNext()){
-            Map.Entry me = (Map.Entry)i.next();
-            ArrayList<String> list = (ArrayList<String>) me.getValue();
+        Set<Map.Entry<Integer, ArrayList<String>>> set = relevanceRankedResults.entrySet();
+        for (Map.Entry<Integer, ArrayList<String>> me : set) {
+            ArrayList<String> list = me.getValue();
             results.addAll(list);
         }
         return results;
-    }
-
-    //private
-
-    public static void main(String[] args){
-        PhraseIndex pi = new PhraseIndex();
-        pi.put("Brave New World");
-        pi.put("Brave Old World");
-        pi.put("Brave New World 2");
-        pi.put("Brave Little Toaster");
-        pi.put("Fahrenheit 451");
-        pi.put("Breaking Dawn");
-        pi.put("Foundation");
-        pi.put("Foundation and Empire");
-        pi.put("Second Foundation");
-        pi.put("On the Origin of the Species by Means of Natural Selection, or the Preservation of Favoured Races in the Struggle for Life");
-        /*for (String key: pi.keys()){
-            System.out.println(key + "|" + pi.values(key));
-        }
-        System.out.println(pi.keys());
-        System.out.println(pi.search("br"));
-        System.out.println(pi.search("bre"));
-        System.out.println(pi.search("br n"));
-        System.out.println(pi.search("br world"));*/
-        Scanner scan = new Scanner(System.in);
-        String term = scan.nextLine();
-        System.out.println(pi.search(term));
     }
 }

@@ -13,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * An object containing all the information about a block required by the game.
@@ -25,15 +24,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class Block {
 
-    private String name;
-    private String domain;
+    /* The name of this block. */
+    private final String name;
+    /* The domain this belongs to. */
+    private final String domain;
+    /* Internal id of this block. Changes based on what domains have been added. Generated on runtime. */
     private int id;
-    private Color color;
+    /* simple color used for debugging and mapping purposes. */
+    private final Color color;
 
     private static final int sides = 6; //cubes generally have six sides, but I'm open to higher dimension ports.
-    private BufferedImage[] textures = new BufferedImage[sides]; //top, front, left, right, back, bottom
+    private final BufferedImage[] textures = new BufferedImage[sides]; //top, front, left, right, back, bottom
 
-    private ArrayBlockingQueue<Message> toConsole;
+    private final ArrayBlockingQueue<Message> toConsole;
 
     /**
      * Creates a very simplistic block that has a color but no textures.
@@ -73,10 +76,8 @@ public class Block {
         int r = json.getJSONObject("color").getInt("r");
         int g = json.getJSONObject("color").getInt("g");
         int b = json.getJSONObject("color").getInt("b");
-        //System.out.println(r + " " + g + " " + b);
         color = new Color(r, g, b);
         loadTextures(json);
-        //System.out.println("\tAdded block " + getFullName() + "!");
         toConsole.add(new Message("message=Added block " + name + ".\nsource=Block"));
         this.toConsole = toConsole;
     }

@@ -6,6 +6,7 @@ import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class ClientLoop {
@@ -15,10 +16,10 @@ public class ClientLoop {
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
     private volatile boolean running;
-    private JFrame gameWindow;
+    private final JFrame gameWindow;
 
-    private ArrayBlockingQueue<Delta> serverUpdates;
-    private ArrayBlockingQueue<Delta> clientUpdates;
+    private final ArrayBlockingQueue<Delta> serverUpdates;
+    private final ArrayBlockingQueue<Delta> clientUpdates;
 
     private ArrayBlockingQueue<Message> toConsole;
 
@@ -37,6 +38,7 @@ public class ClientLoop {
         this.serverUpdates = serverUpdates;
         this.identity = clientIdentity;
         gameWindow = new JFrame();
+        gameWindow.setTitle("Chunks Client");
 
         this.toConsole = toConsole;
         position = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName());
@@ -45,7 +47,7 @@ public class ClientLoop {
     }
 
     private void informServer(){
-
+        //Uh? Not sure what this was going to do.
     }
 
     private void acceptUpdates(){
@@ -143,7 +145,7 @@ public class ClientLoop {
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                 toConsole.add(new Message("source=Sim Loop\nseverity=error\n"
-                        + "message=Java Error: " + e.getStackTrace()));
+                        + "message=Java Error: " + e.getStackTrace().toString()));
             }
         }
     }
