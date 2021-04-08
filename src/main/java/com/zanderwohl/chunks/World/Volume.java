@@ -2,7 +2,6 @@ package com.zanderwohl.chunks.World;
 
 import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Delta.VolumeAge;
-import util.FileLoader;
 import com.zanderwohl.chunks.Generator.Generator;
 
 import java.io.*;
@@ -15,9 +14,7 @@ import static com.zanderwohl.chunks.World.Space.*;
  */
 public class Volume extends Delta implements java.io.Serializable {
 
-    //private int x, y, z;
     private Coord location = new Coord(0, 0, 0, Coord.Scale.VOLUME);
-    //private int swb_x, swb_y, swb_z; //Southwestbottom corner x, y, and z block coordinates to world.
     private Coord swb = new Coord(0, 0, 0, Coord.Scale.BLOCK); //Southwestbottom corner x, y, and z block coordinates to world.
     private int[][][] blocks;
     private transient int[][] maximums; //The max heights per-column
