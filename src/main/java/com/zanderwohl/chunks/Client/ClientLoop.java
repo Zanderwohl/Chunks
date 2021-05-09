@@ -4,10 +4,16 @@ import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11C.GL_FALSE;
+import static org.lwjgl.opengl.GL11C.GL_TRUE;
 
 public class ClientLoop {
 
@@ -38,12 +44,32 @@ public class ClientLoop {
         this.serverUpdates = serverUpdates;
         this.identity = clientIdentity;
         gameWindow = new JFrame();
+        gameWindow.setMinimumSize(new Dimension(400, 400));
         gameWindow.setTitle("Chunks Client");
 
         this.toConsole = toConsole;
         position = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName());
 
         running = true;
+    }
+
+    /**
+     * Initialize LWJGL and window.
+     */
+    protected void init(){
+        GLFWErrorCallback.createPrint(System.err).set(); //TODO: Make errors go to console.
+
+        if (!glfwInit()) {
+            throw new IllegalStateException("Unable to initialize GLFW"); //TODO: Make errors go to console.
+        }
+
+        glfwDefaultWindowHints(); // optional, the current window hints are already the default
+        glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
+
+        int WIDTH = 300;
+        int HEIGHT = 300;
+
     }
 
     private void informServer(){

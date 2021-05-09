@@ -40,8 +40,9 @@ public class Main {
 
         //Start a SuperConsole window
         SuperConsole console = new SuperConsole();
-        Thread consoleThread = new Thread(console);
-        consoleThread.start();
+        console.newConnection("Local Server","localhost",288);
+        //Thread consoleThread = new Thread(console);
+        //consoleThread.start();
 
         //Start the simulation on a thread
         SimLoop simLoop = new SimLoop(toConsole, fromConsole, port);

@@ -52,8 +52,7 @@ public class Client implements Runnable {
 
         //Start a SuperConsole window
         SuperConsole console = new SuperConsole();
-        Thread consoleThread = new Thread(console);
-        consoleThread.start();
+        console.newConnection("Local Server","localhost",288);
 
         clientThread.start();
     }
@@ -102,6 +101,7 @@ public class Client implements Runnable {
         receive.start();
 
         ClientLoop w = new ClientLoop(clientUpdates, serverUpdates, identity, toConsole);
+        w.init();
         w.start();
     }
 

@@ -36,6 +36,18 @@ public class Command {
         }
     }
 
+    /**
+     * Gives a skeletal map of the command, where no arguments have values.
+     * @return The skeleton.
+     */
+    public String skeleton(){
+        String skeleton = name;
+        for(Map.Entry<String, Argument> argument: argumentMap.entrySet()){
+            skeleton += "  [" + argument.getValue().getName() + "]";
+        }
+        return "";
+    }
+
     public void addArgument(String name, boolean required, String description){
         Argument argument = new Argument(name, required, description);
         addArgument(argument);
@@ -60,7 +72,7 @@ public class Command {
         }
         String help = name + " - " + description;
         for(Argument a: argumentList){
-            help += "\n" + a.documentation();
+            help += "\\n" + a.documentation();
         }
         System.out.println(help); //TODO: Remove when command details are created.
         return help;
