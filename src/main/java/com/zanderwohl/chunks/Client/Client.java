@@ -1,6 +1,6 @@
 package com.zanderwohl.chunks.Client;
 
-import com.zanderwohl.chunks.Console.Console;
+import com.zanderwohl.chunks.Console.ConsoleBroker;
 import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Main;
 import com.zanderwohl.console.Message;
@@ -46,8 +46,8 @@ public class Client implements Runnable {
 
         //Start the game's console - not the user-facing console, but the part of this program that receives and sends
         //to SuperConsole - on its own thread.
-        Console consoleConnector = new Console(toConsole, fromConsole);
-        Thread consoleConnectorThread = new Thread(consoleConnector);
+        ConsoleBroker consoleBroker = new ConsoleBroker(toConsole, fromConsole);
+        Thread consoleConnectorThread = new Thread(consoleBroker);
         consoleConnectorThread.start();
 
         //Start a SuperConsole window
@@ -101,8 +101,7 @@ public class Client implements Runnable {
         receive.start();
 
         ClientLoop w = new ClientLoop(clientUpdates, serverUpdates, identity, toConsole);
-        w.init();
-        w.start();
+        w.run();
     }
 
     private static class Send implements Runnable {

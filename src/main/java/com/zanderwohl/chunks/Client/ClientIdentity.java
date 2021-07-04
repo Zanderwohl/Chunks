@@ -7,6 +7,8 @@ import java.io.Serializable;
  */
 public class ClientIdentity implements java.io.Serializable {
 
+    private static final long serialVersionUID = 32112000010L;
+
     private String username;
     private String nickname = null;
     private String token;

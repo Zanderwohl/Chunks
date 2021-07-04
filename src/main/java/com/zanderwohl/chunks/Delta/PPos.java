@@ -7,6 +7,8 @@ import java.io.Serializable;
 
 public class PPos extends Delta implements Serializable {
 
+    private static final long serialVersionUID = 32112000004L;
+
     public final double x, y, z;
     public final double pitch, yaw;
     public final String player;

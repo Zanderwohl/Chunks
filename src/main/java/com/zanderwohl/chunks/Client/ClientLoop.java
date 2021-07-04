@@ -1,19 +1,26 @@
 package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Delta.*;
+import com.zanderwohl.chunks.StringConstants;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
+import com.zanderwohl.util.Sync;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11C.GL_FALSE;
 import static org.lwjgl.opengl.GL11C.GL_TRUE;
+
+import org.lwjgl.glfw.*;
+import org.lwjgl.opengl.*;
+
+import static org.lwjgl.glfw.Callbacks.*;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 public class ClientLoop {
 
@@ -21,8 +28,10 @@ public class ClientLoop {
     public final double SIM_FPS = 20.0;
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
+    private Window window;
+    private long windowId;
+
     private volatile boolean running;
-    private final JFrame gameWindow;
 
     private final ArrayBlockingQueue<Delta> serverUpdates;
     private final ArrayBlockingQueue<Delta> clientUpdates;
@@ -43,9 +52,6 @@ public class ClientLoop {
         this.clientUpdates = clientUpdates;
         this.serverUpdates = serverUpdates;
         this.identity = clientIdentity;
-        gameWindow = new JFrame();
-        gameWindow.setMinimumSize(new Dimension(400, 400));
-        gameWindow.setTitle("Chunks Client");
 
         this.toConsole = toConsole;
         position = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName());
@@ -53,24 +59,7 @@ public class ClientLoop {
         running = true;
     }
 
-    /**
-     * Initialize LWJGL and window.
-     */
-    protected void init(){
-        GLFWErrorCallback.createPrint(System.err).set(); //TODO: Make errors go to console.
 
-        if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW"); //TODO: Make errors go to console.
-        }
-
-        glfwDefaultWindowHints(); // optional, the current window hints are already the default
-        glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
-        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
-
-        int WIDTH = 300;
-        int HEIGHT = 300;
-
-    }
 
     private void informServer(){
         //Uh? Not sure what this was going to do.
@@ -124,11 +113,15 @@ public class ClientLoop {
         }
     }
 
-    private void updatePosition(){
+    private void handleInput(){
         //TODO: Get user input???
     }
 
-    private void sendPosition(){
+    private void updateGameState(double deltaTime){
+
+    }
+
+    private void sendUpdatesToServer(){
         if(prevPosition != null && !prevPosition.equals(position)){
             clientUpdates.add(position);
             prevPosition = position;
@@ -136,43 +129,58 @@ public class ClientLoop {
 
     }
 
-    public void start(){
-        gameWindow.setVisible(true);
+    public void loop(){
+        GL.createCapabilities();
+        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
         clientUpdates.add(new Chat(identity, "Hello server!"));
 
-        long lastNow = System.nanoTime();
-        double delta = 0.0;
+        long lastLoopStartMoment = System.nanoTime();
+        double deltaTime = 0.0;
         long lastFPSTime = 0;
+        long steps = 0; // Uh?? what was this for?
 
-        while(running){
-            long now = System.nanoTime();
-            long updateLength = now - lastNow;
-            lastNow = now;
-            delta = updateLength / SIM_NS;
+        while(!window.shouldClose()){
+            long loopStartMoment = System.nanoTime();
+            long elapsedTime = loopStartMoment - lastLoopStartMoment;
+            lastLoopStartMoment = loopStartMoment;
+            steps += elapsedTime;
+            deltaTime = elapsedTime / SIM_NS;
 
-            lastFPSTime += updateLength;
+            lastFPSTime += elapsedTime;
             if(lastFPSTime >= ONE_BILLION){
                 lastFPSTime = 0;
             }
 
-            informServer();
             acceptUpdates();
-            updatePosition();
-            sendPosition();
+            handleInput();
+            updateGameState(deltaTime);
+            sendUpdatesToServer();
+            render();
 
-            try {
-                long sleepTime = (long)(lastNow - System.nanoTime() + SIM_NS) / 1000000;
-                if(sleepTime < 0){
-                    toConsole.add(new Message("source=Sim Loop\nseverity=warning\n"
-                            + "message=Server can't keep up with physics! " + (-sleepTime) + " ns behind."));
-                    sleepTime = 0;
-                }
-                Thread.sleep(sleepTime);
-            } catch (InterruptedException e) {
-                toConsole.add(new Message("source=Sim Loop\nseverity=error\n"
-                        + "message=Java Error: " + e.getStackTrace().toString()));
-            }
+            Sync.sync(loopStartMoment, lastLoopStartMoment, SIM_NS, toConsole);
         }
+
+        clientUpdates.add(new Disconnect(Disconnect.DisconnectReason.ClientClosed));
+    }
+
+    private void render(){
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        window.swapBuffers();
+
+        glfwPollEvents();
+    }
+
+    public void run(){
+        try {
+            window = new Window(toConsole);
+            windowId = window.init();
+            loop();
+            window.destroy();
+        } finally {
+            window.free();
+        }
+
     }
 }

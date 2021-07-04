@@ -24,6 +24,26 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class Block {
 
+    public enum SIDE{
+        TOP(0),
+        FRONT(1),
+        LEFT(2),
+        RIGHT(3),
+        BACK(4),
+        BOTTOM(5);
+
+
+        private int val;
+
+        SIDE(int val){
+            this.val = val;
+        }
+
+        public int getVal(){
+            return val;
+        }
+    }
+
     /* The name of this block. */
     private final String name;
     /* The domain this belongs to. */
@@ -215,5 +235,14 @@ public class Block {
      */
     public BufferedImage getTexture(int side){
         return textures[side];
+    }
+
+    /**
+     * Gets the texture from a side. Uses the SIDES enum.
+     * @param side The side to get.
+     * @return A BufferedImage of that texture.
+     */
+    public BufferedImage getTexture(SIDE side){
+        return getTexture(side.getVal());
     }
 }

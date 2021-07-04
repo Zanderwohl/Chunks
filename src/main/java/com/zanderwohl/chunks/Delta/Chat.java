@@ -4,6 +4,8 @@ import com.zanderwohl.chunks.Client.ClientIdentity;
 
 public class Chat extends Delta implements java.io.Serializable {
 
+    private static final long serialVersionUID = 32112000001L;
+
     private String fromName;
     private String message;
 

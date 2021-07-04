@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 public class Kick extends Delta implements Serializable {
 
+    private static final long serialVersionUID = 32112000003L;
+
     private String reason;
 
     /**

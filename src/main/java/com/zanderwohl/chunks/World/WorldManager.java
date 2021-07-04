@@ -20,11 +20,11 @@ public class WorldManager {
 
     private ArrayBlockingQueue<Message> toConsole;
 
-    public WorldManager(ArrayBlockingQueue<Message> toConsole){
+    public WorldManager(ArrayBlockingQueue<Message> toConsole, String initialWorld){
         this.toConsole = toConsole;
         library = new BlockLibrary(toConsole);
 
-        newWorld("Madison","Madison"); //TODO: Allow for flexibility for initial world.
+        newWorld(initialWorld, initialWorld); //TODO: Allow for flexibility for seed.
 
         prepare();
     }

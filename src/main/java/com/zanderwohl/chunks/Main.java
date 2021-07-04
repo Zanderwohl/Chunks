@@ -1,7 +1,7 @@
 package com.zanderwohl.chunks;
 
 import com.zanderwohl.chunks.Client.Client;
-import com.zanderwohl.chunks.Console.Console;
+import com.zanderwohl.chunks.Console.ConsoleBroker;
 import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.console.SuperConsole;
@@ -34,15 +34,13 @@ public class Main {
 
         //Start the game's console - not the user-facing console, but the part of this program that receives and sends
         //to SuperConsole - on its own thread.
-        Console consoleConnector = new Console(toConsole, fromConsole);
-        Thread consoleConnectorThread = new Thread(consoleConnector);
+        ConsoleBroker consoleBroker = new ConsoleBroker(toConsole, fromConsole);
+        Thread consoleConnectorThread = new Thread(consoleBroker);
         consoleConnectorThread.start();
 
         //Start a SuperConsole window
         SuperConsole console = new SuperConsole();
         console.newConnection("Local Server","localhost",288);
-        //Thread consoleThread = new Thread(console);
-        //consoleThread.start();
 
         //Start the simulation on a thread
         SimLoop simLoop = new SimLoop(toConsole, fromConsole, port);

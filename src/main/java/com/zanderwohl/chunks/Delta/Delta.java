@@ -2,12 +2,15 @@ package com.zanderwohl.chunks.Delta;
 
 import com.zanderwohl.chunks.Client.ClientIdentity;
 
-public abstract class Delta implements java.io.Serializable {
+public abstract class Delta {
+
+    private static final long serialVersionUID = 32112000000L;
 
     private transient ClientIdentity from = null;
+    private transient ClientIdentity to = null;
 
     public Delta(){
-
+        //TODO: ALWAYS HAVE A FROM. WHY IS IT IN A SEPARATE METHOD?
     }
 
     public ClientIdentity getFrom(){
@@ -16,6 +19,14 @@ public abstract class Delta implements java.io.Serializable {
 
     public void setFrom(ClientIdentity newFrom){
         this.from = newFrom;
+    }
+
+    public void setTo(ClientIdentity newTo){
+        this.to = newTo;
+    }
+
+    public ClientIdentity getTo(){
+        return to;
     }
 
     public String toString(){

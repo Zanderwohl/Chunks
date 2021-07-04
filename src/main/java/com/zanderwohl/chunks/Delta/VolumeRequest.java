@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 public class VolumeRequest extends Delta implements Serializable {
 
+    private static final long serialVersionUID = 32112000008L;
+
     public final int x, y, z;
 
     /**

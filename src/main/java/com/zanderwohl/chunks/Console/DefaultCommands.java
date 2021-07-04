@@ -107,8 +107,10 @@ public class DefaultCommands {
     public static class NewWorld implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
         @Override
         public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole){
-            if(arguments.get("name") == null){
-
+            if(arguments.get("name") == null || arguments.get("name").equals("")){
+                toConsole.add(new Message("source=Command Manager\nseverity=warning"
+                        + "\nmessage=Could not create world without name."));
+                return;
             }
             String seed;
             if(arguments.get("seed") == null){

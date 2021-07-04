@@ -1,6 +1,10 @@
 package com.zanderwohl.chunks.Delta;
 
-public class VolumeAge extends Delta {
+import java.io.Serializable;
+
+public class VolumeAge extends Delta implements Serializable {
+
+    private static final long serialVersionUID = 32112000007L;
 
     private long lastUpdated;
 

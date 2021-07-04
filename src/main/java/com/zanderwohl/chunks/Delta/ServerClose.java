@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 public class ServerClose extends Delta implements Serializable {
 
+    private static final long serialVersionUID = 32112000005L;
+
     public final String closeMessage;
 
     /**

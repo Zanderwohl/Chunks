@@ -99,17 +99,9 @@ public class ImageWorld {
      * @return The image.
      */
     public static BufferedImage makeImage2(World w, int center_x, int center_z, int scale, int width, int height){
-        double halfWidth = width / 2.0;
-        double halfHeight = height / 2.0;
-        double widthBlocks = halfWidth / scale;
-        double heightBlocks = halfHeight / scale;
+        Bounds bounds = new Bounds(scale, width, height, center_x, center_z);
 
-        int startX = center_x - (int)Math.ceil(widthBlocks);
-        int endX = center_x + (int)Math.ceil(widthBlocks);
-        int startZ = center_z - (int)Math.ceil(heightBlocks);
-        int endZ = center_z + (int)Math.ceil(heightBlocks);
-
-        System.out.println("scale: " + scale + "\nx: " + startX + "->" + endX + "\nz: " + startZ + "->" + endZ);
+        System.out.println("scale: " + scale + "\nx: " + bounds.START_X + "->" + bounds.END_X + "\nz: " + bounds.START_Z + "->" + bounds.END_Z);
 
         BufferedImage image = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
         Graphics2D map = image.createGraphics();
@@ -118,44 +110,48 @@ public class ImageWorld {
         int lowest = Integer.MAX_VALUE;
         BlockLibrary library = w.getWorldManager().getLibrary();
 
-        for(int x = startX; x < endX; x++){
-            for(int z = startZ; z < endZ; z++){
+        for(int x = bounds.START_X; x < bounds.END_X; x++){
+            for(int z = bounds.START_Z; z < bounds.END_Z; z++){
+                printBlock(w, x, z, library, map, bounds);
+
                 int value = w.getPeak(x, z);
                 highest = Math.max(value, highest);
                 lowest = Math.min(value, lowest);
-
-                int thisPeak = w.getPeak(x, z);
-                int northPeak = w.getPeak(x, z - 1);
-                int southPeak = w.getPeak(x, z + 1);
-                int eastPeak = w.getPeak(x + 1, z);
-                int westPeak = w.getPeak(x - 1, z);
-
-                int northDifference = Math.abs(thisPeak - northPeak);
-                int southDifference = Math.abs(thisPeak - southPeak);
-                int eastDifference = Math.abs(thisPeak - eastPeak);
-                int westDifference = Math.abs(thisPeak - westPeak);
-
-                double northEast = northDifference + eastDifference;
-                double southWest = southDifference + westDifference;
-
-                double northEastRatio = clamp(northEast / 7.0);
-                double southWestRatio = clamp(southWest / 7.0);
-                double combinedRatio = clamp(northEastRatio - southWestRatio + .5);
-
-                int transparency = (int)(combinedRatio * 200);
-                Color result = new Color(0, 0, 0, transparency);
-
-                int blockID = w.getBlock(new Coord(x, thisPeak, z, Coord.Scale.BLOCK));
-                Block b = library.getBlockById(blockID);
-                map.drawImage(b.getTexture(0), x * scale + (int)halfWidth, z * scale + (int) halfHeight,
-                        scale, scale,null);
-                map.setColor(result);
-                map.fillRect(x  * scale + (int)halfWidth, z * scale + (int) halfHeight, scale, scale);
             }
         }
 
         System.out.println("Highest: " + highest + "\nLowest: " + lowest + "\nCeiling: " + w.getY());
         return image;
+    }
+
+    public static void printBlock(World w, int x, int z, BlockLibrary library, Graphics2D map, Bounds bounds){
+        int thisPeak = w.getPeak(x, z);
+        int northPeak = w.getPeak(x, z - 1);
+        int southPeak = w.getPeak(x, z + 1);
+        int eastPeak = w.getPeak(x + 1, z);
+        int westPeak = w.getPeak(x - 1, z);
+
+        int northDifference = Math.abs(thisPeak - northPeak);
+        int southDifference = Math.abs(thisPeak - southPeak);
+        int eastDifference = Math.abs(thisPeak - eastPeak);
+        int westDifference = Math.abs(thisPeak - westPeak);
+
+        double northEast = northDifference + eastDifference;
+        double southWest = southDifference + westDifference;
+
+        double northEastRatio = clamp(northEast / 7.0);
+        double southWestRatio = clamp(southWest / 7.0);
+        double combinedRatio = clamp(northEastRatio - southWestRatio + .5);
+
+        int transparency = (int)(combinedRatio * 200);
+        Color result = new Color(0, 0, 0, transparency);
+
+        int blockID = w.getBlock(new Coord(x, thisPeak, z, Coord.Scale.BLOCK));
+        Block b = library.getBlockById(blockID);
+        map.drawImage(b.getTexture(Block.SIDE.TOP), x * bounds.SCALE + (int)bounds.HALF_WIDTH, z * bounds.SCALE + (int) bounds.HALF_HEIGHT,
+                bounds.SCALE, bounds.SCALE,null);
+        map.setColor(result);
+        map.fillRect(x  * bounds.SCALE + (int)bounds.HALF_WIDTH, z * bounds.SCALE + (int) bounds.HALF_HEIGHT, bounds.SCALE, bounds.SCALE);
     }
 
     /**
@@ -192,5 +188,40 @@ public class ImageWorld {
      */
     private static double clamp(double input){
         return Math.max(0.0, Math.min(1.0, input));
+    }
+
+    private static class Bounds{
+        public final int SCALE;
+        public final int WIDTH;
+        public final int HEIGHT;
+        public final double HALF_WIDTH;
+        public final double HALF_HEIGHT;
+        public final double WIDTH_IN_BLOCKS;
+        public final double HEIGHT_IN_BLOCKS;
+
+        public final int CENTER_X;
+        public final int CENTER_Z;
+        public final int START_X;
+        public final int END_X;
+        public final int START_Z;
+        public final int END_Z;
+
+
+        public Bounds(int scale, int width, int height, int center_x, int center_z){
+            WIDTH = width;
+            HEIGHT = height;
+            HALF_WIDTH = width / 2.0;
+            HALF_HEIGHT = height / 2.0;
+            WIDTH_IN_BLOCKS = HALF_WIDTH / scale;
+            HEIGHT_IN_BLOCKS = HALF_HEIGHT / scale;
+            SCALE = scale;
+
+            CENTER_X = center_x;
+            CENTER_Z = center_z;
+            START_X = center_x - (int)Math.ceil(WIDTH_IN_BLOCKS);
+            END_X = center_x + (int)Math.ceil(WIDTH_IN_BLOCKS);
+            START_Z = center_z - (int)Math.ceil(HEIGHT_IN_BLOCKS);
+            END_Z = center_z + (int)Math.ceil(HEIGHT_IN_BLOCKS);
+        }
     }
 }

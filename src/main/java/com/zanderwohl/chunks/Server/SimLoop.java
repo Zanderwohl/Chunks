@@ -5,11 +5,13 @@ import com.zanderwohl.chunks.Console.CommandManager;
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.FileConstants;
 import com.zanderwohl.chunks.Logging.Log;
+import com.zanderwohl.chunks.StringConstants;
 import com.zanderwohl.chunks.World.Coord;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
+import com.zanderwohl.util.Sync;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -52,7 +54,7 @@ public class SimLoop implements Runnable {
 
     /**
      * Only constructor?
-     * TODO: Fix this function's documentation.
+     * TODO: Fix this function's documentation. Wait, what's wrong with it?
      * @param toConsole The queue of messages to send to the console.
      * @param fromConsole The queue of messages from the console to be consumed.
      * @param port The port on which the server should run.
@@ -65,9 +67,9 @@ public class SimLoop implements Runnable {
 
         clientUpdates = new ArrayBlockingQueue<>(500); //TODO: Make this a setting of some kind.
 
-        worldManager = new WorldManager(toConsole);
+        worldManager = new WorldManager(toConsole, StringConstants.world);
         commandManager = new CommandManager(toConsole, fromConsole, worldManager, this);
-        clients = Collections.synchronizedList(new ArrayList<Thread>());
+        clients = Collections.synchronizedList(new ArrayList<>());
         clientsById = new ConcurrentHashMap<>();
         clientAccepter = new ClientAccepter(serverSocket, clients, clientsById, toConsole, clientUpdates);
 
@@ -292,7 +294,7 @@ public class SimLoop implements Runnable {
     public void run() {
         running = true;
 
-        long lastNow = System.nanoTime();
+        long lastLoopStartTime = System.nanoTime();
         double delta;
         long lastFPSTime = 0;
 
@@ -306,12 +308,12 @@ public class SimLoop implements Runnable {
 
         try {
             while (running) {
-                long now = System.nanoTime();
-                long updateLength = now - lastNow;
-                lastNow = now;
-                delta = updateLength / SIM_NS;
+                long loopStartTime = System.nanoTime();
+                long elapsedTime = loopStartTime - lastLoopStartTime;
+                lastLoopStartTime = loopStartTime;
+                delta = elapsedTime / SIM_NS;
 
-                lastFPSTime += updateLength;
+                lastFPSTime += elapsedTime;
                 if (lastFPSTime >= ONE_BILLION) {
                     lastFPSTime = 0;
                 }
@@ -321,28 +323,14 @@ public class SimLoop implements Runnable {
                 update(delta);
                 updateClients();
 
-                try {
-                    long sleepTime = (long) (lastNow - System.nanoTime() + SIM_NS) / 1000000;
-                    if (sleepTime < 0) {
-                        toConsole.add(new Message("source=Sim Loop\nseverity=warning\n"
-                                + "message=Server can't keep up with physics! " + (-sleepTime) + " ns behind."));
-                        sleepTime = 0;
-                    }
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException e) {
-                    toConsole.add(new Message("source=Sim Loop\nseverity=critical\n"
-                            + "message=Server was interrupted at an unexpected time."));
-                    running = false;
-                }
-
-
+                Sync.sync(loopStartTime, lastLoopStartTime, SIM_NS, toConsole);
             }
         } catch (Exception e){
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
                     + "Server has encountered an unrecoverable error. Stopping."));
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
                     + e.getStackTrace().toString()));
-            e.printStackTrace(); //TODO: Remove one message details are implemented.
+            e.printStackTrace(); //TODO: Remove once message details are implemented.
         }
 
         toConsole.add(new Message("source=Sim Loop\nmessage=Server closed."));
