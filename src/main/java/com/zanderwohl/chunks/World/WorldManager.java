@@ -41,7 +41,7 @@ public class WorldManager {
         JSONObject json;
         try {
             FileLoader domainFile = new FileLoader("domains/" + domain + "/domain.json");
-            json = new JSONObject(domainFile.fileToString());
+            json = new JSONObject(domainFile.getFile());
             library.addDomain(json);
         } catch (FileNotFoundException e){
             toConsole.add(new Message("message=Domain file for domain '" + domain + "' not found.\n"

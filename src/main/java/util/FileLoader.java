@@ -4,31 +4,57 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/**
+ * A wrapper class for text files.
+ */
 public class FileLoader {
 
-    String name, extension, contents = "";
+    private String name, extension, contents;
 
-    public FileLoader(String fileName) throws FileNotFoundException {
+    /**
+     * Open a file based on its name. Cannot handle directories.
+     * @param fileName The name of the file, with its extension.
+     * @throws FileNotFoundException If the file is not found.
+     */
+    public FileLoader(String fileName) {
         String[] split = fileName.split("\\.");
         name = split[0];
         extension = split[1];
-        contents = fileToString();
-
+        contents = null;
     }
 
+    /**
+     * The name of the file with its extension.
+     * @return The full name of the file.
+     */
     public String getFullName(){
         return name + "." + extension;
     }
 
+    /**
+     * The name of the file, without the extension.
+     * @return The name of the file.
+     */
     public String getName(){
         return name;
     }
 
+    /**
+     * Get the file extension of this file.
+     * @return The extension without a .
+     */
     public String getExtension(){
         return extension;
     }
 
-    public String getFile(){
+    /**
+     * Returns the content of the file in a single string with line breaks.
+     * @return A string containing the entire contents of the file.
+     */
+    public String getFile() throws FileNotFoundException{
+        if(contents == null){
+            contents = fileToString();
+        }
         return contents;
     }
 
@@ -37,7 +63,7 @@ public class FileLoader {
      * @return A string containing the entire contents of the file.
      * @throws FileNotFoundException If the file specified is not found.
      */
-    public String fileToString() throws FileNotFoundException {
+    private String fileToString() throws FileNotFoundException {
         String fileContents = "";
         Scanner file = new Scanner(new File(getFullName()));
         while(file.hasNext()) {

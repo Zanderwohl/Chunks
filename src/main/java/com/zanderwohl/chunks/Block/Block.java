@@ -87,7 +87,7 @@ public class Block {
         JSONObject json = new JSONObject();
         try {
             FileLoader blockFile = new FileLoader(path);
-            jsonString = blockFile.fileToString();
+            jsonString = blockFile.getFile();
             json = new JSONObject(jsonString);
         } catch (FileNotFoundException e){
             e.printStackTrace();

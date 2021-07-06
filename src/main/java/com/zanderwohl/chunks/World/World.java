@@ -4,10 +4,7 @@ import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Generator.*;
 import com.zanderwohl.console.Message;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,7 +14,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  * A collection of Volumes and their relations to each other, to allow for dynamic generation of the world in small
  * pieces at a time. Contains other information.
  */
-public class World extends Delta {
+public class World extends Delta implements Serializable {
 
     public static transient final String fileType = "vol";
     public static transient final String metaFileType = "meta";
@@ -121,8 +118,8 @@ public class World extends Delta {
      */
     public void basic(){
        // Generator g = new Simplex(seed);
-        Generator g = new Sine(seed);
-        //Generator g = new Chaos(seed);
+        //Generator g = new Sine(seed);
+        Generator g = new Chaos(seed);
         //Generator g = new Layers(seed);
         for(int x = -x_length; x < x_length; x++){
             for(int y = 0; y < y_length; y++){
@@ -256,7 +253,7 @@ public class World extends Delta {
         return Space.volZToBlockZ(z_length);
     }
 
-    public int getBlock(Coord location){
+    public int getBlockID(Coord location){
         int x = location.getX();
         int y = location.getY();
         int z = location.getZ();

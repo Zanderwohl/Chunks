@@ -8,7 +8,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.ArrayBlockingQueue;
 
+/**
+ * A log API for generating log files recording important events.
+ */
 public class Log {
+
+    /**
+     * Open a log. If logging happens in a loop, open before loop and close after the loop.
+     * @param logNameWithPath
+     * @param toConsole
+     * @return
+     */
     public static PrintWriter openLog(String logNameWithPath, ArrayBlockingQueue<Message> toConsole){
         File logFile = new File(logNameWithPath);
         PrintWriter log = null; //IMPORTANT: Only use .append() as to not overwrite this file.

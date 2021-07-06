@@ -110,6 +110,9 @@ public class Command {
         return arrangedArgs;
     }
 
+    /**
+     * Exception thrown when an argument is in the wrong order, there are too many arguments, or too few arguments.
+     */
     public class ArgumentOrderException extends Exception {
 
         private Message message;

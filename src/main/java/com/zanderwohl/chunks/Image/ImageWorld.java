@@ -70,7 +70,7 @@ public class ImageWorld {
 
                 //double degree = (((double) w.getPeak(x,z) / (double)w.getY())) + 0.5;
                 double degree = (Math.sin(((double) w.getPeak(x,z) / (double)w.getY())) + 1.0) / 2.0;
-                Color c = new Color(library.getBlockColor(w.getBlock(new Coord(x, w.getPeak(x,z), z, Coord.Scale.BLOCK))));
+                Color c = new Color(library.getBlockColor(w.getBlockID(new Coord(x, w.getPeak(x,z), z, Coord.Scale.BLOCK))));
                 double red = c.getRed() * degree;
                 double blue = c.getBlue() * degree;
                 double green = c.getGreen() * degree;
@@ -112,11 +112,15 @@ public class ImageWorld {
 
         for(int x = bounds.START_X; x < bounds.END_X; x++){
             for(int z = bounds.START_Z; z < bounds.END_Z; z++){
-                printBlock(w, x, z, library, map, bounds);
+                int thisPeak = w.getPeak(x, z);
+                Coord c = new Coord(x, thisPeak, z, Coord.Scale.BLOCK);
 
-                int value = w.getPeak(x, z);
-                highest = Math.max(value, highest);
-                lowest = Math.min(value, lowest);
+                Color shade = blockShade(w, c);
+                printBlock(w, c, library, map, bounds);
+                //shadeBlock(map, shade, bounds, c);
+
+                highest = Math.max(thisPeak, highest);
+                lowest = Math.min(thisPeak, lowest);
             }
         }
 
@@ -124,8 +128,11 @@ public class ImageWorld {
         return image;
     }
 
-    public static void printBlock(World w, int x, int z, BlockLibrary library, Graphics2D map, Bounds bounds){
-        int thisPeak = w.getPeak(x, z);
+    private static Color blockShade(World w, Coord c){
+        int x = c.getX();
+        int z = c.getZ();
+        int thisPeak = c.getY();
+
         int northPeak = w.getPeak(x, z - 1);
         int southPeak = w.getPeak(x, z + 1);
         int eastPeak = w.getPeak(x + 1, z);
@@ -145,13 +152,23 @@ public class ImageWorld {
 
         int transparency = (int)(combinedRatio * 200);
         Color result = new Color(0, 0, 0, transparency);
+        return result;
+    }
 
-        int blockID = w.getBlock(new Coord(x, thisPeak, z, Coord.Scale.BLOCK));
+    private static void printBlock(World w, Coord c, BlockLibrary library, Graphics2D map, Bounds bounds){
+        int x = c.getX();
+        int y = c.getY();
+        int z = c.getZ();
+
+        int blockID = w.getBlockID(new Coord(x, y, z, Coord.Scale.BLOCK));
         Block b = library.getBlockById(blockID);
         map.drawImage(b.getTexture(Block.SIDE.TOP), x * bounds.SCALE + (int)bounds.HALF_WIDTH, z * bounds.SCALE + (int) bounds.HALF_HEIGHT,
                 bounds.SCALE, bounds.SCALE,null);
-        map.setColor(result);
-        map.fillRect(x  * bounds.SCALE + (int)bounds.HALF_WIDTH, z * bounds.SCALE + (int) bounds.HALF_HEIGHT, bounds.SCALE, bounds.SCALE);
+    }
+
+    private static void shadeBlock(Graphics2D map, Color shadeColor, Bounds bounds, Coord c){
+        map.setColor(shadeColor);
+        map.fillRect(c.getX()  * bounds.SCALE + (int)bounds.HALF_WIDTH, c.getZ() * bounds.SCALE + (int) bounds.HALF_HEIGHT, bounds.SCALE, bounds.SCALE);
     }
 
     /**
