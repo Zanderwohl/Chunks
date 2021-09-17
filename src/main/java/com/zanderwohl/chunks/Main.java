@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks;
 
 import com.zanderwohl.chunks.Client.Client;
+import com.zanderwohl.chunks.Console.CommandSet;
 import com.zanderwohl.chunks.Console.ConsoleBroker;
 import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.console.Message;
@@ -43,9 +44,13 @@ public class Main {
         console.newConnection("Local Server","localhost",288);
 
         //Start the simulation on a thread
-        SimLoop simLoop = new SimLoop(toConsole, fromConsole, port);
-        Thread simThread = new Thread(simLoop);
-        simThread.start();
+        try {
+            SimLoop simLoop = new SimLoop(toConsole, fromConsole, port);
+            Thread simThread = new Thread(simLoop);
+            simThread.start();
+        } catch (CommandSet.WrongArgumentsObjectException e){
+            return;
+        }
 
         clientThread.start();
 

@@ -10,9 +10,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11C.GL_FALSE;
 import static org.lwjgl.opengl.GL11C.GL_TRUE;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import org.lwjgl.opengl.GL;
 
 public class Window {
 
@@ -20,6 +22,10 @@ public class Window {
     private boolean destroyed;
 
     private ArrayBlockingQueue<Message> toConsole;
+    private int width;
+    private int height;
+    private boolean resized = false;
+    private boolean vsync = true;
 
     public Window(ArrayBlockingQueue<Message> toConsole){
         destroyed = false;
@@ -40,7 +46,11 @@ public class Window {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
-
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        
         int WIDTH = 1280;
         int HEIGHT = 720;
 
@@ -48,6 +58,12 @@ public class Window {
         if (windowId == NULL) {
             toConsole.add(new Message("severity=critical\nsource=Client Loop\nmessage=Failed to create window."));
         }
+
+        glfwSetFramebufferSizeCallback(windowId, (window, width, height) -> {
+            this.width = width;
+            this.height = height;
+            this.setResized(true);
+        });
 
         glfwSetKeyCallback(windowId, (windowId, key, scancode, action, mods) -> {
             if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE){
@@ -60,11 +76,22 @@ public class Window {
 
         glfwMakeContextCurrent(windowId);
 
-        glfwSwapInterval(1);
+        if(getVSync()) {
+            glfwSwapInterval(1);
+        }
 
         glfwShowWindow(windowId);
 
+        GL.createCapabilities();
+
+        // Set the clear color
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
         return windowId;
+    }
+
+    private void setResized(boolean resized) {
+        this.resized = resized;
     }
 
     public void destroy(){
@@ -91,5 +118,9 @@ public class Window {
 
     public boolean shouldClose(){
         return glfwWindowShouldClose(windowId);
+    }
+
+    public boolean getVSync(){
+        return vsync;
     }
 }

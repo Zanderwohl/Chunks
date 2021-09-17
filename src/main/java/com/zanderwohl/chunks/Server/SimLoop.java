@@ -1,7 +1,11 @@
 package com.zanderwohl.chunks.Server;
 
+/* Goodness this is disgusting. Is the enterprise coding getting to me? */
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.CommandManager;
+import com.zanderwohl.chunks.Console.CommandSet;
+import com.zanderwohl.chunks.Console.DefaultCommands;
+import com.zanderwohl.chunks.Console.DefaultCommandsObjects;
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.FileConstants;
 import com.zanderwohl.chunks.Logging.Log;
@@ -60,7 +64,7 @@ public class SimLoop implements Runnable {
      * @param port The port on which the server should run.
      * @throws IOException When the server cannot bind to the port.
      */
-    public SimLoop(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole, int port) throws IOException {
+    public SimLoop(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole, int port) throws IOException, CommandSet.WrongArgumentsObjectException {
         this.toConsole = toConsole;
         this.fromConsole = fromConsole;
         this.serverSocket = new ServerSocket(port);
@@ -68,7 +72,15 @@ public class SimLoop implements Runnable {
         clientUpdates = new ArrayBlockingQueue<>(500); //TODO: Make this a setting of some kind.
 
         worldManager = new WorldManager(toConsole, StringConstants.world);
-        commandManager = new CommandManager(toConsole, fromConsole, worldManager, this);
+
+        SimLoop thisSimLoop = this;
+        DefaultCommandsObjects commandObjects = new DefaultCommandsObjects(worldManager, thisSimLoop);
+        try {
+            commandManager = new CommandManager(toConsole, fromConsole, commandObjects);
+        } catch (CommandSet.WrongArgumentsObjectException e){
+            toConsole.add(new Message("source=Sim Loop\nseverity=critical\nmessage=" + e.getMessage()));
+            throw e;
+        }
         clients = Collections.synchronizedList(new ArrayList<>());
         clientsById = new ConcurrentHashMap<>();
         clientAccepter = new ClientAccepter(serverSocket, clients, clientsById, toConsole, clientUpdates);
@@ -79,6 +91,12 @@ public class SimLoop implements Runnable {
         logPath = FileConstants.logFolder +  "/" + this.startInstant + "." + FileConstants.logExtension;
     }
 
+    /**
+     * Close the server, gracefully as possible given the circumstances.
+     * Can be used for error closes or non-error closes.
+     * Tell all clients about the reason for server close.
+     * @param quit The server close object that contains a quit reason.
+     */
     public void closeServer(ServerClose quit){
         toConsole.add(new Message("source=Sim Loop\nmessage=Server closing: " + quit.closeMessage));
         sendToAllClients(quit);
@@ -90,6 +108,7 @@ public class SimLoop implements Runnable {
         worldManager.saveAllWorlds();
     }
 
+    //TODO: Maybe we don't need this. Exposes too much?
     public ArrayList<ClientIdentity> getClients(){
         ArrayList<ClientIdentity> clientList = new ArrayList<>();
         for(ClientIdentity identity: clientsById.keySet()){
@@ -127,62 +146,91 @@ public class SimLoop implements Runnable {
         return success;
     }
 
-    private void processClientUpdates(){
+    /**
+     * Go through the queue of pending client updates and process all updates.
+     */
+    private void processAllClientUpdates(){
         PrintWriter log = Log.openLog(logPath, toConsole);
 
         while(!clientUpdates.isEmpty()){
-            Delta d = clientUpdates.remove();
+            processOneClientUpdate(log);
+        }
 
-            if(d instanceof Chat){
-                chats.add((Chat) d);
-                Log.append(log, d.toString(), logSettings.chats);
-            }
-            if(d instanceof PPos){
-                PPos pos = (PPos) d;
-                System.out.println(pos.getFrom().getDisplayName() + "\t" + pos.x + "\t" + pos.y + "\t" + pos.z);
-                Log.append(log, d.toString(), logSettings.PPoses);
-            }
-            if(d instanceof WorldRequest){
-                WorldRequest wr = (WorldRequest) d;
-                World worldToSend;
-                Log.append(log, d.toString(), logSettings.worldRequests);
-                if(wr.requestedWorld == null){
-                    worldToSend = worldManager.getDefaultWorld();
-                } else {
-                    worldToSend = worldManager.getWorld(wr.requestedWorld);
-                    if(worldToSend == null){
-                        return;
-                    }
-                }
-                sendToClient(d.getFrom(), worldToSend);
-            }
-            if(d instanceof VolumeRequest){
-                VolumeRequest vr = (VolumeRequest) d;
-                Log.append(log, d.toString(), logSettings.volumeRequests);
-                Coord volumeLocation = new Coord(vr.x, vr.y, vr.z, Coord.Scale.VOLUME);
-                //TODO: Can currently only send Volumes from default world, since server doesn't keep track of which world the player is in.
-                Volume volumeToSend = worldManager.getDefaultWorld().getVolume(volumeLocation, true);
-                sendToClient(vr.getFrom(), volumeToSend);
-            }
-            if(d instanceof StartingVolumesRequest){
-                StartingVolumesRequest svr = (StartingVolumesRequest) d;
-                Log.append(log, d.toString(), logSettings.volumeRequests);
-                //TODO: Send only nearby Volumes, not all of them. Also, select which world the player is in.
-                World w = worldManager.getDefaultWorld();
-                for(int x = 0; x < World.x_length; x++){ //TODO: this assumes the world is finite
-                    for(int y = 0; y < World.y_length; y++){
-                        for(int z = 0; z < World.z_length; z++){
-                            Volume v = w.getVolume(new Coord(x, y, z, Coord.Scale.VOLUME), true);
-                            if(v != null){
-                                sendToClient(svr.getFrom(), v);
-                            }
-                        }
-                    }
-                }
+        Log.closeLog(log);
+    }
 
+    private void processOneClientUpdate(PrintWriter log){
+        Delta d = clientUpdates.remove();
+
+        if(d instanceof Chat){
+            Chat c = (Chat) d;
+            processChat(log, c);
+        }
+        if(d instanceof PPos){
+            PPos pos = (PPos) d;
+            processPPos(log, pos);
+        }
+        if(d instanceof WorldRequest){
+            WorldRequest wr = (WorldRequest) d;
+            processWorldRequest(log, wr);
+        }
+        if(d instanceof VolumeRequest){
+            VolumeRequest vr = (VolumeRequest) d;
+            processVolumeRequest(log, vr);
+        }
+        if(d instanceof StartingVolumesRequest){
+            StartingVolumesRequest svr = (StartingVolumesRequest) d;
+            processStartingVolumesRequest(log, svr);
+        }
+        //TODO: Add all the other types of deltas.
+    }
+
+    private void processPPos(PrintWriter log, PPos pos) {
+        System.out.println(pos.getFrom().getDisplayName() + "\t" + pos.x + "\t" + pos.y + "\t" + pos.z);
+        Log.append(log, pos.toString(), logSettings.PPoses);
+    }
+
+    private void processChat(PrintWriter log, Chat c) {
+        chats.add(c);
+        Log.append(log, c.toString(), logSettings.chats);
+    }
+
+    private void processWorldRequest(PrintWriter log, WorldRequest wr){
+        World worldToSend;
+        Log.append(log, wr.toString(), logSettings.worldRequests);
+        if(wr.requestedWorld == null){
+            worldToSend = worldManager.getDefaultWorld();
+        } else {
+            worldToSend = worldManager.getWorld(wr.requestedWorld);
+            if(worldToSend == null){
+                return;
             }
         }
-        Log.closeLog(log);
+        sendToClient(wr.getFrom(), worldToSend);
+    }
+
+    private void processStartingVolumesRequest(PrintWriter log, StartingVolumesRequest svr){
+        Log.append(log, svr.toString(), logSettings.volumeRequests);
+        //TODO: Send only nearby Volumes, not all of them. Also, select which world the player is in.
+        World w = worldManager.getDefaultWorld();
+        for(int x = 0; x < World.x_length; x++){ //TODO: this assumes the world is finite
+            for(int y = 0; y < World.y_length; y++){
+                for(int z = 0; z < World.z_length; z++){
+                    Volume v = w.getVolume(new Coord(x, y, z, Coord.Scale.VOLUME), true);
+                    if(v != null){
+                        sendToClient(svr.getFrom(), v);
+                    }
+                }
+            }
+        }
+    }
+
+    private void processVolumeRequest(PrintWriter log, VolumeRequest vr){
+        Log.append(log, vr.toString(), logSettings.volumeRequests);
+        Coord volumeLocation = new Coord(vr.x, vr.y, vr.z, Coord.Scale.VOLUME);
+        //TODO: Can currently only send Volumes from default world, since server doesn't yet keep track of which world the player is in.
+        Volume volumeToSend = worldManager.getDefaultWorld().getVolume(volumeLocation, true);
+        sendToClient(vr.getFrom(), volumeToSend);
     }
 
     /**
@@ -318,7 +366,7 @@ public class SimLoop implements Runnable {
                     lastFPSTime = 0;
                 }
 
-                processClientUpdates();
+                processAllClientUpdates();
                 pruneDeadClients(); //TODO: Only do this once per second, or maybe less.
                 update(delta);
                 updateClients();
