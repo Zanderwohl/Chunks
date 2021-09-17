@@ -1,26 +1,15 @@
 package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Delta.*;
-import com.zanderwohl.chunks.StringConstants;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.util.Sync;
-import org.lwjgl.glfw.GLFWErrorCallback;
-
 import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11C.GL_FALSE;
-import static org.lwjgl.opengl.GL11C.GL_TRUE;
-
-import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
-
-import static org.lwjgl.glfw.Callbacks.*;
-
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 public class ClientLoop {
 
@@ -59,8 +48,6 @@ public class ClientLoop {
         running = true;
     }
 
-
-
     private void informServer(){
         //Uh? Not sure what this was going to do.
     }
@@ -86,7 +73,7 @@ public class ClientLoop {
             PPos ppos = (PPos) update;
             if(ppos.player.equals(identity.getDisplayName())){
                 position = ppos;
-                prevPosition = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName());
+                prevPosition = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName()); // ???
             } else {
                 //TODO: Update another player's position.
             }

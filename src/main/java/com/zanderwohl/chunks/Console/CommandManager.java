@@ -15,20 +15,21 @@ public class CommandManager {
 
     private LinkedList<UserCommand> userCommandQueue = new LinkedList<>();
 
-    private WorldManager worldManager;
-
     private HashMap<String, Command> commands;
     private ArrayList<Command> commandsList;
 
+    public interface ICommandManagerArguments{
+
+    }
+
     public CommandManager(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole,
-                          WorldManager worldManager, SimLoop simLoop){
+                          ICommandManagerArguments commandManagerArguments) throws CommandSet.WrongArgumentsObjectException {
         this.fromConsole = fromConsole;
         this.toConsole = toConsole;
-        this.worldManager = worldManager;
         this.commands = new HashMap<>();
         this.commandsList = new ArrayList<>();
-        DefaultCommands.giveObjects(this, worldManager, commandsList, commands, simLoop);
-        DefaultCommands.addDefaultCommands();
+        DefaultCommands.giveObjects(this, commandsList, commands, commandManagerArguments);
+        DefaultCommands.addCommands();
     }
 
     public boolean addCommand(Command command, String commandName){

@@ -69,7 +69,7 @@ public class Client implements Runnable {
         this.toConsole = toConsole;
         identity = new ClientIdentity("Player " + (new Random()).nextInt(1000));
 
-        int queueSize = 30;
+        int queueSize = 100; // Magic number. 30 is too small.
         serverUpdates = new ArrayBlockingQueue<>(queueSize);
         clientUpdates = new ArrayBlockingQueue<>(queueSize);
     }

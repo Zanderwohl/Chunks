@@ -15,9 +15,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 
 public class DefaultCommands {
@@ -28,16 +26,22 @@ public class DefaultCommands {
     private static ArrayList<Command> commands;
     private static HashMap<String, Command> commandMap;
 
-    public static void giveObjects(CommandManager c, WorldManager wm, ArrayList<Command> cm,
-                                   HashMap<String, Command> cs, SimLoop sl){
+    public static void giveObjects(CommandManager c, ArrayList<Command> cm,
+                                   HashMap<String, Command> cs, CommandManager.ICommandManagerArguments objects) throws CommandSet.WrongArgumentsObjectException {
         commandManager = c;
-        worldManager = wm;
         commands = cm;
         commandMap = cs;
-        simLoop = sl;
+
+        if(objects instanceof DefaultCommandsObjects){
+            DefaultCommandsObjects idco = (DefaultCommandsObjects) objects;
+            worldManager = idco.wm;
+            simLoop = idco.sl;
+        } else {
+            throw new CommandSet.WrongArgumentsObjectException("DefaultCommands needs a DefaultCommandsObjects ICommandManagerArguments, not a " + objects.getClass());
+        }
     }
 
-    public static void addDefaultCommands(){
+    public static void addCommands(){
         Command say = new Command("say", "Send a public message to everyone on the server.",
                 new Say());
         say.addArgument("text",true, "The text string to send.");
