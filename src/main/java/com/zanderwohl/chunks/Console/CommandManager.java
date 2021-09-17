@@ -1,16 +1,13 @@
 package com.zanderwohl.chunks.Console;
 
-import com.zanderwohl.chunks.Server.SimLoop;
-import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class CommandManager {
 
-    private ArrayBlockingQueue<Message> fromConsole;
+    private ArrayBlockingQueue<Message> commandQueue;
     private ArrayBlockingQueue<Message> toConsole;
 
     private LinkedList<UserCommand> userCommandQueue = new LinkedList<>();
@@ -19,17 +16,29 @@ public class CommandManager {
     private ArrayList<Command> commandsList;
 
     public interface ICommandManagerArguments{
-
+        Class<?> getCommandType();
     }
 
-    public CommandManager(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole,
-                          ICommandManagerArguments commandManagerArguments) throws CommandSet.WrongArgumentsObjectException {
-        this.fromConsole = fromConsole;
+    public CommandManager(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> commandQueue,
+                          ICommandManagerArguments commandManagerArguments){
+        this.commandQueue = commandQueue;
         this.toConsole = toConsole;
         this.commands = new HashMap<>();
         this.commandsList = new ArrayList<>();
-        DefaultCommands.giveObjects(this, commandsList, commands, commandManagerArguments);
-        DefaultCommands.addCommands();
+        try {
+            Class<?> commandType = commandManagerArguments.getCommandType();
+
+            if(commandType == DefaultCommands.class) {
+                DefaultCommands.giveObjects(this, commandsList, commands, commandManagerArguments);
+                DefaultCommands.addCommands();
+            }
+            if(commandType == StartupSettings.class){
+                StartupSettings.giveObjects(this, commandsList, commands, commandManagerArguments);
+                StartupSettings.addCommands();
+            }
+        } catch(CommandSet.WrongArgumentsObjectException e) {
+            toConsole.add(new Message("source=Sim Loop\nseverity=critical\nmessage=" + e.getMessage()));
+        }
     }
 
     public boolean addCommand(Command command, String commandName){
@@ -50,8 +59,8 @@ public class CommandManager {
     }
 
     public void processCommands(){
-        while(!fromConsole.isEmpty()){
-            Message command = fromConsole.remove();
+        while(!commandQueue.isEmpty()){
+            Message command = commandQueue.remove();
             try {
                 UserCommand c = new UserCommand(command.getAttribute("message"));
                 userCommandQueue.add(c);

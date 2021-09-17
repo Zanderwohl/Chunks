@@ -2,10 +2,7 @@ package com.zanderwohl.chunks.Server;
 
 /* Goodness this is disgusting. Is the enterprise coding getting to me? */
 import com.zanderwohl.chunks.Client.ClientIdentity;
-import com.zanderwohl.chunks.Console.CommandManager;
-import com.zanderwohl.chunks.Console.CommandSet;
-import com.zanderwohl.chunks.Console.DefaultCommands;
-import com.zanderwohl.chunks.Console.DefaultCommandsObjects;
+import com.zanderwohl.chunks.Console.*;
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.FileConstants;
 import com.zanderwohl.chunks.Logging.Log;
@@ -34,16 +31,22 @@ public class SimLoop implements Runnable {
     private boolean running;
     private String startInstant;
 
-    private final double ONE_BILLION = 1000000000.0;
+    // Controls how many "ticks" per second the simulation runs at.
+    // Obviously limited to how fast the computer can do this.
+    // The server will start complaining if it can't keep up.
     public final double SIM_FPS = 20.0;
+    private final double ONE_BILLION = 1000000000.0;
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
+    // Managers that simloop delegates actions to.
     private final CommandManager commandManager;
     private final WorldManager worldManager;
 
+    // The two queues of messages to and from the console.
     private final ArrayBlockingQueue<Message> toConsole;
     private final ArrayBlockingQueue<Message> fromConsole;
 
+    // Updates for clients.
     protected final ArrayBlockingQueue<Delta> clientUpdates;
 
     private ServerSocket serverSocket;
@@ -57,7 +60,7 @@ public class SimLoop implements Runnable {
     private String logPath;
 
     /**
-     * Only constructor?
+     * The constructor for a new simloop. Currently also acts as its initializer.
      * TODO: Fix this function's documentation. Wait, what's wrong with it?
      * @param toConsole The queue of messages to send to the console.
      * @param fromConsole The queue of messages from the console to be consumed.
@@ -65,28 +68,29 @@ public class SimLoop implements Runnable {
      * @throws IOException When the server cannot bind to the port.
      */
     public SimLoop(ArrayBlockingQueue<Message> toConsole, ArrayBlockingQueue<Message> fromConsole, int port) throws IOException, CommandSet.WrongArgumentsObjectException {
+        // Set up the basics.
         this.toConsole = toConsole;
         this.fromConsole = fromConsole;
         this.serverSocket = new ServerSocket(port);
 
+        // Set up lists for things to keep track of in sim.
+        chats = new LinkedList<>();
         clientUpdates = new ArrayBlockingQueue<>(500); //TODO: Make this a setting of some kind.
 
-        worldManager = new WorldManager(toConsole, StringConstants.world);
+        // We need to manage our worlds!
+        worldManager = new WorldManager(toConsole, StartupSettings.DEFAULT_WORLD_NAME);
 
+        // Set up the commands this simloop recognizes and can execute.
         SimLoop thisSimLoop = this;
         DefaultCommandsObjects commandObjects = new DefaultCommandsObjects(worldManager, thisSimLoop);
-        try {
-            commandManager = new CommandManager(toConsole, fromConsole, commandObjects);
-        } catch (CommandSet.WrongArgumentsObjectException e){
-            toConsole.add(new Message("source=Sim Loop\nseverity=critical\nmessage=" + e.getMessage()));
-            throw e;
-        }
+        commandManager = new CommandManager(toConsole, fromConsole, commandObjects);
+
+        // Set up what we need to connect to and manage clients.
         clients = Collections.synchronizedList(new ArrayList<>());
         clientsById = new ConcurrentHashMap<>();
         clientAccepter = new ClientAccepter(serverSocket, clients, clientsById, toConsole, clientUpdates);
 
-        chats = new LinkedList<>();
-
+        // Set up logging
         logSettings = new SimLogDetail();
         logPath = FileConstants.logFolder +  "/" + this.startInstant + "." + FileConstants.logExtension;
     }
@@ -125,7 +129,7 @@ public class SimLoop implements Runnable {
         commandManager.processCommands();
         commandManager.doCommands();
 
-        /* //UNCOMMENT THIS TO CAUSE HORRIBLE SERVER LAG.
+        /* //UNCOMMENT THIS TO CAUSE HORRIBLE SERVER LAG. haha
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e){

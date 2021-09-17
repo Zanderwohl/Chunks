@@ -6,6 +6,8 @@ import java.util.Arrays;
 
 /**
   A command object that contains information input by the user such as arguments.
+ Basically, parses user input and tokenizes it.
+ Not to be confused with a Command, which is a command that the command manager knows about.
  */
 public class UserCommand {
 
