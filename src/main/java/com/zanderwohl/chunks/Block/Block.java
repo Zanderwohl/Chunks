@@ -1,7 +1,7 @@
 package com.zanderwohl.chunks.Block;
 
 import com.zanderwohl.console.Message;
-import util.FileLoader;
+import com.zanderwohl.util.FileLoader;
 import org.json.JSONObject;
 import com.zanderwohl.chunks.FileConstants;
 

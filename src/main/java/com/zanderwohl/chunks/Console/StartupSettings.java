@@ -2,6 +2,7 @@ package com.zanderwohl.chunks.Console;
 
 import com.zanderwohl.console.Message;
 import com.zanderwohl.util.Precedence;
+import com.zanderwohl.util.FileLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ public class StartupSettings {
     public static String DEFAULT_WORLD_NAME;
     public static int PORT;
     public static String CONFIG;
+    public static int MAX_USERS;
 
     public static void giveObjects(CommandManager c, ArrayList<Command> cm,
                                    HashMap<String, Command> cs, CommandManager.ICommandManagerArguments objects) throws CommandSet.WrongArgumentsObjectException {
@@ -42,9 +44,12 @@ public class StartupSettings {
         @Override
         public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole) {
             CONFIG = Precedence.lastNonNull("server.config", arguments.get("config"));
+            FileLoader configFile = new FileLoader(CONFIG);
+            String configString = configFile.getFileSafe();
 
             DEFAULT_WORLD_NAME = Precedence.lastNonNull("Victoria", arguments.get("world"));
             PORT = Precedence.lastInt("32112", arguments.get("port"));
+            MAX_USERS = Precedence.lastInt("10", arguments.get("max_users"));
         }
     }
 }

@@ -1,4 +1,4 @@
-package util.search;
+package com.zanderwohl.util.search;
 
 import java.util.*;
 

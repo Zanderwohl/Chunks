@@ -1,4 +1,4 @@
-package util;
+package com.zanderwohl.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,6 +13,7 @@ public class FileLoader {
 
     /**
      * Open a file based on its name. Cannot handle directories.
+     * //TODO: handle directories.
      * @param fileName The name of the file, with its extension.
      * @throws FileNotFoundException If the file is not found.
      */
@@ -56,6 +57,18 @@ public class FileLoader {
             contents = fileToString();
         }
         return contents;
+    }
+
+    /**
+     * Returns the content of the file if available, an empty string if not.
+     * @return A string containing the contents of the file or empty string.
+     */
+    public String getFileSafe(){
+        try {
+            return getFile();
+        } catch (FileNotFoundException e){
+            return "";
+        }
     }
 
     /**

@@ -1,6 +1,6 @@
-package util.search.tests;
+package com.zanderwohl.util.search.tests;
 
-import util.search.PhraseIndex;
+import com.zanderwohl.util.search.PhraseIndex;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
