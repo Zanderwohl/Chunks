@@ -5,5 +5,5 @@ Authentication/session stuff goes here too.
 ## Client
 The class that communicates over the network with the server (the SimLoop Class) to synchronize the game state.
 
-##ClientIdentity
+## ClientIdentity
 Client identity includes username. In the future will include authentication information, skin, and character model.
