@@ -123,4 +123,8 @@ public class Window {
     public boolean getVSync(){
         return vsync;
     }
+
+    public void setTitle(String newTitle){
+
+    }
 }

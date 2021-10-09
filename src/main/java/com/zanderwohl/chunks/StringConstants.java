@@ -7,5 +7,4 @@ package com.zanderwohl.chunks;
 public class StringConstants {
 
     public static String gameTitle = "ZandyCraft";
-    public static String world = "Victoria";
 }

@@ -6,7 +6,6 @@ import com.zanderwohl.chunks.Console.*;
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.FileConstants;
 import com.zanderwohl.chunks.Logging.Log;
-import com.zanderwohl.chunks.StringConstants;
 import com.zanderwohl.chunks.World.Coord;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
@@ -34,7 +33,7 @@ public class SimLoop implements Runnable {
     // Controls how many "ticks" per second the simulation runs at.
     // Obviously limited to how fast the computer can do this.
     // The server will start complaining if it can't keep up.
-    public final double SIM_FPS = 20.0;
+    private final double SIM_FPS = 20.0;
     private final double ONE_BILLION = 1000000000.0;
     private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
@@ -46,7 +45,9 @@ public class SimLoop implements Runnable {
     private final ArrayBlockingQueue<Message> toConsole;
     private final ArrayBlockingQueue<Message> fromConsole;
 
-    // Updates for clients.
+    /**
+     * Updates to send to clients.
+     */
     protected final ArrayBlockingQueue<Delta> clientUpdates;
 
     private ServerSocket serverSocket;
@@ -54,6 +55,9 @@ public class SimLoop implements Runnable {
     private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
     private ClientAccepter clientAccepter;
 
+    /**
+     * The chat log.
+     */
     protected LinkedList<Chat> chats;
 
     private SimLogDetail logSettings;
@@ -75,7 +79,7 @@ public class SimLoop implements Runnable {
 
         // Set up lists for things to keep track of in sim.
         chats = new LinkedList<>();
-        clientUpdates = new ArrayBlockingQueue<>(500); //TODO: Make this a setting of some kind.
+        clientUpdates = new ArrayBlockingQueue<>(StartupSettings.CLIENT_UPDATES_QUEUE_SIZE);
 
         // We need to manage our worlds!
         worldManager = new WorldManager(toConsole, StartupSettings.DEFAULT_WORLD_NAME);
@@ -112,7 +116,10 @@ public class SimLoop implements Runnable {
         worldManager.saveAllWorlds();
     }
 
-    //TODO: Maybe we don't need this. Exposes too much?
+    /**
+     * Gets the list of clients currently connected to the server... please don't use this?
+     * @return The list of currently-connected clients.
+     */
     public ArrayList<ClientIdentity> getClients(){
         ArrayList<ClientIdentity> clientList = new ArrayList<>();
         for(ClientIdentity identity: clientsById.keySet()){
@@ -163,8 +170,14 @@ public class SimLoop implements Runnable {
         Log.closeLog(log);
     }
 
+
+    /**
+     * Take one client update delta off the queue and process it, making appropriate client changes.
+     * @param log The currently-open log.
+     */
     private void processOneClientUpdate(PrintWriter log){
         Delta d = clientUpdates.remove();
+        //TODO: a failed or bad request should kick the client.
 
         if(d instanceof Chat){
             Chat c = (Chat) d;
@@ -187,18 +200,36 @@ public class SimLoop implements Runnable {
             processStartingVolumesRequest(log, svr);
         }
         //TODO: Add all the other types of deltas.
+        // Note that the "action function" for each type of delta should log
+        // according to its log detail level in logSettings.
     }
 
+    /**
+     * Process the position a player reports they are at.
+     * In the future, this may correct the player.
+     * @param log The currently-open log.
+     * @param pos The reported position.
+     */
     private void processPPos(PrintWriter log, PPos pos) {
         System.out.println(pos.getFrom().getDisplayName() + "\t" + pos.x + "\t" + pos.y + "\t" + pos.z);
         Log.append(log, pos.toString(), logSettings.PPoses);
     }
 
+    /**
+     * Process a chat request and add it
+     * @param log The currently-open log.
+     * @param c The new chat.
+     */
     private void processChat(PrintWriter log, Chat c) {
         chats.add(c);
         Log.append(log, c.toString(), logSettings.chats);
     }
 
+    /**
+     * Process a request for metadata about a world and send that data to the client.
+     * @param log The currently-open log.
+     * @param wr The request.
+     */
     private void processWorldRequest(PrintWriter log, WorldRequest wr){
         World worldToSend;
         Log.append(log, wr.toString(), logSettings.worldRequests);
@@ -213,6 +244,12 @@ public class SimLoop implements Runnable {
         sendToClient(wr.getFrom(), worldToSend);
     }
 
+    /**
+     * Process a request for the volumes around a new player's starting position, and sends appropriate volumes
+     * to client.
+     * @param log The currently-open log.
+     * @param svr The request.
+     */
     private void processStartingVolumesRequest(PrintWriter log, StartingVolumesRequest svr){
         Log.append(log, svr.toString(), logSettings.volumeRequests);
         //TODO: Send only nearby Volumes, not all of them. Also, select which world the player is in.
@@ -229,6 +266,11 @@ public class SimLoop implements Runnable {
         }
     }
 
+    /**
+     * Process a request for a volume, and send requested volumes to that client if appropriate.
+     * @param log The currently-open log.
+     * @param vr The request.
+     */
     private void processVolumeRequest(PrintWriter log, VolumeRequest vr){
         Log.append(log, vr.toString(), logSettings.volumeRequests);
         Coord volumeLocation = new Coord(vr.x, vr.y, vr.z, Coord.Scale.VOLUME);
@@ -331,10 +373,18 @@ public class SimLoop implements Runnable {
         }
     }
 
+    /**
+     * Add a chat item to be sent out to all players. And the console.
+     * @param c The chat.
+     */
     public void addChat(Chat c){
         chats.add(c);
     }
 
+    /**
+     * Enqueue a client update. Will be processed when the simloop has available resources.
+     * @param d The delta update to enqueue.
+     */
     public void addClientUpdate(Delta d){
         clientUpdates.add(d);
     }

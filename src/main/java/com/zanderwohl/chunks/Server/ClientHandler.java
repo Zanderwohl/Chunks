@@ -2,6 +2,7 @@ package com.zanderwohl.chunks.Server;
 
 import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Client.ClientIdentity;
+import com.zanderwohl.chunks.Console.StartupSettings;
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.World.Coord;
 import com.zanderwohl.chunks.World.WorldManager;
@@ -57,6 +58,7 @@ public class ClientHandler implements Runnable{
 
     /**
      * Oh goodness please no.
+     * I really don't know how to fix this. 2021-09-18
      */
     public void run(){
         InputStream in;
@@ -81,6 +83,7 @@ public class ClientHandler implements Runnable{
         }
         toConsole.add(new Message("source=Client Handler\nmessage=" +
                 "User " + identity.getUsername() + " connected to the server!"));
+        serverUpdates.add(new Hello(StartupSettings.SERVER_NAME, StartupSettings.MOTD));
 
         Send send = new Send(this, out);
         Receive receive = new Receive(this, oin);

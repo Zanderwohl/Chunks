@@ -22,5 +22,5 @@ public class FileConstants {
     public static final String clientLogFolder = "clientLogs";
     public static final String logExtension = "log";
 
-    public static final String configFile = "config.properties";
+    public static final String configFile = "server.properties";
 }

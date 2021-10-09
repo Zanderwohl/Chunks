@@ -60,6 +60,12 @@ public class ClientLoop {
     }
 
     private void applyUpdate(Delta update){
+        if(update instanceof Hello){
+            Hello h = (Hello) update;
+            if(window != null){
+                window.setTitle(h.NAME + ": " + h.MOTD);
+            }
+        }
         if(update instanceof Chat){
             Chat c = (Chat) update;
             System.out.println(c.toString());

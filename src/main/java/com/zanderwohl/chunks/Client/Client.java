@@ -32,6 +32,7 @@ public class Client implements Runnable {
 
     /**
      * An entry point that only starts a client, not a server.
+     * This is a bunch of hard-coded stuff that shouldn't be.
      * @param args Unused.
      */
     public static void main(String[] args) {
@@ -131,7 +132,7 @@ public class Client implements Runnable {
                 }
             } catch (IOException e){
                 parent.toConsole.add(new Message("severity=critical\nsource=Client\nmessage="
-                        + "Client disconnected from server!"));
+                        + "Client disconnected from server!" + e.getMessage()));
                 parent.running = false;
                 return;
             } catch (InterruptedException e){
@@ -174,7 +175,7 @@ public class Client implements Runnable {
                 }
             } catch (IOException e) {
                 parent.toConsole.add(new Message("severity=critical\nsource=Client\nmessage="
-                        + "Client disconnected from server!"));
+                        + "Client disconnected from server!"  + e.getMessage()));
                 parent.running = false;
                 return;
             } catch (ClassNotFoundException e){

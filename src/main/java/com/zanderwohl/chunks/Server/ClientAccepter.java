@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Server;
 
 import com.zanderwohl.chunks.Client.ClientIdentity;
+import com.zanderwohl.chunks.Console.StartupSettings;
 import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
@@ -24,8 +25,6 @@ public class ClientAccepter implements Runnable {
     private List<Thread> clients;
     private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
     private ArrayBlockingQueue<Delta> clientUpdates;
-
-    private int maximumClients = 10;
 
     /**
      * Start a Client Accepter. There should probably only be one of these.
@@ -53,14 +52,21 @@ public class ClientAccepter implements Runnable {
     @Override
     public void run(){
         while(true){
-            try {
+            try { //TODO: Have a pool of client threads, and distribute clients amongst the pool.
                 Socket socket = serverSocket.accept();
                 ClientHandler newClient = new ClientHandler(socket, toConsole, clientsById, clientUpdates);
                 Thread clientThread = new Thread(newClient);
-                clients.add(clientThread);
                 clientThread.start();
-                toConsole.add(new Message("source=Client Accepter\nmessage="
-                + "New client connected!"));
+                if(clients.size() >= StartupSettings.MAX_USERS){
+                    toConsole.add(new Message("source=Client Accepter\nseverity=warning\nmessage=Player '" +
+                            newClient.identity.getDisplayName() + "' tried to join but the server was full!"));
+                    newClient.disconnect("Server is full (" + StartupSettings.MAX_USERS + " users)!");
+                    //socket.close();
+                } else {
+                    clients.add(clientThread);
+                    toConsole.add(new Message("source=Client Accepter\nmessage="
+                            + "New client connected!"));
+                }
             } catch (IOException e) {
                 toConsole.add(new Message("source=Client Accepter\nseverity=critical\nmessage="
                 + "A client failed to connect to the server."));
