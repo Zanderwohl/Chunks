@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Delta.*;
+import com.zanderwohl.chunks.Gamelogic.IGameLogic;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
@@ -13,9 +14,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class ClientLoop {
 
-    private final double ONE_BILLION = 1000000000.0;
-    public final double SIM_FPS = 20.0;
-    private final double SIM_NS = ONE_BILLION / SIM_FPS;
+    public final double RENDER_FPS = 60.0;
 
     private Window window;
     private long windowId;
@@ -35,14 +34,20 @@ public class ClientLoop {
 
     private static boolean debug = false;
 
+    private final IGameLogic gameLogic;
+
     public ClientLoop(ArrayBlockingQueue<Delta> clientUpdates, ArrayBlockingQueue<Delta> serverUpdates,
                       ClientIdentity clientIdentity,
-                      ArrayBlockingQueue<Message> toConsole){
+                      ArrayBlockingQueue<Message> toConsole,
+                      IGameLogic gameLogic){
         this.clientUpdates = clientUpdates;
         this.serverUpdates = serverUpdates;
         this.identity = clientIdentity;
 
         this.toConsole = toConsole;
+
+        this.gameLogic = gameLogic;
+
         position = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName());
 
         running = true;
@@ -106,12 +111,21 @@ public class ClientLoop {
         }
     }
 
+    public void init() throws Exception{
+        window = new Window(toConsole);
+        windowId = window.init();
+
+        if(gameLogic != null){
+            gameLogic.init(window);
+        }
+    }
+
     private void handleInput(){
-        //TODO: Get user input???
+        gameLogic.input(window);
     }
 
     private void updateGameState(double deltaTime){
-
+        gameLogic.update((float) deltaTime);
     }
 
     private void sendUpdatesToServer(){
@@ -138,10 +152,10 @@ public class ClientLoop {
             long elapsedTime = loopStartMoment - lastLoopStartMoment;
             lastLoopStartMoment = loopStartMoment;
             steps += elapsedTime;
-            deltaTime = elapsedTime / SIM_NS;
+            deltaTime = elapsedTime / Sync.SIM_NS;
 
             lastFPSTime += elapsedTime;
-            if(lastFPSTime >= ONE_BILLION){
+            if(lastFPSTime >= Sync.ONE_BILLION){
                 lastFPSTime = 0;
             }
 
@@ -151,27 +165,26 @@ public class ClientLoop {
             sendUpdatesToServer();
             render();
 
-            Sync.sync(loopStartMoment, lastLoopStartMoment, SIM_NS, toConsole);
+            Sync.sync(loopStartMoment, lastLoopStartMoment, toConsole);
         }
 
         clientUpdates.add(new Disconnect(Disconnect.DisconnectReason.ClientClosed));
     }
 
     private void render(){
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        window.swapBuffers();
-
-        glfwPollEvents();
+        gameLogic.render(window);
+        window.update();
     }
 
     public void run(){
         try {
-            window = new Window(toConsole);
-            windowId = window.init();
+            init();
             loop();
             window.destroy();
-        } finally {
+        } catch(Exception e){
+            toConsole.add(new Message("severity=CRITICAL\nsource=Client Loop\nmessage=" + e.getMessage()));
+        }
+        finally {
             window.free();
         }
 

@@ -10,6 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11C.GL_FALSE;
 import static org.lwjgl.opengl.GL11C.GL_TRUE;
@@ -24,12 +25,17 @@ public class Window {
     private ArrayBlockingQueue<Message> toConsole;
     private int width;
     private int height;
+    private String title;
     private boolean resized = false;
     private boolean vsync = true;
+
+    private Renderer renderer;
 
     public Window(ArrayBlockingQueue<Message> toConsole){
         destroyed = false;
         this.toConsole = toConsole;
+        this.title = "ALEXANDER GAME";
+        this.renderer = new Renderer();
     }
 
     /**
@@ -76,7 +82,7 @@ public class Window {
 
         glfwMakeContextCurrent(windowId);
 
-        if(getVSync()) {
+        if(isVSync()) {
             glfwSwapInterval(1);
         }
 
@@ -90,7 +96,11 @@ public class Window {
         return windowId;
     }
 
-    private void setResized(boolean resized) {
+    public void setClearColor(float r, float g, float b, float alpha){
+        glClearColor(r, g, b, alpha);
+    }
+
+    public void setResized(boolean resized) {
         this.resized = resized;
     }
 
@@ -112,19 +122,40 @@ public class Window {
         return glfwGetKey(windowId, keyCode) == GLFW_PRESS;
     }
 
-    public void swapBuffers(){
-        glfwSwapBuffers(windowId);
-    }
-
     public boolean shouldClose(){
         return glfwWindowShouldClose(windowId);
     }
 
-    public boolean getVSync(){
+    public boolean isVSync(){
         return vsync;
     }
 
-    public void setTitle(String newTitle){
+    public String getTitle(){
+        return title;
+    }
 
+    public void setTitle(String title){
+        //TODO: implement title setting
+    }
+
+    public int getWidth(){
+        return width;
+    }
+
+    public int getHeight(){
+        return height;
+    }
+
+    public boolean isResized(){
+        return resized;
+    }
+
+    public void setVsync(boolean vsync){
+        this.vsync = vsync;
+    }
+
+    public void update(){
+        glfwSwapBuffers(windowId);
+        glfwPollEvents();
     }
 }

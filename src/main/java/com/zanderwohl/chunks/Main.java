@@ -2,6 +2,7 @@ package com.zanderwohl.chunks;
 
 import com.zanderwohl.chunks.Client.Client;
 import com.zanderwohl.chunks.Console.*;
+import com.zanderwohl.chunks.Gamelogic.BadGame;
 import com.zanderwohl.chunks.Server.SimLoop;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.console.SuperConsole;
@@ -35,7 +36,7 @@ public class Main {
         startupCommandManager.doCommands();
 
         // Start one client.
-        Client singleplayerClient = new Client("localhost", StartupSettings.PORT, toConsole);
+        Client singleplayerClient = new Client("localhost", StartupSettings.PORT, toConsole, new BadGame());
         Thread clientThread = new Thread(singleplayerClient);
 
         // Start the game's console interface - not the user-facing console, but the part of this program that receives

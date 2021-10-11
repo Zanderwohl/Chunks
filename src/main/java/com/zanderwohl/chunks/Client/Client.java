@@ -2,6 +2,8 @@ package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Console.ConsoleBroker;
 import com.zanderwohl.chunks.Delta.Delta;
+import com.zanderwohl.chunks.Gamelogic.BadGame;
+import com.zanderwohl.chunks.Gamelogic.IGameLogic;
 import com.zanderwohl.chunks.Main;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.console.SuperConsole;
@@ -30,6 +32,8 @@ public class Client implements Runnable {
 
     private ConcurrentLinkedQueue<Message> queue;
 
+    private final IGameLogic gameLogic;
+
     /**
      * An entry point that only starts a client, not a server.
      * This is a bunch of hard-coded stuff that shouldn't be.
@@ -42,7 +46,7 @@ public class Client implements Runnable {
         ArrayBlockingQueue<Message> toConsole = new ArrayBlockingQueue<>(50);
         ArrayBlockingQueue<Message> fromConsole = new ArrayBlockingQueue<>(50);
 
-        Client singleplayerClient = new Client("localhost", port, toConsole);
+        Client singleplayerClient = new Client("localhost", port, toConsole, new BadGame());
         Thread clientThread = new Thread(singleplayerClient);
 
         //Start the game's console - not the user-facing console, but the part of this program that receives and sends
@@ -64,11 +68,13 @@ public class Client implements Runnable {
      * @param port The port the server will be listening on.
      * @param toConsole The queue to send messages to the server.
      */
-    public Client(String host, int port, ArrayBlockingQueue<Message> toConsole){
+    public Client(String host, int port, ArrayBlockingQueue<Message> toConsole, IGameLogic gameLogic){
         this.serverHost = host;
         this.serverPort = port;
         this.toConsole = toConsole;
         identity = new ClientIdentity("Player " + (new Random()).nextInt(1000));
+
+        this.gameLogic = gameLogic;
 
         int queueSize = 100; // Magic number. 30 is too small.
         serverUpdates = new ArrayBlockingQueue<>(queueSize);
@@ -101,7 +107,7 @@ public class Client implements Runnable {
         send.start();
         receive.start();
 
-        ClientLoop w = new ClientLoop(clientUpdates, serverUpdates, identity, toConsole);
+        ClientLoop w = new ClientLoop(clientUpdates, serverUpdates, identity, toConsole, gameLogic);
         w.run();
     }
 
@@ -132,7 +138,8 @@ public class Client implements Runnable {
                 }
             } catch (IOException e){
                 parent.toConsole.add(new Message("severity=critical\nsource=Client\nmessage="
-                        + "Client disconnected from server!" + e.getMessage()));
+                        + "Client " + parent.identity.getDisplayName() + " disconnected from server! ("
+                        + e.getMessage() + ")"));
                 parent.running = false;
                 return;
             } catch (InterruptedException e){
@@ -175,7 +182,8 @@ public class Client implements Runnable {
                 }
             } catch (IOException e) {
                 parent.toConsole.add(new Message("severity=critical\nsource=Client\nmessage="
-                        + "Client disconnected from server!"  + e.getMessage()));
+                        + "Client " + parent.identity.getDisplayName() + " disconnected from server! ("
+                        + e.getMessage() + ")"));
                 parent.running = false;
                 return;
             } catch (ClassNotFoundException e){

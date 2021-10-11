@@ -5,6 +5,7 @@ import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.*;
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.FileConstants;
+import com.zanderwohl.chunks.Gamelogic.IGameLogic;
 import com.zanderwohl.chunks.Logging.Log;
 import com.zanderwohl.chunks.World.Coord;
 import com.zanderwohl.chunks.World.Volume;
@@ -29,13 +30,6 @@ public class SimLoop implements Runnable {
 
     private boolean running;
     private String startInstant;
-
-    // Controls how many "ticks" per second the simulation runs at.
-    // Obviously limited to how fast the computer can do this.
-    // The server will start complaining if it can't keep up.
-    private final double SIM_FPS = 20.0;
-    private final double ONE_BILLION = 1000000000.0;
-    private final double SIM_NS = ONE_BILLION / SIM_FPS;
 
     // Managers that simloop delegates actions to.
     private final CommandManager commandManager;
@@ -413,10 +407,10 @@ public class SimLoop implements Runnable {
                 long loopStartTime = System.nanoTime();
                 long elapsedTime = loopStartTime - lastLoopStartTime;
                 lastLoopStartTime = loopStartTime;
-                delta = elapsedTime / SIM_NS;
+                delta = elapsedTime / Sync.SIM_NS;
 
                 lastFPSTime += elapsedTime;
-                if (lastFPSTime >= ONE_BILLION) {
+                if (lastFPSTime >= Sync.ONE_BILLION) {
                     lastFPSTime = 0;
                 }
 
@@ -425,7 +419,7 @@ public class SimLoop implements Runnable {
                 update(delta);
                 updateClients();
 
-                Sync.sync(loopStartTime, lastLoopStartTime, SIM_NS, toConsole);
+                Sync.sync(loopStartTime, lastLoopStartTime, toConsole);
             }
         } catch (Exception e){
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
