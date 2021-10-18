@@ -111,18 +111,30 @@ public class Client implements Runnable {
         w.run();
     }
 
+    /**
+     * The thread that dequeues delta updates and sends them to the server.
+     */
     private static class Send implements Runnable {
 
         Client parent;
         Socket server;
         ArrayBlockingQueue<Delta> clientUpdates;
 
+        /**
+         * Only send constructor.
+         * @param client The client object which is the parent.
+         * @param server The socket connected to the server.
+         * @param clientUpdates The queue from the client of updates.
+         */
         public Send(Client client, Socket server, ArrayBlockingQueue<Delta> clientUpdates){
             parent = client;
             this.server = server;
             this.clientUpdates = clientUpdates;
         }
 
+        /**
+         * Loop and send updates. Can stop the client if an error occurs.
+         */
         @Override
         public void run() {
             PrintWriter out;
@@ -150,18 +162,30 @@ public class Client implements Runnable {
         }
     }
 
+    /**
+     * The thread that takes updates from the server and enqueues them for the client.
+     */
     private static class Receive implements Runnable {
 
         Client parent;
         Socket server;
         ArrayBlockingQueue<Delta> serverUpdates;
 
+        /**
+         * The only receive constructor.
+         * @param client The client which is the parent.
+         * @param server The socket to the server currently-connected to.
+         * @param serverUpdates The queue of updates from the server.
+         */
         public Receive(Client client, Socket server, ArrayBlockingQueue<Delta> serverUpdates){
             parent = client;
             this.server = server;
             this.serverUpdates = serverUpdates;
         }
 
+        /**
+         * Loop and receive updates. Can stop the client if an error occurs.
+         */
         @Override
         public void run() {
             InputStream in;

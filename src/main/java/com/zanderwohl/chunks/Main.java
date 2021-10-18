@@ -19,6 +19,7 @@ public class Main {
     /**
      * Main method.
      * Initializes the Message queues to pass messages to and from the console.
+     * Initializes a client and a server that are connected to each other.
      * @param args No command-line arguments.
      * @throws IOException When the server cannot bind the the port.
      */
