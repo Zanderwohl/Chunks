@@ -11,4 +11,6 @@ public interface IGameLogic {
     void update(float deltaT);
 
     void render(Window window);
+
+    void cleanup();
 }

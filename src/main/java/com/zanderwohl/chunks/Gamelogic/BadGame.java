@@ -55,4 +55,9 @@ public class BadGame implements IGameLogic {
         window.setClearColor(color, color, color, 0.0f);
         renderer.clear();
     }
+
+    @Override
+    public void cleanup(){
+
+    }
 }

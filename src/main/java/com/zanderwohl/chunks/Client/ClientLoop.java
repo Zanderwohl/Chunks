@@ -186,7 +186,12 @@ public class ClientLoop {
         }
         finally {
             window.free();
+            gameLogic.cleanup();
         }
 
+    }
+
+    public void cleanup(){
+        gameLogic.cleanup();
     }
 }
