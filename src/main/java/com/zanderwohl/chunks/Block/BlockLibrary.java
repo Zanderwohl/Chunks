@@ -59,7 +59,12 @@ public class BlockLibrary {
      */
     public void addBlock(String path, String domainName){
         toConsole.add(new Message("message=Adding block from " + path + "!\nsource=Block Library"));
-        Block block = new Block(path, domainName, toConsole);
+        Block block;
+        try {
+            block = new Block(path, domainName, toConsole);
+        } catch (Block.BlockException e){
+            return;
+        }
         block.setID(blockList.size());
         blockList.add(block);
     }

@@ -182,7 +182,7 @@ public class ClientLoop {
             loop();
             window.destroy();
         } catch(Exception e){
-            toConsole.add(new Message("severity=CRITICAL\nsource=Client Loop\nmessage=" + e.getMessage()));
+            toConsole.add(new Message("severity=CRITICAL\nsource=Client Loop\nmessage=Failed to initialize client. JVM details: " + e.getMessage()));
         }
         finally {
             window.free();

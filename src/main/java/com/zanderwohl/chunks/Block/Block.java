@@ -81,7 +81,7 @@ public class Block {
      * @param domain The name of the domain this block is from.
      * @param toConsole The queue to send messages to the console.
      */
-    public Block(String path, String domain, ArrayBlockingQueue<Message> toConsole){
+    public Block(String path, String domain, ArrayBlockingQueue<Message> toConsole) throws BlockException {
         this.domain = domain;
         String jsonString;
         JSONObject json = new JSONObject();
@@ -90,7 +90,15 @@ public class Block {
             jsonString = blockFile.getFile();
             json = new JSONObject(jsonString);
         } catch (FileNotFoundException e){
-            e.printStackTrace();
+            toConsole.add(new Message("source=Block\nseverity=warning\nmessage=File '"
+            + path + "' not found! Details: " + e.getMessage()));
+            throw new BlockException("Block could not be created.");
+            //e.printStackTrace();
+        } catch (IOException e) {
+            toConsole.add(new Message("source=Block\nseverity=warning\nmessage=Loading block from file '"
+                    + path + "' failed! Details: " + e.getMessage()));
+            throw new BlockException("Block could not be created.");
+            //ioException.printStackTrace();
         }
         name = json.getString("name");
         int r = json.getJSONObject("color").getInt("r");
@@ -244,5 +252,19 @@ public class Block {
      */
     public BufferedImage getTexture(SIDE side){
         return getTexture(side.getVal());
+    }
+
+    /**
+     * Error message for when blocks go wrong.
+     */
+    public class BlockException extends RuntimeException {
+
+        /**
+         * Default constructor.
+         * @param errorMessage Any details.
+         */
+        public BlockException(String errorMessage) {
+            super(errorMessage);
+        }
     }
 }
