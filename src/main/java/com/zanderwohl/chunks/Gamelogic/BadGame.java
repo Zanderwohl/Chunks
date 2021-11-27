@@ -58,6 +58,6 @@ public class BadGame implements IGameLogic {
 
     @Override
     public void cleanup(){
-
+        renderer.cleanup();
     }
 }
