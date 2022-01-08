@@ -5,6 +5,9 @@ import com.zanderwohl.chunks.World.Coord;
 
 import java.io.Serializable;
 
+/**
+ * A player's position. Includes the player's ID.
+ */
 public class PPos extends Delta implements Serializable {
 
     private static final long serialVersionUID = 32112000004L;
@@ -35,6 +38,12 @@ public class PPos extends Delta implements Serializable {
         return new Coord((int) x, (int) y, (int) z, Coord.Scale.BLOCK);
     }
 
+    /**
+     * Checks if two PPos objects are equal (or close enough) to each other.
+     * The epsilon used is .001.
+     * @param other The other object to compare to.
+     * @return True if the volumes are close enough.
+     */
     public boolean equals(PPos other){
         double epsilon = .001;
         return (

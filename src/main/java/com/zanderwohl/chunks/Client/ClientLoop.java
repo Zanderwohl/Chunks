@@ -12,6 +12,9 @@ import static org.lwjgl.glfw.GLFW.*;
 import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL11.*;
 
+/**
+ * The loop run on the client to handle input, graphics, and a few other things.
+ */
 public class ClientLoop {
 
     public final double RENDER_FPS = 60.0;

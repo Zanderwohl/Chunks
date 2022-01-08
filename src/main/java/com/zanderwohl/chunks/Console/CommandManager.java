@@ -7,13 +7,13 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 public class CommandManager {
 
-    private ArrayBlockingQueue<Message> commandQueue;
-    private ArrayBlockingQueue<Message> toConsole;
+    private final ArrayBlockingQueue<Message> commandQueue;
+    private final ArrayBlockingQueue<Message> toConsole;
 
-    private LinkedList<UserCommand> userCommandQueue = new LinkedList<>();
+    private final LinkedList<UserCommand> userCommandQueue = new LinkedList<>();
 
-    private HashMap<String, Command> commands;
-    private ArrayList<Command> commandsList;
+    private final HashMap<String, Command> commands;
+    private final ArrayList<Command> commandsList;
 
     public interface ICommandManagerArguments{
         Class<?> getCommandType();
@@ -41,6 +41,12 @@ public class CommandManager {
         }
     }
 
+    /**
+     * Add a command to this CommandManager, which means this command manager can execute it.
+     * @param command The command to add.
+     * @param commandName The name the command will be known by. Uses this alias instead of the name in the Command obj.
+     * @return True if the command was added, false if there is already a command by this name and it was not added.
+     */
     public boolean addCommand(Command command, String commandName){
         if(commands.containsKey(commandName)){
             toConsole.add(new Message("source=Command Manager\nseverity=error\n"));
@@ -54,10 +60,20 @@ public class CommandManager {
         return true;
     }
 
+    /**
+     * Add a command to this CommandManager, which means this command manager can execute it.
+     * This differs from the overload that takes in a command name in that it uses the name the Command object contains.
+     * @param command The command to add.
+     * @return True if the command was added, false if there is already a command by this name and it was not added.
+     */
     public boolean addCommand(Command command){
         return addCommand(command, command.getName());
     }
 
+    /**
+     * Takes in messages from the command queue, constructs them into a Command object.
+     * It then places them on the internal command queue for later execution.
+     */
     public void processCommands(){
         while(!commandQueue.isEmpty()){
             Message command = commandQueue.remove();
@@ -71,6 +87,9 @@ public class CommandManager {
         }
     }
 
+    /**
+     * Loops through all the commands in the queue and executes them.
+     */
     public void doCommands() {
         while (!userCommandQueue.isEmpty()) {
             UserCommand c = userCommandQueue.remove();

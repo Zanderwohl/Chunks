@@ -2,11 +2,16 @@ package com.zanderwohl.chunks.Delta;
 
 import java.io.Serializable;
 
+/**
+ * Timestamp for a volume that tells how old it is.
+ * Old enough volumes will not be given individual deltas for block actions,
+ * but rather will be reloaded entirely.
+ */
 public class VolumeAge extends Delta implements Serializable {
 
     private static final long serialVersionUID = 32112000007L;
 
-    private long lastUpdated;
+    private final long lastUpdated;
 
     /**
      * A delta that tells when a particular volume was last updated.
@@ -17,7 +22,4 @@ public class VolumeAge extends Delta implements Serializable {
         lastUpdated = updatedTime;
     }
 
-    public long getLastUpdated() {
-        return lastUpdated;
-    }
 }

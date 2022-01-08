@@ -24,6 +24,10 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class Block {
 
+    /**
+     * The sides of the blocks are each represented by integers.
+     * This enum makes it easy to remember which is which.
+     */
     public enum SIDE{
         TOP(0),
         FRONT(1),

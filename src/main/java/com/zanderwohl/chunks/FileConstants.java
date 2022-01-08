@@ -1,5 +1,8 @@
 package com.zanderwohl.chunks;
 
+/**
+ * Constants used for file types and file names.
+ */
 public class FileConstants {
 
     public static final String volume = "vol";

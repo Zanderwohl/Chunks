@@ -16,10 +16,20 @@ public class Renderer {
         shaderProgram.createVertexShader((new FileLoader("/shaders/vertex.vs", true)).getFile());
         shaderProgram.createFragmentShader((new FileLoader("/shaders/fragment.fs", true)).getFile());
         shaderProgram.link();
+
+        float[] vertices = new float[]{
+                0.0f, 0.5f, 0.0f,
+                -0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f
+        };
     }
 
     public void clear(){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    public void cleanup(){
+        shaderProgram.cleanup();
     }
 
 }

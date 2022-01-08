@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.BiConsumer;
 
+/**
+ * All the default commands for the server while it is running.
+ */
 public class DefaultCommands {
 
     private static SimLoop simLoop;
@@ -26,6 +29,14 @@ public class DefaultCommands {
     private static ArrayList<Command> commands;
     private static HashMap<String, Command> commandMap;
 
+    /**
+     * Pass the objects to DefaultCommands that it needs to set up the commands to execute properly.
+     * @param c The CommandManager that will hold the commands and trigger them when necessary. Parent to this object.
+     * @param cm This object appears to be useless and does nothing? // TODO: What does this object do?
+     * @param cs Map of commands where name->Command object. Used by help text.
+     * @param objects // TODO: What is this interface for/what does it provide?
+     * @throws CommandSet.WrongArgumentsObjectException
+     */
     public static void giveObjects(CommandManager c, ArrayList<Command> cm,
                                    HashMap<String, Command> cs, CommandManager.ICommandManagerArguments objects) throws CommandSet.WrongArgumentsObjectException {
         commandManager = c;
@@ -41,6 +52,10 @@ public class DefaultCommands {
         }
     }
 
+    /**
+     * Add the default commands.
+     * Write new default commands in this method.
+     */
     public static void addCommands(){
         Command say = new Command("say", "Send a public message to everyone on the server.",
                 new Say());
