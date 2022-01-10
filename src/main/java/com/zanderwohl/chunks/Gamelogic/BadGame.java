@@ -2,6 +2,7 @@ package com.zanderwohl.chunks.Gamelogic;
 
 import com.zanderwohl.chunks.Client.Renderer;
 import com.zanderwohl.chunks.Client.Window;
+import com.zanderwohl.chunks.Render.Mesh;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
@@ -18,6 +19,8 @@ public class BadGame implements IGameLogic {
 
     private final Renderer renderer;
 
+    private Mesh mesh;
+
     /**
      * Sets up the renderer.
      */
@@ -28,6 +31,16 @@ public class BadGame implements IGameLogic {
     @Override
     public void init(Window window) throws Exception {
         renderer.init();
+        float[] positions = new float[]{
+                -0.5f, 0.5f, 0.0f,
+                -0.5f, -0.5f, 0.0f,
+                0.5f, 0.5f, 0.0f,
+                0.5f, 0.5f, 0.0f,
+                -0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f};
+        int[] indices = new int[]{
+                0, 1, 3, 3, 1, 2,};
+        mesh = new Mesh(positions);
     }
 
     /**
@@ -66,7 +79,7 @@ public class BadGame implements IGameLogic {
             window.setResized(false);
         }
         window.setClearColor(color, color, color, 0.0f);
-        renderer.render(window);
+        renderer.render(window, mesh);
     }
 
     @Override
