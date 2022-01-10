@@ -7,6 +7,9 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
 import static org.lwjgl.opengl.GL11.glViewport;
 
+/**
+ * A basic, very primitive game.
+ */
 public class BadGame implements IGameLogic {
 
     private int direction = 0;
@@ -15,6 +18,9 @@ public class BadGame implements IGameLogic {
 
     private final Renderer renderer;
 
+    /**
+     * Sets up the renderer.
+     */
     public BadGame(){
         renderer = new Renderer();
     }
@@ -24,6 +30,10 @@ public class BadGame implements IGameLogic {
         renderer.init();
     }
 
+    /**
+     * Handles user input each frame.
+     * @param window The window this input function should listen to.
+     */
     @Override
     public void input(Window window) {
         if(window.isKeyPressed(GLFW_KEY_UP)){
@@ -35,6 +45,10 @@ public class BadGame implements IGameLogic {
         }
     }
 
+    /**
+     * Do updates on game logic.
+     * @param deltaT The time since the last logical frame.
+     */
     @Override
     public void update(float deltaT) {
         color += direction * 0.01f;
@@ -51,9 +65,8 @@ public class BadGame implements IGameLogic {
             glViewport(0, 0, window.getWidth(), window.getHeight());
             window.setResized(false);
         }
-
         window.setClearColor(color, color, color, 0.0f);
-        renderer.clear();
+        renderer.render(window);
     }
 
     @Override
