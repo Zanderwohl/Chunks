@@ -34,13 +34,11 @@ public class BadGame implements IGameLogic {
         float[] positions = new float[]{
                 -0.5f, 0.5f, 0.0f,
                 -0.5f, -0.5f, 0.0f,
-                0.5f, 0.5f, 0.0f,
-                0.5f, 0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f};
+                0.5f, -0.5f, 0.0f,
+                0.5f, 0.5f, 0.0f, };
         int[] indices = new int[]{
                 0, 1, 3, 3, 1, 2,};
-        mesh = new Mesh(positions);
+        mesh = new Mesh(positions, indices);
     }
 
     /**
