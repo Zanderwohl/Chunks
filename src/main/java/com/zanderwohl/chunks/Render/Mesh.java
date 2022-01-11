@@ -98,4 +98,12 @@ public class Mesh {
         glBindVertexArray(0);
         glDeleteVertexArrays(vaoId);
     }
+
+    public void render(){
+        glBindVertexArray(getVaoId());
+
+        glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(0);
+    }
 }

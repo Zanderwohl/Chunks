@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import com.zanderwohl.util.FileLoader;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -46,6 +47,9 @@ public class WorldManager {
             toConsole.add(new Message("message=Domain file for domain '" + domain + "' not found.\n"
                     + "source=World Manager\nseverity=warning"));
             //e.printStackTrace();
+        } catch (IOException e){
+            toConsole.add(new Message("message=Error reading domain '" + domain + "' :" + e.getMessage()
+                    + "\nsource=World Manager\nseverity=warning"));
         }
 
     }
