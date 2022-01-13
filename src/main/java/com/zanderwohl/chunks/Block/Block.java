@@ -157,6 +157,10 @@ public class Block {
         }
     }
 
+    public Texture getTextureGL(SIDE side){
+        return textures_[side.getVal()];
+    }
+
     /**
      * Attempt to load in a texture file based on a file name.
      * @param fileName The name of the file, as found in "/[domainName]/textures/".

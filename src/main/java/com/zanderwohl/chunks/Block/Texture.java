@@ -64,6 +64,10 @@ public class Texture {
         }
     }
 
+    public int getId(){
+        return id;
+    }
+
     public void cleanup(){
         glDeleteTextures(id);
     }

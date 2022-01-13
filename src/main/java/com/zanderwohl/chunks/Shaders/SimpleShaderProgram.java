@@ -102,4 +102,8 @@ public class SimpleShaderProgram {
             glUniformMatrix4fv(uniforms.get(name), false, value.get(stack.mallocFloat(16))); // why 16?
         }
     }
+
+    public void setUniform(String name, int value){
+        glUniform1i(uniforms.get(name), value);
+    }
 }

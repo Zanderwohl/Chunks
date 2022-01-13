@@ -79,7 +79,7 @@ public class BadGame implements IGameLogic {
                 0.0f, 0.0f, 0.5f,
                 0.0f, 0.5f, 0.5f,
         };
-        Mesh mesh = new Mesh(positions, indices, colors);
+        Mesh mesh = new Mesh(positions, indices, colors, blockLibrary.getBlockById(1).getTextureGL(Block.SIDE.TOP));
         Entity entity = new Entity(mesh);
         entity.setPosition(0, 0, -2);
         entities = new Entity[]{ entity };

@@ -53,6 +53,8 @@ public class Renderer {
         shaderProgram.createUniform("projectionMatrix");
         shaderProgram.createUniform("worldMatrix");
 
+        shaderProgram.createUniform("texture_sampler");
+
         window.setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
@@ -74,6 +76,7 @@ public class Renderer {
                 Z_NEAR, Z_FAR);
         shaderProgram.setUniform("projectionMatrix", projectionMatrix);
 
+        shaderProgram.setUniform("texture_sampler", 0);
         for(Entity entity: entities){
             // Set world matrix for this item
             Matrix4f worldMatrix = transformation.getWorldMatrix(
