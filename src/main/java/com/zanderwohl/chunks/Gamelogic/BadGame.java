@@ -1,5 +1,7 @@
 package com.zanderwohl.chunks.Gamelogic;
 
+import com.zanderwohl.chunks.Block.Block;
+import com.zanderwohl.chunks.Block.BlockLibrary;
 import com.zanderwohl.chunks.Client.Renderer;
 import com.zanderwohl.chunks.Client.Window;
 import com.zanderwohl.chunks.Entity.Entity;
@@ -31,6 +33,8 @@ public class BadGame implements IGameLogic {
 
     private Window window;
 
+    private BlockLibrary blockLibrary;
+
     /**
      * Sets up the renderer.
      */
@@ -39,18 +43,37 @@ public class BadGame implements IGameLogic {
     }
 
     @Override
+    public void setBlockLibrary(BlockLibrary blockLibrary){
+        this.blockLibrary = blockLibrary;
+    }
+
+    @Override
     public void init(Window window) throws Exception {
         renderer.init(window);
+        blockLibrary.loadGLTextures();
         float[] positions = new float[]{
-                -0.5f, 0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
-                0.5f, 0.5f, 0.0f,
+                -0.5f, 0.5f, 0.5f,
+                -0.5f, -0.5f, 0.5f,
+                0.5f, -0.5f, 0.5f,
+                0.5f, 0.5f, 0.5f,
+                -0.5f, 0.5f, -0.5f,
+                0.5f, 0.5f, -0.5f,
+                -0.5f, -0.5f, -0.5f,
+                0.5f, -0.5f, -0.5f,
         };
         int[] indices = new int[]{
                 0, 1, 3, 3, 1, 2,
+                4, 0, 3, 5, 4, 3,
+                3, 2, 7, 5, 3, 7,
+                6, 1, 0, 6, 0, 4,
+                2, 1, 6, 2, 6, 7,
+                7, 6, 4, 7, 4, 5,
         };
         float[] colors = new float[]{
+                0.5f, 0.0f, 0.0f,
+                0.0f, 0.5f, 0.0f,
+                0.0f, 0.0f, 0.5f,
+                0.0f, 0.5f, 0.5f,
                 0.5f, 0.0f, 0.0f,
                 0.0f, 0.5f, 0.0f,
                 0.0f, 0.0f, 0.5f,
@@ -118,11 +141,11 @@ public class BadGame implements IGameLogic {
             }
             entity.setScale(scale);
 
-            float rotation = entity.getRotation().x + 1.5f;
+            float rotation = entity.getRotation().x + 0.5f;
             if(rotation > 360){
                 rotation -= 360;
             }
-            entity.setRotation(rotation, 0, 0);
+            entity.setRotation(rotation, rotation, rotation);
 
         }
     }

@@ -13,7 +13,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 public class WorldManager {
 
-    private BlockLibrary library;
+    public final BlockLibrary library;
     public String defaultWorld = null;
 
     private HashMap<String, World> worlds = new HashMap<>();
@@ -35,6 +35,7 @@ public class WorldManager {
 
     public void prepare(){
         addDomain("default");
+        addDomain("color");
     }
 
     public void addDomain(String domain){

@@ -1,11 +1,14 @@
 package com.zanderwohl.chunks.Gamelogic;
 
+import com.zanderwohl.chunks.Block.BlockLibrary;
 import com.zanderwohl.chunks.Client.Window;
 
 /**
  * Game logic interface - each game must provide these methods.
  */
 public interface IGameLogic {
+
+    void setBlockLibrary(BlockLibrary blockLibrary);
 
     /**
      *

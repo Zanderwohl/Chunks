@@ -6,5 +6,5 @@ package com.zanderwohl.chunks;
  */
 public class StringConstants {
 
-    public static String gameTitle = "Heather National Park";
+    public static String gameTitle = "Heather's Valley";
 }

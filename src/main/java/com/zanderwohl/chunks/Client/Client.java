@@ -1,10 +1,12 @@
 package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Console.ConsoleBroker;
+import com.zanderwohl.chunks.Console.StartupSettings;
 import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Gamelogic.BadGame;
 import com.zanderwohl.chunks.Gamelogic.IGameLogic;
 import com.zanderwohl.chunks.Main;
+import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.console.SuperConsole;
 
@@ -33,6 +35,8 @@ public class Client implements Runnable {
     private ConcurrentLinkedQueue<Message> queue;
 
     private final IGameLogic gameLogic;
+
+    protected WorldManager worldManager;
 
     /**
      * An entry point that only starts a client, not a server.
@@ -79,6 +83,10 @@ public class Client implements Runnable {
         int queueSize = 100; // Magic number. 30 is too small.
         serverUpdates = new ArrayBlockingQueue<>(queueSize);
         clientUpdates = new ArrayBlockingQueue<>(queueSize);
+
+        worldManager = new WorldManager(toConsole, StartupSettings.DEFAULT_WORLD_NAME);
+
+        gameLogic.setBlockLibrary(worldManager.library);
     }
 
     /**

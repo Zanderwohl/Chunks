@@ -10,8 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.GL_FALSE;
 import static org.lwjgl.opengl.GL11C.GL_TRUE;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -86,12 +85,14 @@ public class Window {
             glfwSwapInterval(1);
         }
 
+
         glfwShowWindow(windowId);
 
         GL.createCapabilities();
 
         // Set the clear color
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glEnable(GL_DEPTH_TEST);
 
         return windowId;
     }

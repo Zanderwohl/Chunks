@@ -39,11 +39,11 @@ public class BlockLibrary {
      * exist in that world. References to a particular block should ALWAYS be domain:block, as number ids may change.
      * @param domain A json object that contains all domain information. See README.
      */
-    public void addDomain(JSONObject domain){
+    public void addDomain(JSONObject domain) {
         toConsole.add(new Message("message=Adding domain '" + domain.getString("name") + "'.\n"
                 + "source=Block Library"));
         JSONArray blocks = domain.getJSONArray("blocks");
-        for(int i = 0; i < blocks.length(); i++){
+        for (int i = 0; i < blocks.length(); i++) {
             String domainName = domain.getString("name");
             addBlock(FileConstants.domainFolder + "/" + domainName + "/" + FileConstants.blockFolder + "/"
                     + blocks.getString(i) + "." + FileConstants.block, domainName);
@@ -58,7 +58,6 @@ public class BlockLibrary {
      * @param domainName The name of the domain this block belongs to.
      */
     public void addBlock(String path, String domainName){
-        toConsole.add(new Message("message=Adding block from " + path + "!\nsource=Block Library"));
         Block block;
         try {
             block = new Block(path, domainName, toConsole);
@@ -67,6 +66,8 @@ public class BlockLibrary {
         }
         block.setID(blockList.size());
         blockList.add(block);
+        toConsole.add(new Message("message=Added block " + domainName + "." + block.getName()
+                + ".\nsource=Block Library"));
     }
 
     /**
@@ -136,5 +137,14 @@ public class BlockLibrary {
      */
     public Block getBlockById(int id){
         return blockList.get(id);
+    }
+
+    /**
+     * Load all the block's textures into OpenGL textures.
+     */
+    public void loadGLTextures(){
+        for(Block block: blockList){
+            block.loadTextures_();
+        }
     }
 }

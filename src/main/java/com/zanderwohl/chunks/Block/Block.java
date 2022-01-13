@@ -36,7 +36,6 @@ public class Block {
         BACK(4),
         BOTTOM(5);
 
-
         private int val;
 
         SIDE(int val){
@@ -57,8 +56,11 @@ public class Block {
     /* simple color used for debugging and mapping purposes. */
     private final Color color;
 
+    private JSONObject blockJSON;
+
     private static final int sides = 6; //cubes generally have six sides, but I'm open to higher dimension ports.
     private final BufferedImage[] textures = new BufferedImage[sides]; //top, front, left, right, back, bottom
+    private final Texture[] textures_ = new Texture[sides];
 
     private final ArrayBlockingQueue<Message> toConsole;
 
@@ -87,8 +89,9 @@ public class Block {
      */
     public Block(String path, String domain, ArrayBlockingQueue<Message> toConsole) throws BlockException {
         this.domain = domain;
+        this.toConsole = toConsole;
         String jsonString;
-        JSONObject json = new JSONObject();
+        JSONObject json;
         try {
             FileLoader blockFile = new FileLoader(path);
             jsonString = blockFile.getFile();
@@ -104,14 +107,13 @@ public class Block {
             throw new BlockException("Block could not be created.");
             //ioException.printStackTrace();
         }
+        blockJSON = json;
         name = json.getString("name");
         int r = json.getJSONObject("color").getInt("r");
         int g = json.getJSONObject("color").getInt("g");
         int b = json.getJSONObject("color").getInt("b");
         color = new Color(r, g, b);
         loadTextures(json);
-        toConsole.add(new Message("message=Added block " + name + ".\nsource=Block"));
-        this.toConsole = toConsole;
     }
 
     /**
@@ -134,6 +136,27 @@ public class Block {
         }
     }
 
+    public void loadTextures_(){
+        if(blockJSON != null) {
+            loadTextures_(blockJSON);
+        }
+    }
+
+    private void loadTextures_(JSONObject json){
+            String[] fileURLs = new String[sides];
+        if(json.get("texture") instanceof JSONObject){
+            fileURLs = readMultisided(json);
+        } else {
+            String fileName = json.getString("texture");
+            for(int i = 0; i < textures.length; i++){
+                fileURLs[i] = fileName;
+            }
+        }
+        for(int i = 0; i < textures.length; i++){
+            textures_[i] = new Texture(fullFilePath(fileURLs[i]), toConsole);
+        }
+    }
+
     /**
      * Attempt to load in a texture file based on a file name.
      * @param fileName The name of the file, as found in "/[domainName]/textures/".
@@ -141,8 +164,7 @@ public class Block {
      */
     private BufferedImage readImage(String fileName){
         try {
-            File file = new File(FileConstants.domainFolder + "/" + domain + "/"
-                    + FileConstants.textureFolder + "/" + fileName);
+            File file = new File(fullFilePath(fileName));
             return ImageIO.read(file);
         } catch (MalformedURLException e){
             toConsole.add(new Message("message=" + fileName + ", a specified texture for the block \""
@@ -258,6 +280,10 @@ public class Block {
         return getTexture(side.getVal());
     }
 
+    public void cleanup(){
+
+    }
+
     /**
      * Error message for when blocks go wrong.
      */
@@ -270,5 +296,9 @@ public class Block {
         public BlockException(String errorMessage) {
             super(errorMessage);
         }
+    }
+
+    private String fullFilePath(String fileName){
+        return FileConstants.domainFolder + "/" + domain + "/" + FileConstants.textureFolder + "/" + fileName;
     }
 }
