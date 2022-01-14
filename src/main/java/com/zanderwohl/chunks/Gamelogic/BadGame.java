@@ -173,10 +173,12 @@ public class BadGame implements IGameLogic {
                 18, 20, 21, 19, 18, 21,
                 // Back face
                 22, 23, 24, 24, 23, 25};
-        Mesh mesh = new Mesh(positions, indices, textCoords, blockLibrary.getBlockById(blockLibrary.getIdByName("debug", "grass")).getTextureGL());
+        Mesh mesh = new Mesh(positions, indices, textCoords, blockLibrary.getBlockById(blockLibrary.getIdByName("default", "grass")).getTextureGL());
         Entity entity = new Entity(mesh);
+        Entity block2 = new Entity(mesh);
         entity.setPosition(0, 0, -2);
-        entities = new Entity[]{ entity };
+        block2.setPosition(2, 0, -2);
+        entities = new Entity[]{ entity, block2 };
     }
 
     /**
