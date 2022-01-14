@@ -20,6 +20,7 @@ public class FileConstants {
     public static final String blockFolder = "blocks";
     public static final String textureFolder = "textures";
     public static final String saveFolder = "saves";
+    public static final String atlasFolder = "debugTexture";
 
     public static final String logFolder = "logs";
     public static final String clientLogFolder = "clientLogs";

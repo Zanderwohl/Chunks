@@ -36,6 +36,7 @@ public class WorldManager {
     public void prepare(){
         addDomain("default");
         addDomain("color");
+        addDomain("debug");
     }
 
     public void addDomain(String domain){

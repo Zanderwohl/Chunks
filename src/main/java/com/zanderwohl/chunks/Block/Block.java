@@ -2,11 +2,12 @@ package com.zanderwohl.chunks.Block;
 
 import com.zanderwohl.console.Message;
 import com.zanderwohl.util.FileLoader;
+import com.zanderwohl.util.ImageUtils;
 import org.json.JSONObject;
 import com.zanderwohl.chunks.FileConstants;
 
 import javax.imageio.ImageIO;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -59,8 +60,8 @@ public class Block {
     private JSONObject blockJSON;
 
     private static final int sides = 6; //cubes generally have six sides, but I'm open to higher dimension ports.
-    private final BufferedImage[] textures = new BufferedImage[sides]; //top, front, left, right, back, bottom
-    private final Texture[] textures_ = new Texture[sides];
+    private BufferedImage[] textures; //top, front, left, right, back, bottom
+    private Texture textureAtlas;
 
     private final ArrayBlockingQueue<Message> toConsole;
 
@@ -122,6 +123,7 @@ public class Block {
      *             folder's README.md.
      */
     private void loadTextures(JSONObject json){
+        textures = new BufferedImage[sides];
         String[] fileURLs = new String[sides];
         if(json.get("texture") instanceof JSONObject){
             fileURLs = readMultisided(json);
@@ -143,22 +145,23 @@ public class Block {
     }
 
     private void loadTextures_(JSONObject json){
-            String[] fileURLs = new String[sides];
-        if(json.get("texture") instanceof JSONObject){
-            fileURLs = readMultisided(json);
-        } else {
-            String fileName = json.getString("texture");
-            for(int i = 0; i < textures.length; i++){
-                fileURLs[i] = fileName;
-            }
+        BufferedImage textureAtlas = ImageUtils.stitchImages(textures);
+        String atlasUrl = FileConstants.atlasFolder + "/" + domain + "-" + name + ".png";
+        try{
+            File atlasFile = new File(atlasUrl);
+            ImageIO.write(textureAtlas, "png", atlasFile);
+        } catch (IOException e){
+            toConsole.add(new Message("source=Block\nseverity=critical\nmessage=Error loading texture: "
+                    + e.getMessage()));
+            return;
         }
         for(int i = 0; i < textures.length; i++){
-            textures_[i] = new Texture(fullFilePath(fileURLs[i]), toConsole);
+            this.textureAtlas = new Texture(atlasUrl, toConsole);
         }
     }
 
-    public Texture getTextureGL(SIDE side){
-        return textures_[side.getVal()];
+    public Texture getTextureGL(){
+        return textureAtlas;
     }
 
     /**

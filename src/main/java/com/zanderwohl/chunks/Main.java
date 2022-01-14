@@ -79,6 +79,7 @@ public class Main {
         new File(FileConstants.screenshotFolder + "/").mkdirs();
         new File(FileConstants.logFolder + "/").mkdirs();
         new File(FileConstants.clientLogFolder + "/").mkdirs();
+        new File(FileConstants.atlasFolder + "/").mkdirs();
     }
 
 
