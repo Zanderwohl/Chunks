@@ -2,7 +2,9 @@ package com.zanderwohl.chunks.Delta;
 
 import com.zanderwohl.chunks.Client.ClientIdentity;
 
-public abstract class Delta {
+import java.io.Serializable;
+
+public abstract class Delta implements Serializable {
 
     private static final long serialVersionUID = 32112000000L;
 

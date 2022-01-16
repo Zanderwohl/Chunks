@@ -262,7 +262,7 @@ public class DefaultCommands {
 
         @Override
         public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole) {
-            ArrayList<ClientIdentity> clients = simLoop.getClients();
+            ArrayList<String> clients = simLoop.getClients();
             String clientList = clients.toString();
             toConsole.add(new Message("source=Command Manager\nmessage=" + clientList));
         }

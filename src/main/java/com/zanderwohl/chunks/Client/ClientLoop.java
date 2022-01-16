@@ -171,7 +171,7 @@ public class ClientLoop {
             Sync.sync(loopStartMoment, lastLoopStartMoment, toConsole);
         }
 
-        clientUpdates.add(new Disconnect(Disconnect.DisconnectReason.ClientClosed));
+        clientUpdates.add(new Disconnect(identity, Disconnect.DisconnectReason.ClientClosed));
     }
 
     private void render(){
@@ -189,7 +189,7 @@ public class ClientLoop {
         }
         finally {
             window.free();
-            gameLogic.cleanup();
+            this.cleanup();
         }
 
     }

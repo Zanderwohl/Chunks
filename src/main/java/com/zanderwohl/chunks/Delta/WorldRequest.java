@@ -1,6 +1,8 @@
 package com.zanderwohl.chunks.Delta;
 
-public class WorldRequest extends Delta{
+import java.io.Serializable;
+
+public class WorldRequest extends Delta implements Serializable {
 
     public final String requestedWorld;
 

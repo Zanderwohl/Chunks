@@ -14,6 +14,8 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.GL_FALSE;
 import static org.lwjgl.opengl.GL11C.GL_TRUE;
 import static org.lwjgl.system.MemoryUtil.NULL;
+
+import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.opengl.GL;
 
 public class Window {
@@ -30,11 +32,14 @@ public class Window {
 
     private Renderer renderer;
 
+    private boolean closed;
+
     public Window(ArrayBlockingQueue<Message> toConsole){
         destroyed = false;
         this.toConsole = toConsole;
         this.title = "ALEXANDER GAME";
         this.renderer = new Renderer();
+        closed = false;
     }
 
     /**
@@ -76,6 +81,8 @@ public class Window {
             }
         });
 
+        glfwSetWindowCloseCallback(windowId, onClose);
+
         GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos(windowId, (vidMode.width() - WIDTH) / 2, (vidMode.height() - HEIGHT) / 2);
 
@@ -112,6 +119,7 @@ public class Window {
         glfwFreeCallbacks(windowId);
         glfwDestroyWindow(windowId);
         destroyed = true;
+        closed = true;
     }
 
     public void free(){
@@ -127,7 +135,7 @@ public class Window {
     }
 
     public boolean shouldClose(){
-        return glfwWindowShouldClose(windowId);
+        return glfwWindowShouldClose(windowId) || closed;
     }
 
     public boolean isVSync(){
@@ -162,4 +170,12 @@ public class Window {
         glfwSwapBuffers(windowId);
         glfwPollEvents();
     }
+
+    private final GLFWWindowCloseCallback onClose = new GLFWWindowCloseCallback() {
+        @Override
+        public void invoke(long windowId) {
+            toConsole.add(new Message("source=Window\nmessage=Window closed."));
+            glfwSetWindowShouldClose(windowId, true);
+        }
+    };
 }

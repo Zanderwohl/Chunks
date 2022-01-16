@@ -25,7 +25,7 @@ public class ClientHandler implements Runnable{
     protected ArrayBlockingQueue<Message> toConsole;
     protected ClientIdentity identity;
 
-    private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
+    private ConcurrentHashMap<String, ClientHandler> clientsById;
 
     protected ArrayBlockingQueue<Delta> clientUpdates;
     protected ArrayBlockingQueue<Delta> serverUpdates;
@@ -37,7 +37,7 @@ public class ClientHandler implements Runnable{
      * @param toConsole The stream of messages to the server's Console.
      */
     public ClientHandler(Socket clientSocket, ArrayBlockingQueue<Message> toConsole,
-                         ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById,
+                         ConcurrentHashMap<String, ClientHandler> clientsById,
                          ArrayBlockingQueue<Delta> clientUpdates){
         this.running = true;
         this.socket = clientSocket;
@@ -71,7 +71,7 @@ public class ClientHandler implements Runnable{
             //br = new BufferedReader(new InputStreamReader(in));
             out = new ObjectOutputStream(socket.getOutputStream());
             identity = (ClientIdentity) oin.readObject();
-            clientsById.put(identity, this);
+            clientsById.put(identity.getToken(), this);
         } catch (IOException e) {
             toConsole.add(new Message("source=Client Handler\nseverity=critical\nmessage="
             + "A client just failed to connect."));

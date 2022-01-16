@@ -2,7 +2,9 @@ package com.zanderwohl.chunks.Delta;
 
 import com.zanderwohl.chunks.Client.ClientIdentity;
 
-public class Chat extends Delta implements java.io.Serializable {
+import java.io.Serializable;
+
+public class Chat extends Delta implements Serializable {
 
     private static final long serialVersionUID = 32112000001L;
 

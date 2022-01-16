@@ -2,7 +2,9 @@ package com.zanderwohl.chunks.Delta;
 
 import com.zanderwohl.chunks.World.Coord;
 
-public class StartingVolumesRequest extends Delta {
+import java.io.Serializable;
+
+public class StartingVolumesRequest extends Delta implements Serializable {
 
     private static final long serialVersionUID = 32112000006L;
 

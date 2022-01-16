@@ -46,7 +46,7 @@ public class SimLoop implements Runnable {
 
     private ServerSocket serverSocket;
     private List<Thread> clients;
-    private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
+    private ConcurrentHashMap<String,ClientHandler> clientsById;
     private ClientAccepter clientAccepter;
 
     /**
@@ -114,10 +114,10 @@ public class SimLoop implements Runnable {
      * Gets the list of clients currently connected to the server... please don't use this?
      * @return The list of currently-connected clients.
      */
-    public ArrayList<ClientIdentity> getClients(){
-        ArrayList<ClientIdentity> clientList = new ArrayList<>();
-        for(ClientIdentity identity: clientsById.keySet()){
-            clientList.add(identity);
+    public ArrayList<String> getClients(){
+        ArrayList<String> clientList = new ArrayList<>();
+        for(String identity: clientsById.keySet()){
+            clientList.add(clientsById.get(identity).identity.getUsername());
         }
         return clientList;
     }
@@ -192,6 +192,11 @@ public class SimLoop implements Runnable {
         if(d instanceof StartingVolumesRequest){
             StartingVolumesRequest svr = (StartingVolumesRequest) d;
             processStartingVolumesRequest(log, svr);
+        }
+        if(d instanceof Disconnect){
+            Disconnect disconnect = (Disconnect) d;
+            ClientHandler client = clientsById.get(disconnect.token);
+            client.disconnect("User-initiated.");
         }
         //TODO: Add all the other types of deltas.
         // Note that the "action function" for each type of delta should log
@@ -300,7 +305,7 @@ public class SimLoop implements Runnable {
      * @param update The update to send.
      */
     private void sendToClient(ClientIdentity client, Delta update){
-        ClientHandler c = clientsById.get(client);
+        ClientHandler c = clientsById.get(client.getToken());
         c.serverUpdates.add(update);
 
     }
@@ -321,7 +326,8 @@ public class SimLoop implements Runnable {
      */
     public ClientIdentity findClientByDisplayName(String name){
         ClientIdentity client = null;
-        for(ClientIdentity ci: clientsById.keySet()){
+        for(ClientHandler clientHandler: clientsById.values()){
+            ClientIdentity ci = clientHandler.identity;
             if(ci.getDisplayName().equals(name)){
                 client = ci;
             }
@@ -339,15 +345,15 @@ public class SimLoop implements Runnable {
         if(user == null){
             return false;
         }
-        ClientHandler client = clientsById.get(user);
+        ClientHandler client = clientsById.get(user.getToken());
         if(client == null){
             return false;
         }
         //TODO: Save user state.
         client.disconnect(reason);
         clients.remove(client);
-        clientsById.remove(user);
-        toConsole.add(new Message("source=Sim Loop\nmessage="
+        clientsById.remove(user.getToken());
+        toConsole.add(new Message("source=Sim Loop\nseverity=normal\nmessage="
                 + "User " + client.identity.getDisplayName() + " has disconnected!"));
         return true;
     }
@@ -356,12 +362,12 @@ public class SimLoop implements Runnable {
      * Remove all clients that have disconnected, to allow for more clients to be added.
      */
     private void pruneDeadClients(){
-        Iterator<Map.Entry<ClientIdentity, ClientHandler>> i = clientsById.entrySet().iterator();
+        Iterator<Map.Entry<String, ClientHandler>> i = clientsById.entrySet().iterator();
         while(i.hasNext()) {
-            Map.Entry<ClientIdentity, ClientHandler> entry = i.next();
+            Map.Entry<String, ClientHandler> entry = i.next();
             ClientHandler client = entry.getValue();
             if(!client.running) {
-                ClientIdentity identity = entry.getKey();
+                ClientIdentity identity = client.identity;
                 disconnectUser(identity,null);
             }
         }
@@ -425,7 +431,7 @@ public class SimLoop implements Runnable {
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
                     + "Server has encountered an unrecoverable error. Stopping."));
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
-                    + e.getStackTrace().toString()));
+                    + e.getMessage()));
             e.printStackTrace(); //TODO: Remove once message details are implemented.
         }
 

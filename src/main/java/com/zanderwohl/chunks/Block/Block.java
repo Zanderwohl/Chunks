@@ -60,7 +60,7 @@ public class Block {
     private JSONObject blockJSON;
 
     private static final int sides = 6; //cubes generally have six sides, but I'm open to higher dimension ports.
-    private BufferedImage[] textures; //top, front, left, right, back, bottom
+    private BufferedImage[] textures = new BufferedImage[sides]; //top, front, left, right, back, bottom
     private Texture textureAtlas;
 
     private final ArrayBlockingQueue<Message> toConsole;

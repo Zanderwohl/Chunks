@@ -23,7 +23,7 @@ public class ClientAccepter implements Runnable {
     private ServerSocket serverSocket;
     private ArrayBlockingQueue<Message> toConsole;
     private List<Thread> clients;
-    private ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById;
+    private ConcurrentHashMap<String, ClientHandler> clientsById;
     private ArrayBlockingQueue<Delta> clientUpdates;
 
     /**
@@ -36,7 +36,7 @@ public class ClientAccepter implements Runnable {
      * @param toConsole The queue of messages to send to the server console.
      */
     public ClientAccepter(ServerSocket serverSocket, List<Thread> clients,
-                          ConcurrentHashMap<ClientIdentity,ClientHandler> clientsById,
+                          ConcurrentHashMap<String,ClientHandler> clientsById,
                           ArrayBlockingQueue<Message> toConsole,
                           ArrayBlockingQueue<Delta> clientUpdates){
         this.serverSocket = serverSocket;
