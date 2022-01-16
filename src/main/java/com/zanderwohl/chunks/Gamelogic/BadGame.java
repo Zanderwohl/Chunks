@@ -147,12 +147,6 @@ public class BadGame implements IGameLogic {
                 6 * sixth, 1.0f,
                 5 * sixth, 0.0f,
                 6 * sixth, 0.0f,
-                /*
-                5 * sixth, 0.0f,
-                5 * sixth, 1.0f,
-                6 * sixth, 0.0f,
-                6 * sixth, 1.0f,
-                 */
 
                 // Text coords in back face
                 5 * sixth, 0.0f,
@@ -174,8 +168,9 @@ public class BadGame implements IGameLogic {
                 // Back face
                 22, 23, 24, 24, 23, 25};
         Mesh mesh = new Mesh(positions, indices, textCoords, blockLibrary.getBlockById(blockLibrary.getIdByName("default", "grass")).getTextureGL());
+        Mesh debug = new Mesh(positions, indices, textCoords, blockLibrary.getBlockById(blockLibrary.getIdByName("debug", "grass")).getTextureGL());
         Entity entity = new Entity(mesh);
-        Entity block2 = new Entity(mesh);
+        Entity block2 = new Entity(debug);
         entity.setPosition(0, 0, -2);
         block2.setPosition(2, 0, -2);
         entities = new Entity[]{ entity, block2 };
