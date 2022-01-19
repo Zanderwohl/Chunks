@@ -1,6 +1,5 @@
 package com.zanderwohl.chunks.Gamelogic;
 
-import com.zanderwohl.chunks.Block.Block;
 import com.zanderwohl.chunks.Block.BlockLibrary;
 import com.zanderwohl.chunks.Block.Texture;
 import com.zanderwohl.chunks.Client.*;
@@ -8,12 +7,10 @@ import com.zanderwohl.chunks.Entity.Entity;
 import com.zanderwohl.chunks.Render.Mesh;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.glViewport;
 
 /**
  * A basic, very primitive game.
