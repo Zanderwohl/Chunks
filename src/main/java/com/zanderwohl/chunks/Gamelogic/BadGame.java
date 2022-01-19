@@ -2,12 +2,15 @@ package com.zanderwohl.chunks.Gamelogic;
 
 import com.zanderwohl.chunks.Block.Block;
 import com.zanderwohl.chunks.Block.BlockLibrary;
+import com.zanderwohl.chunks.Block.Texture;
 import com.zanderwohl.chunks.Client.*;
 import com.zanderwohl.chunks.Entity.Entity;
 import com.zanderwohl.chunks.Render.Mesh;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.system.CallbackI;
+
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glViewport;
@@ -167,13 +170,25 @@ public class BadGame implements IGameLogic {
                 18, 20, 21, 19, 18, 21,
                 // Back face
                 22, 23, 24, 24, 23, 25};
-        Mesh mesh = new Mesh(positions, indices, textCoords, blockLibrary.getBlockById(blockLibrary.getIdByName("default", "grass")).getTextureGL());
-        Mesh debug = new Mesh(positions, indices, textCoords, blockLibrary.getBlockById(blockLibrary.getIdByName("debug", "grass")).getTextureGL());
-        Entity entity = new Entity(mesh);
-        Entity block2 = new Entity(debug);
-        entity.setPosition(0, 0, -2);
-        block2.setPosition(2, 0, -2);
-        entities = new Entity[]{ entity, block2 };
+        ArrayList<Mesh> meshes = new ArrayList<>();
+        {
+            int i = 1;
+            while (blockLibrary.getBlockById(i) != null) {
+                Texture t = blockLibrary.getBlockById(i).getTextureGL();
+                meshes.add(new Mesh(positions, indices, textCoords, t));
+                i++;
+            }
+        }
+        int n = meshes.size();
+        entities = new Entity[(n * (n+1))/2];
+        int total = 0;
+        for(int x = 0; x < meshes.size(); x++){
+            for(int y = 0; y < x + 1; y++) {
+                entities[total] = new Entity(meshes.get(x));
+                entities[total].setPosition(x, y, -2);
+                total++;
+            }
+        }
     }
 
     /**

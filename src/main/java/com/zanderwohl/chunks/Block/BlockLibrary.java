@@ -133,9 +133,12 @@ public class BlockLibrary {
     /**
      * Gets the Block object by its id.
      * @param id The id.
-     * @return The Block.
+     * @return The Block, if found. Null otherwise.
      */
     public Block getBlockById(int id){
+        if(id >= blockList.size()){
+            return null;
+        }
         return blockList.get(id);
     }
 
