@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Gamelogic;
 
 import com.zanderwohl.chunks.Block.BlockLibrary;
+import com.zanderwohl.chunks.Client.MouseInput;
 import com.zanderwohl.chunks.Client.Window;
 
 /**
@@ -21,13 +22,13 @@ public interface IGameLogic {
      *
      * @param window
      */
-    void input(Window window);
+    void input(Window window, MouseInput mouseInput);
 
     /**
      *
      * @param deltaT
      */
-    void update(float deltaT);
+    void update(float deltaT, MouseInput mouseInput);
 
     /**
      *

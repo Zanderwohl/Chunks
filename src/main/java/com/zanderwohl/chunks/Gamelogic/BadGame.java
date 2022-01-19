@@ -2,10 +2,10 @@ package com.zanderwohl.chunks.Gamelogic;
 
 import com.zanderwohl.chunks.Block.Block;
 import com.zanderwohl.chunks.Block.BlockLibrary;
-import com.zanderwohl.chunks.Client.Renderer;
-import com.zanderwohl.chunks.Client.Window;
+import com.zanderwohl.chunks.Client.*;
 import com.zanderwohl.chunks.Entity.Entity;
 import com.zanderwohl.chunks.Render.Mesh;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.system.CallbackI;
 
@@ -17,16 +17,6 @@ import static org.lwjgl.opengl.GL11.glViewport;
  */
 public class BadGame implements IGameLogic {
 
-    private int xInc = 0;
-
-    private int yInc = 0;
-
-    private int zInc = 0;
-
-    private int scaleInc = 0;
-
-    private float color = 0.0f;
-
     private final Renderer renderer;
 
     private Entity[] entities;
@@ -35,11 +25,21 @@ public class BadGame implements IGameLogic {
 
     private BlockLibrary blockLibrary;
 
+    private ICamera camera;
+    private final Vector3f cameraInc;
+    private final float SPEED_WALK = .05f;
+    private final float SPEED_SPRINT = .15f;
+    private float currentSpeed;
+
+    public static final float MOUSE_SENSITIVITY = 0.2f;
+
     /**
      * Sets up the renderer.
      */
     public BadGame(){
         renderer = new Renderer();
+        camera = new PlayerCamera();
+        cameraInc = new Vector3f();
     }
 
     @Override
@@ -181,34 +181,29 @@ public class BadGame implements IGameLogic {
      * @param window The window this input function should listen to.
      */
     @Override
-    public void input(Window window) {
-        xInc = 0;
-        yInc = 0;
-        zInc = 0;
-        scaleInc = 0;
+    public void input(Window window, MouseInput mouseInput) {
+        cameraInc.set(0, 0, 0);
+        currentSpeed = SPEED_WALK;
+        if(window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)){
+            currentSpeed = SPEED_SPRINT;
+        }
         if(window.isKeyPressed(GLFW_KEY_W)){
-            zInc += 1;
+            cameraInc.z -= 1;
         }
         if(window.isKeyPressed(GLFW_KEY_S)){
-            zInc -= 1;
+            cameraInc.z += 1;
         }
         if(window.isKeyPressed(GLFW_KEY_A)){
-            xInc += 1;
+            cameraInc.x -= 1;
         }
         if(window.isKeyPressed(GLFW_KEY_D)){
-            xInc -= 1;
+            cameraInc.x += 1;
         }
-        if(window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)){
-            yInc += 1;
+        if(window.isKeyPressed(GLFW_KEY_LEFT_CONTROL)){
+            cameraInc.y -= 1;
         }
         if(window.isKeyPressed(GLFW_KEY_SPACE)){
-            yInc -= 1;
-        }
-        if(window.isKeyPressed(GLFW_KEY_R)){
-            scaleInc += 1;
-        }
-        if(window.isKeyPressed(GLFW_KEY_F)){
-            scaleInc -= 1;
+            cameraInc.y += 1;
         }
     }
 
@@ -217,34 +212,23 @@ public class BadGame implements IGameLogic {
      * @param deltaT The time since the last logical frame.
      */
     @Override
-    public void update(float deltaT) {
-        for(Entity entity: entities){
-            Vector3f position = entity.getPosition();
-            float posX = position.x + xInc * 0.01f;
-            float posY = position.y + yInc * 0.01f;
-            float posZ = position.z + zInc * 0.01f;
-            entity.setPosition(posX, posY, posZ);
+    public void update(float deltaT, MouseInput mouseInput) {
+        camera.movePosition(
+                cameraInc.x * currentSpeed,
+                cameraInc.y * currentSpeed,
+                cameraInc.z * currentSpeed
+        );
 
-            float scale = entity.getScale();
-            scale += scaleInc * 0.05f;
-            if(scale < 0){
-                scale = 0;
-            }
-            entity.setScale(scale);
-
-            float rotation = entity.getRotation().y + 0.5f;
-            if(rotation > 360){
-                rotation -= 360;
-            }
-            entity.setRotation(0.0f, rotation, 0.0f);
-
+        if(mouseInput.isRightButtonPressed()){
+            Vector2f rotVec = mouseInput.getDisplVec();
+            camera.moveRotation(rotVec.x * MOUSE_SENSITIVITY, rotVec.y * MOUSE_SENSITIVITY, 0);
         }
     }
 
     @Override
     public void render(Window window) {
         // window.setClearColor(color, color, color, 0.0f);
-        renderer.render(window, entities);
+        renderer.render(window, camera, entities);
     }
 
     @Override

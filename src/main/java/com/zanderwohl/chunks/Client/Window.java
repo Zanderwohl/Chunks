@@ -178,4 +178,8 @@ public class Window {
             glfwSetWindowShouldClose(windowId, true);
         }
     };
+
+    public long getWindowId(){
+        return windowId;
+    }
 }

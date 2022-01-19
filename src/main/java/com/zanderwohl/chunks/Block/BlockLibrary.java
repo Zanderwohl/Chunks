@@ -140,6 +140,16 @@ public class BlockLibrary {
     }
 
     /**
+     * Gets the Block object by its domain and name.
+     * @param domain The domain the block is in.
+     * @param name The name of the block.
+     * @return The block, if found.
+     */
+    public Block getBlockByName(String domain, String name){
+        return getBlockById(getIdByName(domain, name));
+    }
+
+    /**
      * Load all the block's textures into OpenGL textures.
      */
     public void loadGLTextures(){

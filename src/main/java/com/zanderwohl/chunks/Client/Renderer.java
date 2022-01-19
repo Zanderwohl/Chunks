@@ -51,7 +51,7 @@ public class Renderer {
         float aspectRatio = (float) window.getWidth() / window.getHeight();
         projectionMatrix = new Matrix4f().setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
         shaderProgram.createUniform("projectionMatrix");
-        shaderProgram.createUniform("worldMatrix");
+        shaderProgram.createUniform("modelViewMatrix");
 
         shaderProgram.createUniform("texture_sampler");
 
@@ -62,7 +62,7 @@ public class Renderer {
      * Render a frame.
      * @param window The window to render the frame onto.
      */
-    public void render(Window window, Entity[] entities){
+    public void render(Window window, ICamera camera, Entity[] entities){
         clear();
 
         if(window.isResized()){
@@ -76,14 +76,13 @@ public class Renderer {
                 Z_NEAR, Z_FAR);
         shaderProgram.setUniform("projectionMatrix", projectionMatrix);
 
+        Matrix4f viewMatrix = transformation.getViewMatrix(camera);
+
         shaderProgram.setUniform("texture_sampler", 0);
         for(Entity entity: entities){
             // Set world matrix for this item
-            Matrix4f worldMatrix = transformation.getWorldMatrix(
-                    entity.getPosition(),
-                    entity.getRotation(),
-                    entity.getScale());
-            shaderProgram.setUniform("worldMatrix", worldMatrix);
+            Matrix4f modelViewMatrix = transformation.getModelViewMatrix(entity, viewMatrix);
+            shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
             entity.getMesh().render();
         }
 

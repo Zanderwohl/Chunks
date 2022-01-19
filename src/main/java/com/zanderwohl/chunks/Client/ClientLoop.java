@@ -2,6 +2,7 @@ package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.Gamelogic.IGameLogic;
+import com.zanderwohl.chunks.Logging.Log;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
@@ -39,6 +40,8 @@ public class ClientLoop {
 
     private final IGameLogic gameLogic;
 
+    private final MouseInput mouseInput;
+
     public ClientLoop(ArrayBlockingQueue<Delta> clientUpdates, ArrayBlockingQueue<Delta> serverUpdates,
                       ClientIdentity clientIdentity,
                       ArrayBlockingQueue<Message> toConsole,
@@ -52,6 +55,7 @@ public class ClientLoop {
         this.gameLogic = gameLogic;
 
         position = new PPos(0.0, 0.0, 0.0, 0.0, 0.0, identity.getDisplayName());
+        mouseInput = new MouseInput();
 
         running = true;
     }
@@ -118,17 +122,20 @@ public class ClientLoop {
         window = new Window(toConsole);
         windowId = window.init();
 
+        mouseInput.init(window);
+
         if(gameLogic != null){
             gameLogic.init(window);
         }
     }
 
     private void handleInput(){
-        gameLogic.input(window);
+        mouseInput.input(window);
+        gameLogic.input(window, mouseInput);
     }
 
     private void updateGameState(double deltaTime){
-        gameLogic.update((float) deltaTime);
+        gameLogic.update((float) deltaTime, mouseInput);
     }
 
     private void sendUpdatesToServer(){
@@ -185,7 +192,9 @@ public class ClientLoop {
             loop();
             window.destroy();
         } catch(Exception e){
-            toConsole.add(new Message("severity=CRITICAL\nsource=Client Loop\nmessage=Failed to initialize client. JVM details: " + e.getMessage()));
+            toConsole.add(new Message("severity=CRITICAL\nsource=Client Loop\nmessage=Failed to initialize client. JVM details: "
+                    + e.getMessage() + " Location: "
+                    + e.getStackTrace()[0].getFileName() + ":" + e.getStackTrace()[0].getLineNumber()));
         }
         finally {
             window.free();
