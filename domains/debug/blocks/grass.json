@@ -1,0 +1,16 @@
+{
+"name":"grass",
+"color":{
+		"r":"100",
+		"g":"100",
+		"b":"0"
+		},
+"texture":{
+		"top":"debug_top.png",
+		"front":"debug_front.png",
+		"left":"debug_left.png",
+		"right":"debug_right.png",
+		"back":"debug_back.png",
+		"bottom":"debug_under.png"
+		}
+}
