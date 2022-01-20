@@ -50,7 +50,7 @@ public class Client implements Runnable {
         ArrayBlockingQueue<Message> toConsole = new ArrayBlockingQueue<>(50);
         ArrayBlockingQueue<Message> fromConsole = new ArrayBlockingQueue<>(50);
 
-        Client singleplayerClient = new Client("localhost", port, toConsole, new BadGame());
+        Client singleplayerClient = new Client("localhost", port, toConsole, new BadGame(toConsole));
         Thread clientThread = new Thread(singleplayerClient);
 
         //Start the game's console - not the user-facing console, but the part of this program that receives and sends

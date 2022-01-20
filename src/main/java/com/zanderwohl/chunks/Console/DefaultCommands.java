@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks.Console;
 
+import com.zanderwohl.chunks.Block.BlockLibrary;
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Delta.Chat;
 import com.zanderwohl.chunks.Delta.ServerClose;
@@ -28,6 +29,7 @@ public class DefaultCommands {
     private static WorldManager worldManager;
     private static ArrayList<Command> commands;
     private static HashMap<String, Command> commandMap;
+    private static BlockLibrary blockLibrary;
 
     /**
      * Pass the objects to DefaultCommands that it needs to set up the commands to execute properly.
@@ -38,7 +40,8 @@ public class DefaultCommands {
      * @throws CommandSet.WrongArgumentsObjectException
      */
     public static void giveObjects(CommandManager c, ArrayList<Command> cm,
-                                   HashMap<String, Command> cs, CommandManager.ICommandManagerArguments objects) throws CommandSet.WrongArgumentsObjectException {
+                                   HashMap<String, Command> cs, CommandManager.ICommandManagerArguments objects)
+            throws CommandSet.WrongArgumentsObjectException {
         commandManager = c;
         commands = cm;
         commandMap = cs;
@@ -47,6 +50,7 @@ public class DefaultCommands {
             DefaultCommandsObjects idco = (DefaultCommandsObjects) objects;
             worldManager = idco.wm;
             simLoop = idco.sl;
+            blockLibrary = idco.bl;
         } else {
             throw new CommandSet.WrongArgumentsObjectException("DefaultCommands needs a DefaultCommandsObjects ICommandManagerArguments, not a " + objects.getClass());
         }
@@ -138,7 +142,7 @@ public class DefaultCommands {
                 seed = arguments.get("seed");
             }
             //TODO: Add generator.
-            worldManager.newWorld(arguments.get("name"), seed);
+            worldManager.newWorld(arguments.get("name"), seed, blockLibrary);
         }
     }
 

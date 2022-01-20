@@ -24,7 +24,7 @@ public class WorldManager {
         this.toConsole = toConsole;
         library = new BlockLibrary(toConsole);
 
-        newWorld(initialWorld, initialWorld); //TODO: Allow for flexibility for seed.
+        newWorld(initialWorld, initialWorld, library); //TODO: Allow for flexibility for seed.
 
         prepare();
     }
@@ -71,11 +71,11 @@ public class WorldManager {
         return worldNames;
     }
 
-    public void newWorld(String name, String seed){ //TODO: Seeds? Generator parameters?
+    public void newWorld(String name, String seed, BlockLibrary blockLibrary){ //TODO: Seeds? Generator parameters?
         if(worlds.size() == 0){ //If there is no default world, this is it.
             defaultWorld = name;
         }
-        World newWorld = new World(name, formatSeed(seed), toConsole);
+        World newWorld = new World(name, formatSeed(seed), toConsole, blockLibrary);
         toConsole.add(new Message("message=Creating world '" + name + "'...\nsource=World Manager\n" +
                 "severity=normal"));
         newWorld.initialize(); //TODO: Probably don't do this here.

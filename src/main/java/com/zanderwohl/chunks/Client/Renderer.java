@@ -80,6 +80,9 @@ public class Renderer {
 
         shaderProgram.setUniform("texture_sampler", 0);
         for(Entity entity: entities){
+            if(entity == null){
+                continue;
+            }
             // Set world matrix for this item
             Matrix4f modelViewMatrix = transformation.getModelViewMatrix(entity, viewMatrix);
             shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);

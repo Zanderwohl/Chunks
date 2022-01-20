@@ -5,10 +5,13 @@ import com.zanderwohl.chunks.Block.Texture;
 import com.zanderwohl.chunks.Client.*;
 import com.zanderwohl.chunks.Entity.Entity;
 import com.zanderwohl.chunks.Render.Mesh;
+import com.zanderwohl.chunks.World.World;
+import com.zanderwohl.console.Message;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -33,13 +36,16 @@ public class BadGame implements IGameLogic {
 
     public static final float MOUSE_SENSITIVITY = 0.2f;
 
+    ArrayBlockingQueue<Message> toConsole;
+
     /**
      * Sets up the renderer.
      */
-    public BadGame(){
+    public BadGame(ArrayBlockingQueue<Message> toConsole){
         renderer = new Renderer();
         camera = new PlayerCamera();
         cameraInc = new Vector3f();
+        this.toConsole = toConsole;
     }
 
     @Override
@@ -167,16 +173,18 @@ public class BadGame implements IGameLogic {
                 18, 20, 21, 19, 18, 21,
                 // Back face
                 22, 23, 24, 24, 23, 25};
+        World w = new World("test", null, toConsole, blockLibrary);
+        w.initialize();
         ArrayList<Mesh> meshes = new ArrayList<>();
         {
-            int i = 1;
+            int i = 0;
             while (blockLibrary.getBlockById(i) != null) {
                 Texture t = blockLibrary.getBlockById(i).getTextureGL();
                 meshes.add(new Mesh(positions, indices, textCoords, t));
                 i++;
             }
         }
-        int n = meshes.size();
+        /*int n = meshes.size();
         entities = new Entity[(n * (n+1))/2];
         int total = 0;
         for(int x = 0; x < meshes.size(); x++){
@@ -184,6 +192,20 @@ public class BadGame implements IGameLogic {
                 entities[total] = new Entity(meshes.get(x));
                 entities[total].setPosition(x, y, -2);
                 total++;
+            }
+        }*/
+        entities = new Entity[16 * 200 * 16];
+        int total = 0;
+        for(int x = 0; x < 16; x++){
+            for(int y = 0; y < 200; y++){
+                for(int z = 0; z < 16; z++){
+                    int blockId = w.getBlockID(x, y, z);
+                    if (blockId != 0) {
+                        entities[total] = new Entity(meshes.get(blockId));
+                        entities[total].setPosition(x - 5, y - 10, z - 20);
+                    }
+                    total++;
+                }
             }
         }
     }

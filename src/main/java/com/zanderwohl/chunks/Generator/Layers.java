@@ -1,5 +1,8 @@
 package com.zanderwohl.chunks.Generator;
 
+import com.zanderwohl.chunks.Block.Block;
+import com.zanderwohl.chunks.Block.BlockLibrary;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -11,13 +14,15 @@ public class Layers extends Generator{
     Random rand;
     ArrayList<Generator> layers = new ArrayList<>();
 
+    private BlockLibrary blocks;
+
     /**
      * TODO: write this.
      * @param seed The seed for the RNG.
      */
-    public Layers(int seed){
+    public Layers(int seed, BlockLibrary blocks){
         rand = new Random(seed);
-        layers.add(new Simplex(seed));
+        layers.add(new Simplex(seed, blocks));
         layers.add(new Sine(seed));
     }
 

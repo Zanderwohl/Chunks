@@ -1,5 +1,7 @@
 package com.zanderwohl.chunks.World;
 
+import com.zanderwohl.chunks.Block.Block;
+import com.zanderwohl.chunks.Block.BlockLibrary;
 import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Generator.*;
 import com.zanderwohl.console.Message;
@@ -33,7 +35,9 @@ public class World extends Delta implements Serializable {
 
     private transient ArrayBlockingQueue<Message> toConsole;
 
-    public World(String name, int seed, ArrayBlockingQueue<Message> toConsole){
+    private BlockLibrary blocks;
+
+    public World(String name, int seed, ArrayBlockingQueue<Message> toConsole, BlockLibrary blocks){
         this.name = name;
         this.toConsole = toConsole;
         if(seed != 0) {
@@ -41,15 +45,16 @@ public class World extends Delta implements Serializable {
         } else {
             seed = WorldManager.formatSeed(name);
         }
-        g = new Simplex(seed);
+        g = new Simplex(seed, blocks);
+        this.blocks = blocks;
     }
 
-    public World(String name, String saveFile, ArrayBlockingQueue<Message> toConsole){
+    public World(String name, String saveFile, ArrayBlockingQueue<Message> toConsole, BlockLibrary blocks){
         this.name = name;
         this.toConsole = toConsole;
         this.seed = 0; //TODO: get seed from file.
         //TODO: get generation algorithm from save file.
-        g = new Simplex(seed);
+        g = new Simplex(seed, blocks);
     }
 
     public void setWorldManager(WorldManager wm){
@@ -117,10 +122,6 @@ public class World extends Delta implements Serializable {
      * Generate a little bit of world. A finite bit.
      */
     public void basic(){
-       // Generator g = new Simplex(seed);
-        //Generator g = new Sine(seed);
-        Generator g = new Chaos(seed);
-        //Generator g = new Layers(seed);
         for(int x = -x_length; x < x_length; x++){
             for(int y = 0; y < y_length; y++){
                 for(int z = -z_length; z < z_length; z++){
@@ -257,7 +258,10 @@ public class World extends Delta implements Serializable {
         int x = location.getX();
         int y = location.getY();
         int z = location.getZ();
+        return getBlockID(x, y, z);
+    }
 
+    public int getBlockID(int x, int y, int z){
         int volx = x / Space.VOL_X;
         int voly = y / Space.VOL_Y;
         int volz = z / Space.VOL_Z;

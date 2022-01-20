@@ -37,7 +37,7 @@ public class Main {
         startupCommandManager.doCommands();
 
         // Start one client.
-        Client singleplayerClient = new Client("localhost", StartupSettings.PORT, toConsole, new BadGame());
+        Client singleplayerClient = new Client("localhost", StartupSettings.PORT, toConsole, new BadGame(toConsole));
         Thread clientThread = new Thread(singleplayerClient);
 
         // Start the game's console interface - not the user-facing console, but the part of this program that receives

@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Generator;
 
 import com.kdotJPG.OpenSimplex.OpenSimplexNoise;
+import com.zanderwohl.chunks.Block.BlockLibrary;
 
 /**
  * A basic terrain where the height is taken from a 2D Simplex.
@@ -13,8 +14,11 @@ public class Simplex extends Generator{
     private double SCALE = 100.0;
     private double MAGNITUDE = 60.0;
 
-    public Simplex(int seed){
+    private BlockLibrary blocks;
+
+    public Simplex(int seed, BlockLibrary blocks){
         noise = new OpenSimplexNoise(seed);
+        this.blocks = blocks;
     }
 
     /**
@@ -24,11 +28,12 @@ public class Simplex extends Generator{
      * @param scale The scale for the size (x and z) of the variation.
      * @param magnitude The magnitude modifier for the height (y) of the terrain.
      */
-    public Simplex(int seed, int height, int scale, int magnitude){
+    public Simplex(int seed, BlockLibrary blocks, int height, int scale, int magnitude){
         noise = new OpenSimplexNoise(seed);
         HEIGHT = height;
         SCALE = scale;
         MAGNITUDE = magnitude;
+        this.blocks = blocks;
     }
 
     /**
@@ -41,11 +46,16 @@ public class Simplex extends Generator{
     @Override
     public int eval(int x, int y, int z) {
         int ground = ground(x, z);
-        if(y < ground) {
-            //return (y / 2) % 10;
-            return 1;
-        } else {
+        if(y > ground){
             return 0;
+        }
+        if(y == ground) {
+            return blocks.getIdByName("default", "grass");
+        }
+        if (y + 3 > ground) {
+            return blocks.getIdByName("default", "dirt");
+        } else {
+            return blocks.getIdByName("default", "stone");
         }
     }
 

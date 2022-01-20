@@ -1,6 +1,7 @@
 package com.zanderwohl.chunks.Server;
 
 /* Goodness this is disgusting. Is the enterprise coding getting to me? */
+import com.zanderwohl.chunks.Block.BlockLibrary;
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.*;
 import com.zanderwohl.chunks.Delta.*;
