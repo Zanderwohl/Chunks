@@ -47,6 +47,9 @@ public class Simplex extends Generator{
     public int eval(int x, int y, int z) {
         int ground = ground(x, z);
         if(y > ground){
+            if(x % y == 0){
+                return blocks.getIdByName("color", "black");
+            }
             return 0;
         }
         if(y == ground) {

@@ -1,6 +1,5 @@
 package com.zanderwohl.chunks.World;
 
-import com.zanderwohl.chunks.Block.Block;
 import com.zanderwohl.chunks.Block.BlockLibrary;
 import com.zanderwohl.chunks.Delta.Delta;
 import com.zanderwohl.chunks.Generator.*;
@@ -8,7 +7,6 @@ import com.zanderwohl.console.Message;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 
