@@ -35,7 +35,7 @@ public class World extends Delta implements Serializable {
 
     private transient ArrayBlockingQueue<Message> toConsole;
 
-    private BlockLibrary blocks;
+    private transient BlockLibrary blocks;
 
     public World(String name, int seed, ArrayBlockingQueue<Message> toConsole, BlockLibrary blocks){
         this.name = name;

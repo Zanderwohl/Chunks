@@ -118,9 +118,10 @@ public class ClientHandler implements Runnable{
                 }
             } catch (IOException e) {
                 parent.running = false;
-                parent.toConsole.add(new Message("source=Client Handler\nseverity=critical\nmessage="
-                    + "Connection to client " + parent.identity.getDisplayName() + " failed.\n" +
-                        "Maybe a Delta does not implement Serializable?"));
+                parent.toConsole.add(new Message("source=Client Handler\nseverity=warning\nmessage="
+                    + "Connection to client " + parent.identity.getDisplayName() + " failed. " +
+                        "Maybe a Delta does not implement Serializable? " + e.getMessage() + " "
+                        + e.getStackTrace()[0].getFileName() + ":" + e.getStackTrace()[0].getLineNumber()));
             } catch (InterruptedException e){
                 parent.toConsole.add(new Message("source=Client Handle\nseverity=critical\nmessage="
                 + "Client Handler was unexpectedly interrupted!"));

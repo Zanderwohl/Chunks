@@ -1,18 +1,17 @@
 package com.zanderwohl.chunks.Server;
 
 /* Goodness this is disgusting. Is the enterprise coding getting to me? */
-import com.zanderwohl.chunks.Block.BlockLibrary;
 import com.zanderwohl.chunks.Client.ClientIdentity;
 import com.zanderwohl.chunks.Console.*;
 import com.zanderwohl.chunks.Delta.*;
 import com.zanderwohl.chunks.FileConstants;
-import com.zanderwohl.chunks.Gamelogic.IGameLogic;
 import com.zanderwohl.chunks.Logging.Log;
 import com.zanderwohl.chunks.World.Coord;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
+import com.zanderwohl.util.ExceptionUtils;
 import com.zanderwohl.util.Sync;
 
 import java.io.IOException;
@@ -432,7 +431,7 @@ public class SimLoop implements Runnable {
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
                     + "Server has encountered an unrecoverable error. Stopping."));
             toConsole.add(new Message("severity=critical\nsource=Sim Loop\nmessage="
-                    + e.getMessage()));
+                    + ExceptionUtils.boxMessage(e) + " " + ExceptionUtils.errorSource(e)));
             e.printStackTrace(); //TODO: Remove once message details are implemented.
         }
 

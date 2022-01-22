@@ -9,6 +9,7 @@ import com.zanderwohl.chunks.Main;
 import com.zanderwohl.chunks.World.WorldManager;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.console.SuperConsole;
+import com.zanderwohl.util.ExceptionUtils;
 
 import java.io.*;
 import java.net.Socket;
@@ -158,8 +159,8 @@ public class Client implements Runnable {
                 }
             } catch (IOException e){
                 parent.toConsole.add(new Message("severity=critical\nsource=Client\nmessage="
-                        + "Client " + parent.identity.getDisplayName() + " disconnected from server! ("
-                        + e.getMessage() + ")"));
+                        + "Client " + parent.identity.getDisplayName() + " disconnected from server! "
+                        + ExceptionUtils.boxMessage(e) + " " + ExceptionUtils.errorSource(e)));
                 parent.running = false;
                 return;
             } catch (InterruptedException e){
@@ -214,8 +215,8 @@ public class Client implements Runnable {
                 }
             } catch (IOException e) {
                 parent.toConsole.add(new Message("severity=critical\nsource=Client\nmessage="
-                        + "Client " + parent.identity.getDisplayName() + " disconnected from server! ("
-                        + e.getMessage() + ")"));
+                        + "Client " + parent.identity.getDisplayName()
+                        + ExceptionUtils.boxMessage(e) + " " + ExceptionUtils.errorSource(e)));
                 parent.running = false;
                 return;
             } catch (ClassNotFoundException e){

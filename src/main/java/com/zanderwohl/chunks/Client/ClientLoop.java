@@ -6,6 +6,7 @@ import com.zanderwohl.chunks.Logging.Log;
 import com.zanderwohl.chunks.World.Volume;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
+import com.zanderwohl.util.ExceptionUtils;
 import com.zanderwohl.util.Sync;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -192,9 +193,8 @@ public class ClientLoop {
             loop();
             window.destroy();
         } catch(Exception e){
-            toConsole.add(new Message("severity=CRITICAL\nsource=Client Loop\nmessage=Failed to initialize client. JVM details: "
-                    + e.getMessage() + " Location: "
-                    + e.getStackTrace()[0].getFileName() + ":" + e.getStackTrace()[0].getLineNumber()));
+            toConsole.add(new Message("severity=CRITICAL\nsource=Client Loop\nmessage=Failed to initialize client. "
+                    + ExceptionUtils.boxMessage(e) + " " + ExceptionUtils.errorSource(e)));
         }
         finally {
             window.free();
