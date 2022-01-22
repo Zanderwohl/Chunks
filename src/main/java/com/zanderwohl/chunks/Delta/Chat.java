@@ -4,6 +4,9 @@ import com.zanderwohl.chunks.Client.ClientIdentity;
 
 import java.io.Serializable;
 
+/**
+ * A chat is a message sent by the in-game messaging system.
+ */
 public class Chat extends Delta implements Serializable {
 
     private static final long serialVersionUID = 32112000001L;

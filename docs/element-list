@@ -4,10 +4,12 @@ com.zanderwohl.chunks.Block
 com.zanderwohl.chunks.Client
 com.zanderwohl.chunks.Console
 com.zanderwohl.chunks.Delta
+com.zanderwohl.chunks.Entity
 com.zanderwohl.chunks.Gamelogic
 com.zanderwohl.chunks.Generator
 com.zanderwohl.chunks.Image
 com.zanderwohl.chunks.Logging
+com.zanderwohl.chunks.Render
 com.zanderwohl.chunks.Server
 com.zanderwohl.chunks.Shaders
 com.zanderwohl.chunks.World

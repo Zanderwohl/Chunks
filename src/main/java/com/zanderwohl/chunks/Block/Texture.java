@@ -11,22 +11,43 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.stb.STBImage.*;
 
+/**
+ * Object that loads and manages a texture, placing it in graphics memory.
+ */
 public class Texture {
 
     private final int id;
 
+    /**
+     * Default constructor. Takes in a file name. Loads texture into memory.
+     * @param fileName The file to containing the texture.
+     * @param toConsole Messages to console.
+     */
     public Texture(String fileName, ArrayBlockingQueue<Message> toConsole) {
         this(loadTexture(fileName, toConsole));
     }
 
-    public Texture(int id){
+    /**
+     * Inner constructor that keeps track of ID.
+     * @param id ID given by GL calls.
+     */
+    private Texture(int id){
         this.id = id;
     }
 
+    /**
+     * Bind this texture.
+     */
     public void bind(){
         glBindTexture(GL_TEXTURE_2D, id);
     }
 
+    /**
+     * Load the texture into memory with the GL stuff.
+     * @param fileName The file to load.
+     * @param toConsole Message stream to console.
+     * @return The ID of the texture in GL.
+     */
     private static int loadTexture(String fileName, ArrayBlockingQueue<Message> toConsole) {
         int width;
         int height;
@@ -64,10 +85,17 @@ public class Texture {
         }
     }
 
+    /**
+     * Get the texture's ID
+     * @return ID of texture as given by GL.
+     */
     public int getId(){
         return id;
     }
 
+    /**
+     * Delete the texture and clean up.
+     */
     public void cleanup(){
         glDeleteTextures(id);
     }

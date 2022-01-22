@@ -18,6 +18,9 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.opengl.GL;
 
+/**
+ * Window for playing the game, displaying graphics and getting user input, etc.
+ */
 public class Window {
 
     private long windowId;
@@ -111,10 +114,17 @@ public class Window {
         glClearColor(r, g, b, alpha);
     }
 
+    /**
+     * Call when the window is resized. Is reset on Renderer.render for this window.
+     * @param resized If the window was resized.
+     */
     public void setResized(boolean resized) {
         this.resized = resized;
     }
 
+    /**
+     * Destroy this window, and mark it as destroyed.
+     */
     public void destroy(){
         glfwFreeCallbacks(windowId);
         glfwDestroyWindow(windowId);
@@ -122,6 +132,9 @@ public class Window {
         closed = true;
     }
 
+    /**
+     * Free resources for this window, and destroy if needed.
+     */
     public void free(){
         if(!destroyed){
             destroy();
@@ -130,6 +143,11 @@ public class Window {
         glfwSetErrorCallback(null).free();
     }
 
+    /**
+     * See if the key is being pressed this update frame.
+     * @param keyCode Key code by GLFW key code.
+     * @return True if key is pressed.
+     */
     public boolean isKeyPressed(int keyCode){
         return glfwGetKey(windowId, keyCode) == GLFW_PRESS;
     }

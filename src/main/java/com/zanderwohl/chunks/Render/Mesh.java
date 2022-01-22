@@ -13,6 +13,9 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.memFree;
 
+/**
+ * A mesh; a 3D model of something. Should be shared by all objects using the same model.
+ */
 public class Mesh {
 
     private final int vaoId;

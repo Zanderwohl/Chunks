@@ -2,6 +2,9 @@ package com.zanderwohl.chunks.Delta;
 
 import java.io.Serializable;
 
+/**
+ * A message from the server declaring that is closing and a reason why.
+ */
 public class ServerClose extends Delta implements Serializable {
 
     private static final long serialVersionUID = 32112000005L;

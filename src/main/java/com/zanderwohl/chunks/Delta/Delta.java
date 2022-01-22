@@ -4,6 +4,12 @@ import com.zanderwohl.chunks.Client.ClientIdentity;
 
 import java.io.Serializable;
 
+/**
+ * A delta is any information that is sent between the client and server.
+ * Each delta should inherit from this class, and implement serializable as well.
+ * All deltas' member fields should be serializable or transient.
+ * Each delta should have a unique serialVersionUID.
+ */
 public abstract class Delta implements Serializable {
 
     private static final long serialVersionUID = 32112000000L;

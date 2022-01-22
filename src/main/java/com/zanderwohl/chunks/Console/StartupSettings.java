@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.BiConsumer;
 
+/**
+ * Manages startup settings. Looks in different places for options, then falls back to a default.
+ */
 public class StartupSettings {
     private static CommandManager commandManager;
     private static ArrayList<Command> commands;
@@ -24,6 +27,14 @@ public class StartupSettings {
     public static String SERVER_NAME;
     public static String MOTD;
 
+    /**
+     * Provide the objects needed to set up these commands.
+     * @param c The CommandManager.
+     * @param cm The list the commands will be added to. In this case, only the single ArrangeStartup command.
+     * @param cs Dictionary of all the commands by their primary name.
+     * @param objects Objects needed by commands.
+     * @throws CommandSet.WrongArgumentsObjectException
+     */
     public static void giveObjects(CommandManager c, ArrayList<Command> cm,
                                    HashMap<String, Command> cs, CommandManager.ICommandManagerArguments objects) throws CommandSet.WrongArgumentsObjectException {
         commandManager = c;
@@ -37,6 +48,9 @@ public class StartupSettings {
         }
     }
 
+    /**
+     * Add the different startup configuration items and descriptions.
+     */
     public static void addCommands() {
         Command arrangeStartup = new Command("override", "Arrange the startup conditions.", new ArrangeStartup());
         arrangeStartup.addArgument("world", false, "The name of the world to start.");
@@ -48,7 +62,16 @@ public class StartupSettings {
         commandManager.addCommand(arrangeStartup);
     }
 
+    /**
+     * Sets startup settings based on a hierarchy of Command-Line-Arg > Config-File > default.
+     */
     public static class ArrangeStartup implements BiConsumer<HashMap<String, String>, ArrayBlockingQueue<Message>> {
+
+        /**
+         * Sets all the startup settings.
+         * @param arguments Arguments, usually input from command line.
+         * @param toConsole Stream of messages to console.
+         */
         @Override
         public void accept(HashMap<String, String> arguments, ArrayBlockingQueue<Message> toConsole) {
             CONFIG = Precedence.lastNonNull(FileConstants.configFile, arguments.get("config"));

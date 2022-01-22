@@ -86,7 +86,7 @@ public class ClientLoop {
         }
         if(update instanceof Kick){
             Kick k = (Kick) update;
-            toConsole.add(new Message("source=Client Window\nmessage=" + k.getReason()));
+            toConsole.add(new Message("source=Client Window\nmessage=" + k.reason));
         }
         if(update instanceof PPos){
             PPos ppos = (PPos) update;

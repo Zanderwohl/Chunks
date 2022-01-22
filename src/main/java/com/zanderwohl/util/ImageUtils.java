@@ -3,8 +3,17 @@ package com.zanderwohl.util;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * Contains utilities for the manipulation of images.
+ */
 public class ImageUtils {
 
+    /**
+     * Given a list of textures which each have the same width, and each have the same height (height and width may be
+     * different), will stitch them into a single BufferedImage horizontally.
+     * @param textures The list of textures to stitch.
+     * @return The full texture atlas.
+     */
     public static BufferedImage stitchImages(BufferedImage[] textures){
         // TODO: Assumes all images are the same size;
         int width = textures[0].getWidth() * textures.length;

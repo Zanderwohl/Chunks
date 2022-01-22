@@ -322,7 +322,7 @@ public class SimLoop implements Runnable {
     /**
      * Return a client as searched by an exact string match.
      * @param name The name to search for.
-     * @returns The identity of a particular client.
+     * @return The identity of a particular client.
      */
     public ClientIdentity findClientByDisplayName(String name){
         ClientIdentity client = null;
@@ -339,7 +339,7 @@ public class SimLoop implements Runnable {
      * Disconnects a user from the server gracefully.
      * @param user The user to disconnect.
      * @param reason If active, will tell the user why they were disconnected.
-     * @returns True if the user was successfully disconnected, false otherwise.
+     * @return True if the user was successfully disconnected, false otherwise.
      */
     public boolean disconnectUser(ClientIdentity user, String reason){
         if(user == null){
