@@ -2,6 +2,7 @@ package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Entity.Entity;
 import com.zanderwohl.chunks.Entity.Transformation;
+import com.zanderwohl.chunks.Render.Mesh;
 import com.zanderwohl.chunks.Shaders.SimpleShaderProgram;
 import com.zanderwohl.util.FileLoader;
 import org.joml.Matrix4f;
@@ -52,6 +53,8 @@ public class Renderer {
         projectionMatrix = new Matrix4f().setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
         shaderProgram.createUniform("projectionMatrix");
         shaderProgram.createUniform("modelViewMatrix");
+        shaderProgram.createUniform("color");
+        shaderProgram.createUniform("useColor");
 
         shaderProgram.createUniform("texture_sampler");
 
@@ -83,9 +86,12 @@ public class Renderer {
             if(entity == null){
                 continue;
             }
+            Mesh mesh = entity.getMesh();
             // Set world matrix for this item
             Matrix4f modelViewMatrix = transformation.getModelViewMatrix(entity, viewMatrix);
             shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
+            shaderProgram.setUniform("color", mesh.getColor());
+            shaderProgram.setUniform("useColor", mesh.isTextured() ? 0 : 1);
             entity.getMesh().render();
         }
 

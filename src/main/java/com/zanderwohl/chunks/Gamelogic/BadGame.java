@@ -5,12 +5,12 @@ import com.zanderwohl.chunks.Block.Texture;
 import com.zanderwohl.chunks.Client.*;
 import com.zanderwohl.chunks.Entity.Entity;
 import com.zanderwohl.chunks.Render.Mesh;
+import com.zanderwohl.chunks.Render.OBJLoader;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -57,157 +57,18 @@ public class BadGame implements IGameLogic {
     public void init(Window window) throws Exception {
         renderer.init(window);
         blockLibrary.loadGLTextures();
-        float[] positions = new float[] {
-                // V0
-                -0.5f, 0.5f, 0.5f,
-                // V1
-                -0.5f, -0.5f, 0.5f,
-                // V2
-                0.5f, -0.5f, 0.5f,
-                // V3
-                0.5f, 0.5f, 0.5f,
-                // V4
-                -0.5f, 0.5f, -0.5f,
-                // V5
-                0.5f, 0.5f, -0.5f,
-                // V6
-                -0.5f, -0.5f, -0.5f,
-                // V7
-                0.5f, -0.5f, -0.5f,
 
-                // For text coords in top face
-                // V8: V4 repeated
-                -0.5f, 0.5f, -0.5f,
-                // V9: V5 repeated
-                0.5f, 0.5f, -0.5f,
-                // V10: V0 repeated
-                -0.5f, 0.5f, 0.5f,
-                // V11: V3 repeated
-                0.5f, 0.5f, 0.5f,
-
-                // For text coords in right face
-                // V12: V3 repeated
-                0.5f, 0.5f, 0.5f,
-                // V13: V2 repeated
-                0.5f, -0.5f, 0.5f,
-                // V14: V5 repeated
-                0.5f, 0.5f, -0.5f,
-                // V15: V7 repeated
-                0.5f, -0.5f, -0.5f,
-
-                // For text coords in left face
-                // V16: V0 repeated
-                -0.5f, 0.5f, 0.5f,
-                // V17: V1 repeated
-                -0.5f, -0.5f, 0.5f,
-
-                // For text coords in bottom face
-                // V18: V6 repeated
-                -0.5f, -0.5f, -0.5f,
-                // V19: V7 repeated
-                0.5f, -0.5f, -0.5f,
-                // V20: V1 repeated
-                -0.5f, -0.5f, 0.5f,
-                // V21: V2 repeated
-                0.5f, -0.5f, 0.5f,
-
-                // V22: V4 repeated
-                -0.5f, 0.5f, -0.5f,
-                // V23: V5 repeated
-                0.5f, 0.5f, -0.5f,
-                // V24: V6 repeated
-                -0.5f, -0.5f, -0.5f,
-                // V25: V7 repeated
-                0.5f, -0.5f, -0.5f,
-        };
-        float sixth = 1.0f / 6.0f;
-        float[] textCoords = new float[]{
-                1 * sixth, 0.0f,
-                1 * sixth, 1.0f,
-                2 * sixth, 1.0f,
-                2 * sixth, 0.0f,
-
-                2 * sixth, 0.0f,
-                3 * sixth, 0.0f,
-                2 * sixth, 1.0f,
-                3 * sixth, 1.0f,
-
-                // For text coords in top face
-                0.0f, 0.0f,
-                sixth, 0.0f,
-                0.0f, 1.0f,
-                sixth, 1.0f,
-
-                // For text coords in right face
-                3 * sixth, 0.0f,
-                3 * sixth, 1.0f,
-                4 * sixth, 0.0f,
-                4 * sixth, 1.0f,
-
-                // For text coords in left face
-                3 * sixth, 0.0f,
-                3 * sixth, 1.0f,
-
-                // For text coords in bottom face
-                5 * sixth, 1.0f,
-                6 * sixth, 1.0f,
-                5 * sixth, 0.0f,
-                6 * sixth, 0.0f,
-
-                // Text coords in back face
-                5 * sixth, 0.0f,
-                4 * sixth, 0.0f,
-                5 * sixth, 1.0f,
-                4 * sixth, 1.0f,
-        };
-        int[] indices = new int[]{
-                // Front face
-                0, 1, 3, 3, 1, 2,
-                // Top Face
-                8, 10, 11, 9, 8, 11,
-                // Right face
-                12, 13, 15, 14, 12, 15,
-                // Left face
-                16, 17, 6, 4, 16, 6,
-                // Bottom face
-                18, 20, 21, 19, 18, 21,
-                // Back face
-                22, 23, 24, 24, 23, 25};
         World w = new World("test", null, toConsole, blockLibrary);
         w.initialize();
-        ArrayList<Mesh> meshes = new ArrayList<>();
-        {
-            int i = 0;
-            while (blockLibrary.getBlockById(i) != null) {
-                Texture t = blockLibrary.getBlockById(i).getTextureGL();
-                meshes.add(new Mesh(positions, indices, textCoords, t));
-                i++;
-            }
-        }
-        /*int n = meshes.size();
-        entities = new Entity[(n * (n+1))/2];
-        int total = 0;
-        for(int x = 0; x < meshes.size(); x++){
-            for(int y = 0; y < x + 1; y++) {
-                entities[total] = new Entity(meshes.get(x));
-                entities[total].setPosition(x, y, -2);
-                total++;
-            }
-        }*/
-        entities = new Entity[16 * 200 * 16];
-        int total = 0;
-        for(int x = 0; x < 16; x++){
-            for(int y = 0; y < 200; y++){
-                for(int z = 0; z < 16; z++){
-                    int blockId = w.getBlockID(x, y, z);
-                    if (blockId != 0) {
-                        entities[total] = new Entity(meshes.get(blockId));
-                        entities[total].setPosition(x - 5, y - 10, z - 20);
-                    }
-                    total++;
-                }
-            }
-        }
+        entities = new Entity[1];
+
+        Mesh mesh = OBJLoader.loadMesh("models/bunny.obj");
+        Texture texture = blockLibrary.getBlockByName("default","grass").getTextureGL();
+        //mesh.setTexture(texture);
+        Entity e = new Entity(mesh);
+        e.setScale(0.5f);
+        e.setPosition(0, 0, -2);
+        entities[0] = e;
     }
 
     /**
