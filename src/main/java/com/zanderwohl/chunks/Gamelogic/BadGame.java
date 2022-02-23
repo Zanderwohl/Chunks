@@ -53,6 +53,11 @@ public class BadGame implements IGameLogic {
         this.blockLibrary = blockLibrary;
     }
 
+    /**
+     * Initialize a game. Set up a game world, load textures, etc.
+     * @param window The window the game will run in.
+     * @throws Exception Probably a graphics error.
+     */
     @Override
     public void init(Window window) throws Exception {
         renderer.init(window);
@@ -120,12 +125,19 @@ public class BadGame implements IGameLogic {
         }
     }
 
+    /**
+     * Render the game onto the given window.
+     * @param window The window.
+     */
     @Override
     public void render(Window window) {
         // window.setClearColor(color, color, color, 0.0f);
         renderer.render(window, camera, entities);
     }
 
+    /**
+     * Cleanup resources used by the game, such as the renderer.
+     */
     @Override
     public void cleanup(){
         renderer.cleanup();
