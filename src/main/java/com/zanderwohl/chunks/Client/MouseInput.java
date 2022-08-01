@@ -35,7 +35,6 @@ public class MouseInput {
         glfwSetMouseButtonCallback(window.getWindowId(), (windowHandle, button, action, mode) -> {
             leftButtonPressed = button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS;
             rightButtonPressed = button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS;
-            System.out.println(leftButtonPressed + ":" + rightButtonPressed);
         });
     }
 

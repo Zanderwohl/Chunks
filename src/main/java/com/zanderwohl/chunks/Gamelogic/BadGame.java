@@ -1,11 +1,9 @@
 package com.zanderwohl.chunks.Gamelogic;
 
 import com.zanderwohl.chunks.Block.BlockLibrary;
-import com.zanderwohl.chunks.Block.Texture;
+import com.zanderwohl.chunks.Render.*;
 import com.zanderwohl.chunks.Client.*;
 import com.zanderwohl.chunks.Entity.Entity;
-import com.zanderwohl.chunks.Render.Mesh;
-import com.zanderwohl.chunks.Render.OBJLoader;
 import com.zanderwohl.chunks.World.World;
 import com.zanderwohl.console.Message;
 import org.joml.Vector2f;
@@ -23,6 +21,8 @@ public class BadGame implements IGameLogic {
     private final Renderer renderer;
 
     private Entity[] entities;
+    private Vector3f ambientLight;
+    private PointLight pointLight;
 
     private Window window;
 
@@ -63,17 +63,28 @@ public class BadGame implements IGameLogic {
         renderer.init(window);
         blockLibrary.loadGLTextures();
 
+        float reflectance = 1f;
+
         World w = new World("test", null, toConsole, blockLibrary);
         w.initialize();
         entities = new Entity[1];
 
-        Mesh mesh = OBJLoader.loadMesh("models/bunny.obj");
+        Mesh mesh = OBJLoader.loadMesh("models/cube.obj");
         Texture texture = blockLibrary.getBlockByName("default","grass").getTextureGL();
-        //mesh.setTexture(texture);
+        Material material = new Material(texture, reflectance);
+        mesh.setMaterial(material);
         Entity e = new Entity(mesh);
         e.setScale(0.5f);
         e.setPosition(0, 0, -2);
         entities[0] = e;
+
+        ambientLight = new Vector3f(0.3f, 0.3f, 0.3f);
+        Vector3f lightColor = new Vector3f(1, 1, 1);
+        Vector3f lightPosition = new Vector3f(0, 0, 1);
+        float lightIntensity = 1.0f;
+        pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
+        PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
+        pointLight.setAttenuation(att);
     }
 
     /**
@@ -105,6 +116,13 @@ public class BadGame implements IGameLogic {
         if(window.isKeyPressed(GLFW_KEY_SPACE)){
             cameraInc.y += 1;
         }
+
+        float lightPos = pointLight.getPosition().z;
+        if (window.isKeyPressed(GLFW_KEY_N)) {
+            this.pointLight.getPosition().z = lightPos + 0.1f;
+        } else if (window.isKeyPressed(GLFW_KEY_M)) {
+            this.pointLight.getPosition().z = lightPos - 0.1f;
+        }
     }
 
     /**
@@ -132,7 +150,7 @@ public class BadGame implements IGameLogic {
     @Override
     public void render(Window window) {
         // window.setClearColor(color, color, color, 0.0f);
-        renderer.render(window, camera, entities);
+        renderer.render(window, camera, entities, ambientLight, pointLight);
     }
 
     /**

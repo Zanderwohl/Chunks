@@ -1,4 +1,4 @@
-package com.zanderwohl.chunks.Block;
+package com.zanderwohl.chunks.Render;
 
 import com.zanderwohl.console.Message;
 import org.lwjgl.system.MemoryStack;

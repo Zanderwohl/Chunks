@@ -1,5 +1,6 @@
 package com.zanderwohl.chunks.Block;
 
+import com.zanderwohl.chunks.Render.Texture;
 import com.zanderwohl.console.Message;
 import com.zanderwohl.util.FileLoader;
 import com.zanderwohl.util.ImageUtils;
