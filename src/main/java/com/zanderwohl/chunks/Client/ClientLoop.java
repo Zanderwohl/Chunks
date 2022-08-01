@@ -149,7 +149,7 @@ public class ClientLoop {
 
     public void loop(){
         GL.createCapabilities();
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor((192f / 255f), (240f / 255f), (236f/255f), 0.0f);
 
         clientUpdates.add(new Chat(identity, "Hello server!"));
 
