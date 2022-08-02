@@ -78,10 +78,10 @@ public class BadGame implements IGameLogic {
         e.setPosition(0, 0, -2);
         entities[0] = e;
 
-        ambientLight = new Vector3f(0.3f, 0.3f, 0.3f);
+        ambientLight = new Vector3f(1f, 0.5f, 0.5f);
         Vector3f lightColor = new Vector3f(1, 1, 1);
-        Vector3f lightPosition = new Vector3f(0, 0, 1);
-        float lightIntensity = 1.0f;
+        Vector3f lightPosition = new Vector3f(2, 2, 0);
+        float lightIntensity = 10.0f;
         pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
         PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
         pointLight.setAttenuation(att);
