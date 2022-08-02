@@ -25,6 +25,9 @@ public class BadGame implements IGameLogic {
     private PointLight pointLight;
     private DirectionalLight sun;
     private float sunAngle;
+    private SpotLight spotLight;
+    private float spotAngle = 0;
+    private float spotInc = 1;
 
     private Window window;
 
@@ -93,6 +96,15 @@ public class BadGame implements IGameLogic {
         lightPosition = new Vector3f(-1, 0, 0);
         lightColor = new Vector3f(1, 1, 1);
         sun = new DirectionalLight(lightColor, lightPosition, lightIntensity);
+
+        // Spot Light
+        lightPosition = new Vector3f(0, 0.0f, 10f);
+        PointLight sl_pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity);
+        att = new PointLight.Attenuation(0.0f, 0.0f, 0.02f);
+        sl_pointLight.setAttenuation(att);
+        Vector3f coneDir = new Vector3f(0, 0, -1);
+        float cutoff = (float) Math.cos(Math.toRadians(140));
+        spotLight = new SpotLight(sl_pointLight, coneDir, cutoff);
     }
 
     /**
@@ -183,7 +195,7 @@ public class BadGame implements IGameLogic {
      */
     @Override
     public void render(Window window) {
-        renderer.render(window, camera, entities, ambientLight, pointLight, sun);
+        renderer.render(window, camera, entities, ambientLight, pointLight, sun, spotLight);
     }
 
     /**

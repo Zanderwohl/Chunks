@@ -5,6 +5,7 @@ import com.zanderwohl.chunks.Entity.Transformation;
 import com.zanderwohl.chunks.Render.DirectionalLight;
 import com.zanderwohl.chunks.Render.Mesh;
 import com.zanderwohl.chunks.Render.PointLight;
+import com.zanderwohl.chunks.Render.SpotLight;
 import com.zanderwohl.chunks.Shaders.SimpleShaderProgram;
 import com.zanderwohl.util.FileLoader;
 
@@ -72,6 +73,7 @@ public class Renderer {
         shaderProgram.createUniform("ambientLight");
         shaderProgram.createPointLightUniform("pointLight");
         shaderProgram.createDirectionalLightUniform("directionalLight");
+        shaderProgram.createSpotLightUniform("spotLight");
 
         window.setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     }
@@ -81,7 +83,7 @@ public class Renderer {
      * @param window The window to render the frame onto.
      */
     public void render(Window window, ICamera camera, Entity[] entities, Vector3f ambientLight, PointLight pointLight,
-                       DirectionalLight directionalLight){
+                       DirectionalLight directionalLight, SpotLight spotLight){
         clear();
 
         if(window.isResized()){
@@ -116,6 +118,21 @@ public class Renderer {
         dir.mul(viewMatrix);
         currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
         shaderProgram.setUniform("directionalLight", currDirLight);
+
+        // Get a copy of the spot light object and transform its position and cone direction to view coordinates
+        SpotLight currSpotLight = new SpotLight(spotLight);
+        dir = new Vector4f(currSpotLight.getConeDirection(), 0);
+        dir.mul(viewMatrix);
+        currSpotLight.setConeDirection(new Vector3f(dir.x, dir.y, dir.z));
+
+        Vector3f spotLightPos = currSpotLight.getPointLight().getPosition();
+        Vector4f auxSpot = new Vector4f(spotLightPos, 1);
+        auxSpot.mul(viewMatrix);
+        spotLightPos.x = auxSpot.x;
+        spotLightPos.y = auxSpot.y;
+        spotLightPos.z = auxSpot.z;
+
+        shaderProgram.setUniform("spotLight", currSpotLight);
 
         shaderProgram.setUniform("texture_sampler", 0);
         for(Entity entity: entities){

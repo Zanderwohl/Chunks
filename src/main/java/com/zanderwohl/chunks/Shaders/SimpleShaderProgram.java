@@ -3,6 +3,7 @@ package com.zanderwohl.chunks.Shaders;
 import com.zanderwohl.chunks.Render.DirectionalLight;
 import com.zanderwohl.chunks.Render.Material;
 import com.zanderwohl.chunks.Render.PointLight;
+import com.zanderwohl.chunks.Render.SpotLight;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -139,6 +140,12 @@ public class SimpleShaderProgram {
         createUniform(uniformName + ".intensity");
     }
 
+    public void createSpotLightUniform(String uniformName) throws Exception {
+        createPointLightUniform(uniformName + ".pl");
+        createUniform(uniformName + ".conedir");
+        createUniform(uniformName + ".cutoff");
+    }
+
     public void createMaterialUniform(String uniformName) throws Exception {
         createUniform(uniformName + ".ambient");
         createUniform(uniformName + ".diffuse");
@@ -161,6 +168,12 @@ public class SimpleShaderProgram {
         setUniform(uniformName + ".color", dirLight.getColor() );
         setUniform(uniformName + ".direction", dirLight.getDirection());
         setUniform(uniformName + ".intensity", dirLight.getIntensity());
+    }
+
+    public void setUniform(String uniformName, SpotLight spotLight) {
+        setUniform(uniformName + ".pl", spotLight.getPointLight());
+        setUniform(uniformName + ".conedir", spotLight.getConeDirection());
+        setUniform(uniformName + ".cutoff", spotLight.getCutOff());
     }
 
     public void setUniform(String uniformName, Material material) {
