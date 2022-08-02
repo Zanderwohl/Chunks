@@ -2,6 +2,7 @@ package com.zanderwohl.chunks.Client;
 
 import com.zanderwohl.chunks.Entity.Entity;
 import com.zanderwohl.chunks.Entity.Transformation;
+import com.zanderwohl.chunks.Render.DirectionalLight;
 import com.zanderwohl.chunks.Render.Mesh;
 import com.zanderwohl.chunks.Render.PointLight;
 import com.zanderwohl.chunks.Shaders.SimpleShaderProgram;
@@ -70,6 +71,7 @@ public class Renderer {
         shaderProgram.createUniform("specularPower");
         shaderProgram.createUniform("ambientLight");
         shaderProgram.createPointLightUniform("pointLight");
+        shaderProgram.createDirectionalLightUniform("directionalLight");
 
         window.setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     }
@@ -78,7 +80,8 @@ public class Renderer {
      * Render a frame.
      * @param window The window to render the frame onto.
      */
-    public void render(Window window, ICamera camera, Entity[] entities, Vector3f ambientLight, PointLight pointLight){
+    public void render(Window window, ICamera camera, Entity[] entities, Vector3f ambientLight, PointLight pointLight,
+                       DirectionalLight directionalLight){
         clear();
 
         if(window.isResized()){
@@ -106,6 +109,13 @@ public class Renderer {
         lightPos.y = aux.y;
         lightPos.z = aux.z;
         shaderProgram.setUniform("pointLight", currPointLight);
+
+        // Get a copy of the directional light object and transform its position to view coordinates
+        DirectionalLight currDirLight = new DirectionalLight(directionalLight);
+        Vector4f dir = new Vector4f(currDirLight.getDirection(), 0);
+        dir.mul(viewMatrix);
+        currDirLight.setDirection(new Vector3f(dir.x, dir.y, dir.z));
+        shaderProgram.setUniform("directionalLight", currDirLight);
 
         shaderProgram.setUniform("texture_sampler", 0);
         for(Entity entity: entities){

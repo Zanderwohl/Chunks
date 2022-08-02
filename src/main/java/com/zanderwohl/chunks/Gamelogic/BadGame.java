@@ -23,6 +23,8 @@ public class BadGame implements IGameLogic {
     private Entity[] entities;
     private Vector3f ambientLight;
     private PointLight pointLight;
+    private DirectionalLight sun;
+    private float sunAngle;
 
     private Window window;
 
@@ -46,6 +48,8 @@ public class BadGame implements IGameLogic {
         camera = new PlayerCamera();
         cameraInc = new Vector3f();
         this.toConsole = toConsole;
+
+        sunAngle = -90;
     }
 
     @Override
@@ -85,6 +89,10 @@ public class BadGame implements IGameLogic {
         pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
         PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
         pointLight.setAttenuation(att);
+
+        lightPosition = new Vector3f(-1, 0, 0);
+        lightColor = new Vector3f(1, 1, 1);
+        sun = new DirectionalLight(lightColor, lightPosition, lightIntensity);
     }
 
     /**
@@ -141,6 +149,32 @@ public class BadGame implements IGameLogic {
             Vector2f rotVec = mouseInput.getDisplVec();
             camera.moveRotation(rotVec.x * MOUSE_SENSITIVITY, rotVec.y * MOUSE_SENSITIVITY, 0);
         }
+
+        updateSun(deltaT);
+    }
+
+    private void updateSun(float _deltaT){
+        // Update directional light direction, intensity and colour
+        sunAngle += 1.1f;
+        if (sunAngle > 90) {
+            sun.setIntensity(0);
+            if (sunAngle >= 360) {
+                sunAngle = -90;
+            }
+        } else if (sunAngle <= -80 || sunAngle >= 80) {
+            float factor = 1 - (float) (Math.abs(sunAngle) - 80) / 10.0f;
+            sun.setIntensity(factor);
+            sun.getColor().y = Math.max(factor, 0.9f);
+            sun.getColor().z = Math.max(factor, 0.5f);
+        } else {
+            sun.setIntensity(1);
+            sun.getColor().x = 1;
+            sun.getColor().y = 1;
+            sun.getColor().z = 1;
+        }
+        double angRad = Math.toRadians(sunAngle);
+        sun.getDirection().x = (float) Math.sin(angRad);
+        sun.getDirection().y = (float) Math.cos(angRad);
     }
 
     /**
@@ -149,7 +183,7 @@ public class BadGame implements IGameLogic {
      */
     @Override
     public void render(Window window) {
-        renderer.render(window, camera, entities, ambientLight, pointLight);
+        renderer.render(window, camera, entities, ambientLight, pointLight, sun);
     }
 
     /**
