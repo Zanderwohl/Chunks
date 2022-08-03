@@ -22,10 +22,10 @@ public class BadGame implements IGameLogic {
 
     private Entity[] entities;
     private Vector3f ambientLight;
-    private PointLight pointLight;
+    private PointLight[] pointLights;
+    private SpotLight[] spotLights;
     private DirectionalLight sun;
     private float sunAngle;
-    private SpotLight spotLight;
     private float spotAngle = 0;
     private float spotInc = 1;
 
@@ -89,9 +89,10 @@ public class BadGame implements IGameLogic {
         Vector3f lightColor = new Vector3f(1, 1, 1);
         Vector3f lightPosition = new Vector3f(2, 2, 0);
         float lightIntensity = 10.0f;
-        pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
+        PointLight pointLight = new PointLight(lightColor, lightPosition, lightIntensity);
         PointLight.Attenuation att = new PointLight.Attenuation(0.0f, 0.0f, 1.0f);
         pointLight.setAttenuation(att);
+        pointLights = new PointLight[]{ pointLight };
 
         lightPosition = new Vector3f(-1, 0, 0);
         lightColor = new Vector3f(1, 1, 1);
@@ -104,7 +105,8 @@ public class BadGame implements IGameLogic {
         sl_pointLight.setAttenuation(att);
         Vector3f coneDir = new Vector3f(0, 0, -1);
         float cutoff = (float) Math.cos(Math.toRadians(140));
-        spotLight = new SpotLight(sl_pointLight, coneDir, cutoff);
+        SpotLight spotLight = new SpotLight(sl_pointLight, coneDir, cutoff);
+        spotLights = new SpotLight[]{ spotLight };
     }
 
     /**
@@ -137,11 +139,11 @@ public class BadGame implements IGameLogic {
             cameraInc.y += 1;
         }
 
-        float lightPos = pointLight.getPosition().z;
+        float lightPos = spotLights[0].getPointLight().getPosition().z;
         if (window.isKeyPressed(GLFW_KEY_N)) {
-            this.pointLight.getPosition().z = lightPos + 0.1f;
+            this.spotLights[0].getPointLight().getPosition().z = lightPos + 0.1f;
         } else if (window.isKeyPressed(GLFW_KEY_M)) {
-            this.pointLight.getPosition().z = lightPos - 0.1f;
+            this.spotLights[0].getPointLight().getPosition().z = lightPos - 0.1f;
         }
     }
 
@@ -195,7 +197,7 @@ public class BadGame implements IGameLogic {
      */
     @Override
     public void render(Window window) {
-        renderer.render(window, camera, entities, ambientLight, pointLight, sun, spotLight);
+        renderer.render(window, camera, entities, ambientLight, pointLights, sun, spotLights);
     }
 
     /**
