@@ -156,9 +156,7 @@ public class Block {
                     + e.getMessage()));
             return;
         }
-        for(int i = 0; i < textures.length; i++){
-            this.textureAtlas = new Texture(atlasUrl, toConsole);
-        }
+        this.textureAtlas = new Texture(atlasUrl, toConsole);
     }
 
     public Texture getTextureGL(){
