@@ -76,8 +76,8 @@ public class BadGame implements IGameLogic {
         w.initialize();
         entities = new Entity[1];
 
-        Mesh mesh = OBJLoader.loadMesh("models/cube.obj");
-        Texture texture = blockLibrary.getBlockByName("default","grass").getTextureGL();
+        Mesh mesh = OBJLoader.loadMesh("models/cube_fixed.obj");
+        Texture texture = blockLibrary.getBlockByName("debug","grass").getTextureGL();
         Material material = new Material(texture, reflectance);
         mesh.setMaterial(material);
         Entity e = new Entity(mesh);
